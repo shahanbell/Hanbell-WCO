@@ -1,0 +1,155 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+            //]]>
+        </script>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="formOne">
+            <p:messages id="msg" showDetail="true" showSummary="true" closable="true" />
+
+            <p:panelGrid id="plgBase"  styleClass="plgBase Wid100">
+                <p:row>
+                    <p:column>
+                        <p:outputLabel>AgentId</p:outputLabel>
+                    </p:column>
+                    <p:column>
+                        <p:inputText id="agentid" value="#{wechatCorpManagedBean.agentId}"/>
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column>
+                        <p:outputLabel>UserId</p:outputLabel>
+                    </p:column>
+                    <p:column>
+                        <p:inputText id="userid" value="#{wechatCorpManagedBean.userId}"/>
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column>
+                        <p:outputLabel>TextMsg</p:outputLabel>
+                    </p:column>
+                    <p:column>
+                        <p:inputText id="textMsg" value="#{wechatCorpManagedBean.textMsg}"/>
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column>
+                        <p:outputLabel>OpenId</p:outputLabel>
+                    </p:column>
+                    <p:column>
+                        <p:inputText id="openid" value="#{wechatCorpManagedBean.openId}"/>
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column>
+                        <p:outputLabel>CardId</p:outputLabel>
+                    </p:column>
+                    <p:column>
+                        <p:inputText id="cardid" value="#{wechatCorpManagedBean.cardId}"/>
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column>
+                        <p:outputLabel>MediaId</p:outputLabel>
+                    </p:column>
+                    <p:column>
+                        <p:inputText id="mediaId" value="#{wechatCorpManagedBean.mediaId}"/>
+                    </p:column>
+                </p:row>
+            </p:panelGrid>
+
+
+            <p:commandButton value="toXml" actionListener="#{wechatCorpManagedBean.toXml()}" process="@this,plgBase"/>
+            <p:commandButton value="更新菜单" actionListener="#{wechatCorpManagedBean.createMenu()}" process="@this"/>
+            <p:commandButton value="图文列表" actionListener="#{wechatCorpManagedBean.findMediaId('news')}" process="@this,plgBase"/>
+            <p:commandButton value="图片列表" actionListener="#{wechatCorpManagedBean.findMediaId('image')}" process="@this,plgBase"/>
+            <p:commandButton value="下载用户" actionListener="#{wechatCorpManagedBean.findOpenUser()}" process="@this"/>
+            <p:commandButton value="下载媒体" actionListener="#{wechatCorpManagedBean.saveMedia()}" process="@this,mediaId"/>
+            <p:commandButton value="文本消息" actionListener="#{wechatCorpManagedBean.sendTextMsg()}"  process="@this,plgBase" update="msg"/>
+            <p:commandButton value="模版消息" actionListener="#{wechatCorpManagedBean.sendTemplateMsg()}" process="@this,plgBase"/>
+            <p:commandButton value="新建部门" actionListener="#{wechatCorpManagedBean.createDepartment()}" process="@this" update="msg"/>
+            <p:commandButton value="更新部门" actionListener="#{wechatCorpManagedBean.updateDepartment()}" process="@this" update="msg"/>
+            <div class="ui-g dashboard">
+                <div class="ui-g-12 ui-md-6 ui-lg-3">
+                    <div class="ui-g card colorbox colorbox-1">
+                        <div class="ui-g-4">
+                            <i class="material-icons">contacts</i>
+                        </div>
+                        <div class="ui-g-8">
+                            <span class="colorbox-name">Tasks</span>
+                            <span class="colorbox-count">50</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-3">
+                    <div class="ui-g card colorbox colorbox-2">
+                        <div class="ui-g-4">
+                            <i class="material-icons">&#xE8C9;</i>
+                        </div>
+                        <div class="ui-g-8">
+                            <span class="colorbox-name">Purchases</span>
+                            <span class="colorbox-count">1200</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-3">
+                    <div class="ui-g card colorbox colorbox-3">
+                        <div class="ui-g-4">
+                            <i class="material-icons">&#xE160;</i>
+                        </div>
+                        <div class="ui-g-8">
+                            <span class="colorbox-name">Issues</span>
+                            <span class="colorbox-count">22</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-3">
+                    <div class="ui-g card colorbox colorbox-4">
+                        <div class="ui-g-4">
+                            <i class="material-icons">&#xE0BE;</i>
+                        </div>
+                        <div class="ui-g-8">
+                            <span class="colorbox-name">Messages</span>
+                            <span class="colorbox-count">10</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

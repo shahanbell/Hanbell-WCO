@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./../../WEB-INF/template.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="content">
+        <p:growl id="growl" showSummary="false" showDetail="true"/>
+        <div class="ui-g-12 ui-g-nopad">
+            <div class="ui-g-12 ui-lg-6">
+                <div class="card">
+                    <h:form id="formOne">
+                        <p:menubar>
+                            <p:menuitem id="btnLoad" value="刷新" actionListener="#{departmentManagedBean.init()}" icon="ui-icon-refresh" update="formOne"/>
+                        </p:menubar>
+                        <p:treeTable value="#{departmentManagedBean.rootNode}" var="item" styleClass="tableList Mtop10"
+                                     selectionMode="single" selection="#{departmentManagedBean.selectedNode}">
+                            <f:facet name="header">
+                                部门资料维护
+                            </f:facet>
+                            <p:ajax event="select"  update=":formTwo"/>
+                            <p:ajax event="unselect" update=":formTwo"/>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="部门编号"/>
+                                </f:facet>
+                                <h:outputText value="#{item.deptno}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="部门名称"/>
+                                </f:facet>
+                                <h:outputText value="#{item.dept}"/>
+                            </p:column>
+                        </p:treeTable>
+                        <p:blockUI id="blockOne" block="formOne" trigger="btnLoad">
+                            <p:graphicImage name="images/ajaxloadingbar.gif" library="ultima-layout"/>
+                        </p:blockUI>
+                    </h:form>
+                </div>
+            </div>
+            <div class="ui-g-12 ui-lg-6">
+                <div class="card">
+                    <h:form id="formTwo">
+                        <p:dataTable value="#{departmentManagedBean.userList}" var="item"  tableStyleClass="tableList" paginator="true" paginatorPosition="bottom" rows="15"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="15,30,45" 
+                                     selectionMode="single" selection="#{departmentManagedBean.currentUser}" rowKey="#{item.id}" >
+                            <f:facet name="header">
+                                账户维护
+                            </f:facet>
+                            <p:column styleClass="Wid20">
+                                <f:facet name="header">
+                                    <h:outputText value="编号"/>
+                                </f:facet>
+                                <h:outputText value="#{item.userid}"/>
+                            </p:column>
+                            <p:column styleClass="Wid20">
+                                <f:facet name="header">
+                                    <h:outputText value="姓名"/>
+                                </f:facet>
+                                <h:outputText value="#{item.username}"/>
+                            </p:column>
+                            <p:column styleClass="Wid30">
+                                <f:facet name="header">
+                                    <h:outputText value="邮箱"/>
+                                </f:facet>
+                                <h:outputText value="#{item.email}"/>
+                            </p:column>
+                            <p:column styleClass="Wid20">
+                                <f:facet name="header">
+                                    <h:outputText value="上一次登录"/>
+                                </f:facet>
+                                <h:outputText value="#{item.newestlogin}">
+                                    <f:convertDateTime pattern="yyyy-MM-dd"/>
+                                </h:outputText>
+                            </p:column>
+                            <p:column styleClass="Wid10">
+                                <f:facet name="header">
+                                    <h:outputText value="状态"/>
+                                </f:facet>
+                                <h:outputText value="#{item.status}"/>
+                            </p:column>
+                            <f:facet name="footer">
+
+                            </f:facet>
+                        </p:dataTable>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+        </p:confirmDialog>
+    </ui:define>
+
+</ui:composition>

@@ -1,0 +1,74 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">汉钟精机 | Middleware</ui:define>
+
+    <ui:define name="head">
+        <script type="text/javascript">
+            //<![CDATA[
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title = '';
+                this.cfg.seriesColors = ['#FFC107', '#03A9F4'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#EEEEEE',
+                    shadow: false
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#212121'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    lineWidth: 1,
+                    markerOptions: {
+                        shadow: false,
+                        size: 7,
+                        style: 'circle'
+                    }
+                }
+            }
+            //]]>
+        </script>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="formOne">
+            <p:messages showDetail="false" showSummary="true" closable="true" />
+            <p:panelGrid>
+                <p:row>
+                    <p:column>
+                        <p:outputLabel>OpenId</p:outputLabel>
+                    </p:column>
+                    <p:column>
+                        <p:inputText id="openid" value="#{wechatPubManagedBean.openid}"/>
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column>
+                        <p:outputLabel>CardId</p:outputLabel>
+                    </p:column>
+                    <p:column>
+                        <p:inputText id="cardid" value="#{wechatPubManagedBean.cardid}"/>
+                    </p:column>
+                </p:row>
+            </p:panelGrid>
+            <p:commandButton value="toXml" actionListener="#{wechatPubManagedBean.toXml()}" process="@this"/>
+            <p:commandButton value="fromXml" actionListener="#{wechatPubManagedBean.fromXml()}" process="@this"/>
+            <p:commandButton value="更新菜单" actionListener="#{wechatPubManagedBean.createMenu()}" process="@this"/>
+            <p:commandButton value="图文列表" actionListener="#{wechatPubManagedBean.findMediaId('news')}" process="@this"/>
+            <p:commandButton value="图片列表" actionListener="#{wechatPubManagedBean.findMediaId('image')}" process="@this"/>
+            <p:commandButton value="下载用户" actionListener="#{wechatPubManagedBean.findOpenUser()}" process="@this"/>
+            <p:commandButton value="发送消息" actionListener="#{wechatPubManagedBean.sendTemplateMsg()}" process="@this,openid"/>
+            <p:commandButton value="发送卡券" actionListener="#{wechatPubManagedBean.sendCardToOpenId()}" process="@this,openid,cardid"/>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

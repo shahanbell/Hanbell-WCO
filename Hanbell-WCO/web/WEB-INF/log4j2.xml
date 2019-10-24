@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="trace" monitorInterval="30">
+    <properties>
+        <property name="LOG_HOME">D:/EAP-LOG/logs</property>
+    </properties>
+    <appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd 'at' HH:mm:ss z} %-5level %class{36} %L %M - %msg%xEx%n" />
+        </Console>
+        <RollingFile name="rollingFile" fileName="${LOG_HOME}/wco.log"
+                     filePattern="${LOG_HOME}/wco-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd 'at' HH:mm:ss z} %-5level %class{36} %L %M - %msg%xEx%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"  modulate="true" />
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
+    </appenders>
+    <loggers>
+        <root level="info">
+            <appender-ref ref="Console" level="info"/>
+            <appender-ref ref="appWebRollingFile" />
+        </root>
+        <Logger name="cn.hanbell.wco" level="info" additivity="false">
+            <appender-ref ref="rollingFile" />
+        </Logger>
+    </loggers>
+</configuration>
