@@ -74,5 +74,10 @@
             <to-view-id>/app/corp/department.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>token</from-outcome>
+            <to-view-id>/app/token.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>
     </navigation-rule>
 </faces-config>

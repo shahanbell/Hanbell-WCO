@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./../WEB-INF/template.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="content">
+        <h:form id="formOne">
+            <p:growl id="growl"  showSummary="false" showDetail="true"/>
+            <p:toolbar id="toolbar" styleClass="topToolbar">
+                <f:facet name="left">
+                    <p:button id="btnReturn" value="返回" outcome="token" icon="ui-icon-restore"/>
+                </f:facet>
+                <f:facet name="right">
+
+                </f:facet>
+            </p:toolbar>
+            <p:panelGrid id="plgHead"  columns="2" columnClasses="Wid20,Wid80" styleClass="plgHead Wid100">
+                <f:facet name="header">
+                    Token信息－查看
+                </f:facet>
+                <h:outputText value="ID:"/>
+                <h:outputText id="appId" value="#{wechatTokenManagedBean.currentEntity.appId}" title="AppId"/>
+                <h:outputText value="App:"/>
+                <h:outputText id="app" value="#{wechatTokenManagedBean.currentEntity.app}" title="App"/>
+                <h:outputText value="AppSecret:"/>
+                <h:outputText id="appSecret" value="#{wechatTokenManagedBean.currentEntity.appSecret}" title="AppSecret" />
+                <h:outputText value="AppASEKey:"/>
+                <h:outputText id="appASEKey" value="#{wechatTokenManagedBean.currentEntity.appASEKey}" title="AppASEKey" />
+                <h:outputText value="AppToken:"/>
+                <h:outputText id="appToken" value="#{wechatTokenManagedBean.currentEntity.appToken}" title="AppToken" />
+                <h:outputText value="Remark:"/>
+                <h:outputText id="remark" value="#{wechatTokenManagedBean.currentEntity.remark}" title="Remark" />
+            </p:panelGrid>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

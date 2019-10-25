@@ -26,8 +26,19 @@
             <ui:include src="./topbar.xhtml" />
             <ui:include src="./menu.xhtml" />
             <div class="layout-main">
-                <ui:insert name="content"/>
-                <ui:include src="./footer.xhtml" />
+                <div class="ui-g-12 ui-g-6">
+                    <p:menubar>
+                        <p:menuitem value="企业微信" outcome="corp" icon="ui-icon-home"/>
+                        <p:menuitem value="组织同步" outcome="department" icon="ui-icon-sync"/>
+                        <p:menuitem value="Documentation" outcome="corp" icon="ui-icon-insert-drive-file"/>
+                        <p:menuitem value="Support" outcome="corp" icon="ui-icon-help-outline"/>
+                        <p:menuitem value="Token设置" outcome="token" icon="ui-icon-setting"/>
+                    </p:menubar>
+                </div>
+                <div class="ui-g-12 ui-g-6">
+                    <ui:insert name="content"/>
+                    <ui:include src="./footer.xhtml" />
+                </div>
             </div>
         </div>
 

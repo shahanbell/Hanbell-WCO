@@ -125,16 +125,7 @@ public class Agent1000002 extends HttpServlet {
                                             textMsg.setFromUserName(inputMsg.getToUserName());
                                             textMsg.setCreateTime(BaseLib.getDate().getTime());
                                             textMsg.setMsgType("text");
-                                            String context = wechatCorpBean.getOperationContext(agentID, fromUser);
-                                            if ("".equals(context)) {
-                                                if (wechatCorpBean.updateOperationContainer(agentID, fromUser, eventKey, String.valueOf(agentID))) {
-                                                    textMsg.setContent("你现在操作的工艺:" + eventKey + ",工作单位:" + agentID);
-                                                } else {
-                                                    textMsg.setContent("更新当前用户操作状态信息失败");
-                                                }
-                                            } else {
-                                                textMsg.setContent(context);
-                                            }
+                                            textMsg.setContent("功能调试中");
                                             BaseLib.convertObjectToXML(OutputTextMessage.class, textMsg, os);
                                             resp = wechatCorpBean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
                                             break;
@@ -144,7 +135,7 @@ public class Agent1000002 extends HttpServlet {
                                             textMsg.setFromUserName(inputMsg.getToUserName());
                                             textMsg.setCreateTime(BaseLib.getDate().getTime());
                                             textMsg.setMsgType("text");
-                                            textMsg.setContent(wechatCorpBean.getOperationContainer(agentID, fromUser));
+                                            textMsg.setContent("功能调试中");
                                             BaseLib.convertObjectToXML(OutputTextMessage.class, textMsg, os);
                                             resp = wechatCorpBean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
                                             break;
@@ -154,7 +145,7 @@ public class Agent1000002 extends HttpServlet {
                                             textMsg.setFromUserName(inputMsg.getToUserName());
                                             textMsg.setCreateTime(BaseLib.getDate().getTime());
                                             textMsg.setMsgType("text");
-                                            textMsg.setContent(wechatCorpBean.resetOperationContext(agentID, fromUser));
+                                            textMsg.setContent("功能调试中");
                                             BaseLib.convertObjectToXML(OutputTextMessage.class, textMsg, os);
                                             resp = wechatCorpBean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
                                             break;
@@ -172,34 +163,7 @@ public class Agent1000002 extends HttpServlet {
                                     break;
                                 case "scancode_waitmsg":
                                     switch (eventKey) {
-                                        case "MN_SCANBYONE":
-                                            textMsg = new OutputTextMessage();
-                                            textMsg.setToUserName(inputMsg.getFromUserName());
-                                            textMsg.setFromUserName(inputMsg.getToUserName());
-                                            textMsg.setCreateTime(BaseLib.getDate().getTime());
-                                            textMsg.setMsgType("text");
-                                            String context = wechatCorpBean.getOperationContext(agentID, fromUser);
-                                            if ("".equals(context)) {
-                                                String data = inputMsg.getScanCodeInfo().getScanResult();
-                                                String check = wechatCorpBean.getRandomCode();
-                                                //加入检查
-                                                //……
-                                                boolean ret = wechatCorpBean.updateOperationContext(agentID, fromUser, data, "No.123456", BigDecimal.ONE, check);
-                                                if (ret) {
-                                                    textMsg.setContent("校验码:" + check);
-                                                } else {
-                                                    textMsg.setContent("更新报工产品资料失败");
-                                                }
-                                                if (ret) {
-                                                    String desc = "制令编号:" + data + "<br>产品序号:" + agentID + "<br>校验码:" + check;
-                                                    wechatCorpBean.sendOperationConfirmToUser(agentID, fromUser, "报工确认", desc, check);
-                                                }
-                                            } else {
-                                                textMsg.setContent(context);
-                                            }
-                                            BaseLib.convertObjectToXML(OutputTextMessage.class, textMsg, os);
-                                            resp = wechatCorpBean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
-                                            break;
+
                                     }
                                     break;
                                 case "taskcard_click":
@@ -207,28 +171,7 @@ public class Agent1000002 extends HttpServlet {
                                     String taskId = inputMsg.getTaskId();
                                     String taskMsg;
                                     switch (eventKey) {
-                                        case "MN_SFC_OK":
-                                            taskMsg = wechatCorpBean.updateOperationTask(taskId);
-                                            textMsg = new OutputTextMessage();
-                                            textMsg.setToUserName(inputMsg.getFromUserName());
-                                            textMsg.setFromUserName(inputMsg.getToUserName());
-                                            textMsg.setCreateTime(BaseLib.getDate().getTime());
-                                            textMsg.setMsgType("text");
-                                            textMsg.setContent(taskMsg);
-                                            BaseLib.convertObjectToXML(OutputTextMessage.class, textMsg, os);
-                                            resp = wechatCorpBean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
-                                            break;
-                                        case "MN_SFC_NO":
-                                            taskMsg = wechatCorpBean.resetOperationContext(taskId);
-                                            textMsg = new OutputTextMessage();
-                                            textMsg.setToUserName(inputMsg.getFromUserName());
-                                            textMsg.setFromUserName(inputMsg.getToUserName());
-                                            textMsg.setCreateTime(BaseLib.getDate().getTime());
-                                            textMsg.setMsgType("text");
-                                            textMsg.setContent(taskMsg);
-                                            BaseLib.convertObjectToXML(OutputTextMessage.class, textMsg, os);
-                                            resp = wechatCorpBean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
-                                            break;
+
                                     }
                                     break;
                                 default:
@@ -328,8 +271,8 @@ public class Agent1000002 extends HttpServlet {
         super.init(config);
         this.dataPath = config.getServletContext().getRealPath("/") + config.getInitParameter("DataPath");
         this.resPath = config.getServletContext().getRealPath("/") + config.getInitParameter("ResPath");
-        log4j.info("GxxxAgent1000002 Init Param DataPath:" + dataPath);
-        log4j.info("GxxxAgent1000002 Init Param ResPath:" + resPath);
+        wechatCorpBean.setDataPath(dataPath);
+        wechatCorpBean.setResPath(resPath);
         wechatCorpBean.initConfiguration();
     }
 

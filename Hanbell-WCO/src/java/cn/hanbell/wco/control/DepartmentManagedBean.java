@@ -9,6 +9,7 @@ import cn.hanbell.eap.ejb.DepartmentBean;
 import cn.hanbell.eap.ejb.SystemUserBean;
 import cn.hanbell.eap.entity.Department;
 import cn.hanbell.eap.entity.SystemUser;
+import cn.hanbell.wco.ejb.Agent1000002Bean;
 import cn.hanbell.wco.lazy.DepartmentModel;
 import cn.hanbell.wco.web.SuperSingleBean;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.json.JsonObject;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
@@ -33,33 +35,18 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
     @EJB
     private SystemUserBean systemUserBean;
 
+    @EJB
+    private Agent1000002Bean wechatCorpBean;
+
     private TreeNode rootNode;
     private TreeNode selectedNode;
     private List<Department> deptList;
-    
+
     private SystemUser currentUser;
     private List<SystemUser> userList;
 
     public DepartmentManagedBean() {
         super(Department.class);
-    }
-
-    @Override
-    protected boolean doAfterDelete() throws Exception {
-        initTree();
-        return super.doAfterDelete();
-    }
-
-    @Override
-    protected boolean doAfterPersist() throws Exception {
-        initTree();
-        return super.doAfterPersist();
-    }
-
-    @Override
-    protected boolean doAfterUpdate() throws Exception {
-        initTree();
-        return super.doAfterUpdate();
     }
 
     @Override
@@ -80,6 +67,7 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
 
     @Override
     public void init() {
+        wechatCorpBean.initConfiguration();
         superEJB = departmentBean;
         model = new DepartmentModel(departmentBean);
         super.init();
@@ -114,6 +102,107 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
         }
     }
 
+    public void loadUserAll() {
+        if (currentEntity != null) {
+            userList = systemUserBean.findByDeptno(currentEntity.getDeptno());
+        } else {
+            showInfoMsg("Info", "请先选择部门");
+        }
+    }
+
+    public void loadUserOnJob() {
+        if (currentEntity != null) {
+            userList = systemUserBean.findByDeptnoAndOnJob(currentEntity.getDeptno());
+        } else {
+            showInfoMsg("Info", "请先选择部门");
+        }
+    }
+
+    public void syncDept() {
+        if (currentEntity != null) {
+            if (syncDept(currentEntity)) {
+                showInfoMsg("Info", "同步成功");
+            }
+        }
+    }
+
+    private boolean syncDept(Department dept) {
+        String msg = "";
+        boolean ret = true;
+        if (dept.getSyncWeChatStatus() != null && "X".equals(dept.getSyncWeChatStatus())) {
+            return true;
+        }
+        JsonObject jo = departmentBean.createJsonObjectBuilder(dept).build();
+        if (dept.getSyncWeChatStatus() == null || dept.getSyncWeChatDate() == null) {
+            msg = wechatCorpBean.createDepartment(jo);
+            if (msg.equals("success")) {
+                dept.setSyncWeChatDate(this.getDate());
+                dept.setSyncWeChatStatus("V");
+                dept.setOptdate(dept.getSyncWeChatDate());
+                departmentBean.update(dept);
+                entityList = departmentBean.findByPId(dept.getId());
+                if (entityList != null && !entityList.isEmpty()) {
+                    for (Department e : entityList) {
+                        ret = ret && syncDept(e);
+                    }
+                }
+            } else {
+                ret = false;
+                showErrorMsg("Error", msg);
+            }
+            return ret;
+        } else {
+            if (dept.getStatus().equals("X")) {
+                //先删除子阶
+                entityList = departmentBean.findByPId(dept.getId());
+                if (entityList != null && !entityList.isEmpty()) {
+                    for (Department e : entityList) {
+                        ret = ret && syncDept(e);
+                    }
+                }
+                if (ret) {
+                    //删除逻辑
+                    if (msg.equals("success")) {
+                        dept.setSyncWeChatDate(this.getDate());
+                        dept.setSyncWeChatStatus("X");
+                        dept.setOptdate(dept.getSyncWeChatDate());
+                        departmentBean.update(dept);
+                    } else {
+                        ret = false;
+                        showErrorMsg("Error", msg);
+                    }
+                }
+                return ret;
+            } else {
+                entityList = departmentBean.findByPId(dept.getId());
+                if (entityList != null && !entityList.isEmpty()) {
+                    for (Department e : entityList) {
+                        ret = ret && syncDept(e);
+                    }
+                }
+                if (!"V".equals(dept.getSyncWeChatStatus()) && ret) {
+                    wechatCorpBean.updateDepartment(jo);
+                    if (msg.equals("success")) {
+                        dept.setSyncWeChatDate(this.getDate());
+                        dept.setSyncWeChatStatus("V");
+                        dept.setOptdate(dept.getSyncWeChatDate());
+                        departmentBean.update(dept);
+                    } else {
+                        ret = false;
+                        showErrorMsg("Error", msg);
+                    }
+                }
+                return ret;
+            }
+        }
+    }
+
+    public void syncEmployee() {
+        if (userList != null && !userList.isEmpty()) {
+
+        }
+    }
+
     /**
      * @return the rootNode
      */
@@ -142,7 +231,7 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
         this.selectedNode = selectedNode;
         if (selectedNode != null) {
             currentEntity = (Department) selectedNode.getData();
-            userList = systemUserBean.findByDeptno(currentEntity.getDeptno());
+            userList = systemUserBean.findByDeptnoAndOnJob(currentEntity.getDeptno());
         }
     }
 

@@ -59,16 +59,6 @@ public class WeChatCorpManagedBean implements Serializable {
     public void createMenu() {
     }
 
-    public void createDepartment() {
-        String msg = wechatCorpBean.createDepartment();
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", msg));
-    }
-
-    public void updateDepartment() {
-        String msg = wechatCorpBean.updateDepartment();
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", msg));
-    }
-
     public void sendTemplateMsg() {
         String msg = "";
         if (openId != null) {
@@ -83,18 +73,6 @@ public class WeChatCorpManagedBean implements Serializable {
             msg = wechatCorpBean.sendMsgToUser(agentId, userId, "text", textMsg);
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", msg));
         }
-    }
-
-    public void findMediaId(String type) {
-        wechatCorpBean.pullMedias(type, 0, 10);
-    }
-
-    public void saveMedia() {
-        wechatCorpBean.saveMedia(mediaId);
-    }
-
-    public void findOpenUser() {
-        wechatCorpBean.saveUsers();
     }
 
     public void toXml() throws JAXBException {

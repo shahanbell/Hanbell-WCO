@@ -13,10 +13,8 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/G:/myWorkspace/SHB/Hanbell-WCO/Hanbell-WCO/web/app/corp.xhtml</file>
-            <file>file:/G:/myWorkspace/SHB/Hanbell-WCO/Hanbell-WCO/web/WEB-INF/web.xml</file>
-            <file>file:/G:/myWorkspace/SHB/Hanbell-WCO/Hanbell-WCO/web/home.xhtml</file>
             <file>file:/G:/myWorkspace/SHB/Hanbell-WCO/Hanbell-WCO/src/java/cn/hanbell/wco/control/DepartmentManagedBean.java</file>
-            <file>file:/G:/myWorkspace/SHB/Hanbell-WCO/Hanbell-WCO/web/app/corp/department.xhtml</file>
+            <file>file:/G:/myWorkspace/SHB/Hanbell-WCO/Hanbell-WCO/src/java/cn/hanbell/wco/control/WeChatCorpManagedBean.java</file>
         </group>
     </open-files>
 </project-private>
