@@ -50,29 +50,13 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
     }
 
     @Override
-    public void handleDialogReturnWhenEdit(SelectEvent event) {
-        if (event.getObject() != null && currentEntity != null) {
-            Department e = (Department) event.getObject();
-            currentEntity.setParentDept(e);
-        }
-    }
-
-    @Override
-    public void handleDialogReturnWhenNew(SelectEvent event) {
-        if (event.getObject() != null && newEntity != null) {
-            Department e = (Department) event.getObject();
-            newEntity.setParentDept(e);
-        }
-    }
-
-    @Override
     public void init() {
         wechatCorpBean.initConfiguration();
+        userList = new ArrayList<>();
         superEJB = departmentBean;
         model = new DepartmentModel(departmentBean);
         super.init();
         initTree();
-        userList = new ArrayList<>();
     }
 
     private void initTree() {
@@ -102,9 +86,38 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
         }
     }
 
+    public void loadUser(Department dept, boolean inservice) {
+        if (dept != null) {
+            entityList = departmentBean.findByPId(dept.getId());
+            if (entityList != null && !entityList.isEmpty()) {
+                for (Department e : entityList) {
+                    if (e.getStatus().equals("X")) {
+                        continue;
+                    }
+                    loadUser(e, inservice);
+                }
+            }
+            if (inservice) {
+                userList.addAll(systemUserBean.findByDeptnoAndOnJob(dept.getDeptno()));
+            } else {
+                userList.addAll(systemUserBean.findByDeptno(dept.getDeptno()));
+            }
+        }
+    }
+
     public void loadUserAll() {
         if (currentEntity != null) {
-            userList = systemUserBean.findByDeptno(currentEntity.getDeptno());
+            userList.clear();
+            loadUser(currentEntity, false);
+            if (userList.size() > 1) {
+                userList.sort((SystemUser o1, SystemUser o2) -> {
+                    if (o1.getUserid().compareTo(o2.getUserid()) < 0) {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                });
+            }
         } else {
             showInfoMsg("Info", "请先选择部门");
         }
@@ -112,7 +125,17 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
 
     public void loadUserOnJob() {
         if (currentEntity != null) {
-            userList = systemUserBean.findByDeptnoAndOnJob(currentEntity.getDeptno());
+            userList.clear();
+            loadUser(currentEntity, true);
+            if (userList.size() > 1) {
+                userList.sort((SystemUser o1, SystemUser o2) -> {
+                    if (o1.getUserid().compareTo(o2.getUserid()) < 0) {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                });
+            }
         } else {
             showInfoMsg("Info", "请先选择部门");
         }
@@ -127,7 +150,7 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
     }
 
     private boolean syncDept(Department dept) {
-        String msg = "";
+        String msg;
         boolean ret = true;
         if (dept.getSyncWeChatStatus() != null && "X".equals(dept.getSyncWeChatStatus())) {
             return true;
@@ -161,7 +184,7 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
                     }
                 }
                 if (ret) {
-                    //删除逻辑
+                    msg = wechatCorpBean.deleteDepartment(dept.getId());
                     if (msg.equals("success")) {
                         dept.setSyncWeChatDate(this.getDate());
                         dept.setSyncWeChatStatus("X");
@@ -180,8 +203,8 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
                         ret = ret && syncDept(e);
                     }
                 }
-                if (!"V".equals(dept.getSyncWeChatStatus()) && ret) {
-                    wechatCorpBean.updateDepartment(jo);
+                if (("N".equals(dept.getSyncWeChatStatus()) || dept.getSyncWeChatDate().before(dept.getOptdate())) && ret) {
+                    msg = wechatCorpBean.updateDepartment(jo);
                     if (msg.equals("success")) {
                         dept.setSyncWeChatDate(this.getDate());
                         dept.setSyncWeChatStatus("V");
@@ -231,7 +254,7 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
         this.selectedNode = selectedNode;
         if (selectedNode != null) {
             currentEntity = (Department) selectedNode.getData();
-            userList = systemUserBean.findByDeptnoAndOnJob(currentEntity.getDeptno());
+            loadUserOnJob();
         }
     }
 

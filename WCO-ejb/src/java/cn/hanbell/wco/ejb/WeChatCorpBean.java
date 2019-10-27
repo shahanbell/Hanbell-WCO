@@ -45,7 +45,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
 
     }
 
-    public String createDepartment(JsonObject jop) {
+    public String createDepartment(JsonObject jo) {
         currentToken = this.getWeChatToken("org");
         if (currentToken == null) {
             return "Token参数异常";
@@ -54,7 +54,42 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         String access_token = getAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
             String urlString = "https://qyapi.weixin.qq.com/cgi-bin/department/create?access_token=" + access_token;
-            CloseableHttpResponse response = post(urlString, initStringEntity(jop.toString()));
+            CloseableHttpResponse response = post(urlString, initStringEntity(jo.toString()));
+            if (response != null) {
+                HttpEntity httpEntity = response.getEntity();
+                try {
+                    JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
+                    //log4j.info(jor.getString("errmsg"));
+                    int errcode = jor.getInt("errcode");
+                    if (errcode == 0) {
+                        return "success";
+                    } else {
+                        return jor.getString("errmsg");
+                    }
+                } catch (IOException | ParseException | JSONException ex) {
+                    log4j.error(ex);
+                } finally {
+                    try {
+                        response.close();
+                    } catch (IOException ex) {
+                        log4j.error(ex);
+                    }
+                }
+            }
+        }
+        return "系统异常操作失败";
+    }
+
+    public String deleteDepartment(int id) {
+        currentToken = this.getWeChatToken("org");
+        if (currentToken == null) {
+            return "Token参数异常";
+        }
+        this.setAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
+        String access_token = getAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
+        if (access_token != null && !"".equals(access_token)) {
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/department/delete?access_token=" + access_token + "&id=" + id;
+            CloseableHttpResponse response = get(urlString, null, null);
             if (response != null) {
                 HttpEntity httpEntity = response.getEntity();
                 try {
@@ -219,7 +254,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         return "系统异常操作失败";
     }
 
-    public String updateDepartment(JsonObject jop) {
+    public String updateDepartment(JsonObject jo) {
         currentToken = this.getWeChatToken("org");
         if (currentToken == null) {
             return "Token参数异常";
@@ -228,13 +263,18 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         String access_token = getAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
             String urlString = "https://qyapi.weixin.qq.com/cgi-bin/department/update?access_token=" + access_token;
-            CloseableHttpResponse response = post(urlString, initStringEntity(jop.toString()));
+            CloseableHttpResponse response = post(urlString, initStringEntity(jo.toString()));
             if (response != null) {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
                     //log4j.info(jor.getString("errmsg"));
-                    return jor.getString("errmsg");
+                    int errcode = jor.getInt("errcode");
+                    if (errcode == 0) {
+                        return "success";
+                    } else {
+                        return jor.getString("errmsg");
+                    }
                 } catch (IOException | ParseException | JSONException ex) {
                     log4j.error(ex);
                 } finally {
