@@ -70,8 +70,8 @@
             <redirect/>
         </navigation-case>
         <navigation-case>
-            <from-outcome>department</from-outcome>
-            <to-view-id>/app/corp/department.xhtml</to-view-id>
+            <from-outcome>organization</from-outcome>
+            <to-view-id>/app/corp/organization.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>

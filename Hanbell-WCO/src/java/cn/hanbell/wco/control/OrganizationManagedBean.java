@@ -18,7 +18,6 @@ import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.json.JsonObject;
-import org.primefaces.event.SelectEvent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -26,9 +25,9 @@ import org.primefaces.model.TreeNode;
  *
  * @author C0160
  */
-@ManagedBean(name = "departmentManagedBean")
+@ManagedBean(name = "organizationManagedBean")
 @SessionScoped
-public class DepartmentManagedBean extends SuperSingleBean<Department> {
+public class OrganizationManagedBean extends SuperSingleBean<Department> {
 
     @EJB
     private DepartmentBean departmentBean;
@@ -45,7 +44,7 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
     private SystemUser currentUser;
     private List<SystemUser> userList;
 
-    public DepartmentManagedBean() {
+    public OrganizationManagedBean() {
         super(Department.class);
     }
 
@@ -222,7 +221,60 @@ public class DepartmentManagedBean extends SuperSingleBean<Department> {
 
     public void syncEmployee() {
         if (userList != null && !userList.isEmpty()) {
-
+            String msg;
+            boolean ret = true;
+            for (SystemUser user : userList) {
+                if (user.getSyncWeChatStatus() != null && "X".equals(user.getSyncWeChatStatus())) {
+                    continue;
+                }
+                if (user.getPhone() == null || "".equals(user.getPhone()) || user.getDeptno() == null || "".equals(user.getDeptno())) {
+                    continue;
+                }
+                JsonObject jo = systemUserBean.createJsonObjectBuilder(user).build();
+                if (user.getSyncWeChatStatus() == null || user.getSyncWeChatDate() == null) {
+                    msg = wechatCorpBean.createEmployee(jo);
+                    if (msg.equals("success")) {
+                        user.setSyncWeChatDate(this.getDate());
+                        user.setSyncWeChatStatus("V");
+                        user.setOptdate(user.getSyncWeChatDate());
+                        systemUserBean.update(user);
+                    } else {
+                        ret = false;
+                        showErrorMsg("Error", msg);
+                    }
+                } else {
+                    if (user.getStatus().equals("X")) {
+                        msg = wechatCorpBean.deleteEmployee(user.getUserid());
+                        if (msg.equals("success")) {
+                            user.setSyncWeChatDate(this.getDate());
+                            user.setSyncWeChatStatus("X");
+                            user.setOptdate(user.getSyncWeChatDate());
+                            systemUserBean.update(user);
+                        } else {
+                            ret = false;
+                            showErrorMsg("Error", msg);
+                        }
+                    } else {
+                        if (("N".equals(user.getSyncWeChatStatus()) || user.getSyncWeChatDate().before(user.getOptdate()))) {
+                            msg = wechatCorpBean.updateEmployee(jo);
+                            if (msg.equals("success")) {
+                                user.setSyncWeChatDate(this.getDate());
+                                user.setSyncWeChatStatus("V");
+                                user.setOptdate(user.getSyncWeChatDate());
+                                systemUserBean.update(user);
+                            } else {
+                                ret = false;
+                                showErrorMsg("Error", msg);
+                            }
+                        }
+                    }
+                }
+            }
+            if (ret) {
+                showInfoMsg("Info", "同步成功");
+            }
+        } else {
+            showInfoMsg("Info", "没有需要同步的资料");
         }
     }
 

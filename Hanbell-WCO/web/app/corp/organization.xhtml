@@ -13,11 +13,11 @@
                 <div class="card">
                     <h:form id="formOne">
                         <p:menubar>
-                            <p:menuitem id="btnSync" value="同步" actionListener="#{departmentManagedBean.syncDept()}" icon="ui-icon-sync" update="formOne,growl"/>
-                            <p:menuitem id="btnLoad" value="刷新" actionListener="#{departmentManagedBean.init()}" icon="ui-icon-refresh" update="formOne"/>
+                            <p:menuitem id="btnSync" value="同步" actionListener="#{organizationManagedBean.syncDept()}" icon="ui-icon-sync" update="formOne,growl"/>
+                            <p:menuitem id="btnLoad" value="刷新" actionListener="#{organizationManagedBean.init()}" icon="ui-icon-refresh" update="formOne"/>
                         </p:menubar>
-                        <p:treeTable value="#{departmentManagedBean.rootNode}" var="item" styleClass="tableList Mtop10"
-                                     selectionMode="single" selection="#{departmentManagedBean.selectedNode}">
+                        <p:treeTable value="#{organizationManagedBean.rootNode}" var="item" styleClass="tableList Mtop10"
+                                     selectionMode="single" selection="#{organizationManagedBean.selectedNode}">
                             <f:facet name="header">
                                 部门资料
                             </f:facet>
@@ -46,36 +46,45 @@
                 <div class="card">
                     <h:form id="formTwo">
                         <p:menubar>
-                            <p:menuitem id="btnSyncUser" value="同步" actionListener="#{departmentManagedBean.syncEmployee()}" icon="ui-icon-sync" update="formTwo"/>
-                            <p:menuitem id="btnLoadUserOnJob" value="在职" actionListener="#{departmentManagedBean.loadUserOnJob()}" icon="ui-icon-search" update="formTwo"/>
-                            <p:menuitem id="btnLoadUserAll" value="全部" actionListener="#{departmentManagedBean.loadUserAll()}" icon="ui-icon-search" update="formTwo"/>
+                            <p:menuitem id="btnSyncUser" value="同步" actionListener="#{organizationManagedBean.syncEmployee()}" icon="ui-icon-sync" update="formTwo,growl"/>
+                            <p:menuitem id="btnLoadUserOnJob" value="在职" actionListener="#{organizationManagedBean.loadUserOnJob()}" icon="ui-icon-search" update="formTwo"/>
+                            <p:menuitem id="btnLoadUserAll" value="全部" actionListener="#{organizationManagedBean.loadUserAll()}" icon="ui-icon-search" update="formTwo"/>
                         </p:menubar>
-                        <p:dataTable value="#{departmentManagedBean.userList}" var="item"  styleClass="tableList Mtop10" paginator="true" paginatorPosition="bottom" rows="15"
+                        <p:dataTable value="#{organizationManagedBean.userList}" var="item"  styleClass="tableList Mtop10" paginator="true" paginatorPosition="bottom" rows="15"
                                      paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                      rowsPerPageTemplate="15,30,45"
-                                     selectionMode="single" selection="#{departmentManagedBean.currentUser}" rowKey="#{item.id}" >
+                                     selectionMode="single" selection="#{organizationManagedBean.currentUser}" rowKey="#{item.id}" >
                             <f:facet name="header">
                                 员工资产
                             </f:facet>
-                            <p:column styleClass="Wid20">
+                            <p:column>
                                 <f:facet name="header">
                                     <h:outputText value="编号"/>
                                 </f:facet>
                                 <h:outputText value="#{item.userid}"/>
                             </p:column>
-                            <p:column styleClass="Wid20">
+                            <p:column>
                                 <f:facet name="header">
                                     <h:outputText value="姓名"/>
                                 </f:facet>
                                 <h:outputText value="#{item.username}"/>
                             </p:column>
-                            <p:column styleClass="Wid10">
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="手机"/>
+                                </f:facet>
+                                <h:outputText value="#{item.phone}"/>
+                            </p:column>
+                            <p:column>
                                 <f:facet name="header">
                                     <h:outputText value="状态"/>
                                 </f:facet>
                                 <h:outputText value="#{item.status}"/>
                             </p:column>
                         </p:dataTable>
+                        <p:blockUI id="blockTwo" block="formTwo"  trigger="btnSyncUser,btnLoadUserOnJob,btnLoadUserAll">
+                            <p:graphicImage name="images/ajaxloadingbar.gif" library="ultima-layout"/>
+                        </p:blockUI>
                     </h:form>
                 </div>
             </div>
