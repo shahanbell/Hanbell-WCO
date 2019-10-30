@@ -77,9 +77,9 @@
                             </p:column>
                             <p:column>
                                 <f:facet name="header">
-                                    <h:outputText value="状态"/>
+                                    <h:outputText value="同步状态"/>
                                 </f:facet>
-                                <h:outputText value="#{item.status}"/>
+                                <h:outputText value="#{item.syncWeChatStatus}"/>
                             </p:column>
                         </p:dataTable>
                         <p:blockUI id="blockTwo" block="formTwo"  trigger="btnSyncUser,btnLoadUserOnJob,btnLoadUserAll">

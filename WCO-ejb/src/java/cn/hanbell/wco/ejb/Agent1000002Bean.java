@@ -37,7 +37,7 @@ public class Agent1000002Bean extends WeChatCorpBean {
 
     @Override
     public String getAppID() {
-        return "ww7f3e1ce36d3bc75e";
+        return "ww94e6447967583b32";
     }
 
     @Override
