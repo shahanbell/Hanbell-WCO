@@ -27,8 +27,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "WeChatSession.findAll", query = "SELECT w FROM WeChatSession w"),
     @NamedQuery(name = "WeChatSession.findById", query = "SELECT w FROM WeChatSession w WHERE w.id = :id"),
     @NamedQuery(name = "WeChatSession.findByOpenId", query = "SELECT w FROM WeChatSession w WHERE w.openId = :openId"),
-    @NamedQuery(name = "WeChatSession.findByOpenIdAndSessionKey", query = "SELECT w FROM WeChatSession w WHERE w.openId = :openId AND w.sessionKey = :sessionKey"),
-    @NamedQuery(name = "WeChatSession.findByCheckCode", query = "SELECT w FROM WeChatSession w WHERE w.openId = :openId AND w.sessionKey = :sessionKey AND w.checkCode = :checkCode AND w.status='N' ")})
+    @NamedQuery(name = "WeChatSession.findByOpenIdAndSessionId", query = "SELECT w FROM WeChatSession w WHERE w.openId = :openId AND w.sessionId = :sessionId"),
+    @NamedQuery(name = "WeChatSession.findByCheckCode", query = "SELECT w FROM WeChatSession w WHERE w.openId = :openId AND w.sessionId = :sessionId AND w.checkCode = :checkCode AND w.status='N' ")})
 public class WeChatSession extends SuperEntity {
 
     @Basic(optional = false)
@@ -39,6 +39,11 @@ public class WeChatSession extends SuperEntity {
     @Size(max = 45)
     @Column(name = "sessionKey")
     private String sessionKey;
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 45)
+    @Column(name = "sessionId")
+    private String sessionId;
     @Size(max = 45)
     @Column(name = "unionId")
     private String unionId;
@@ -52,9 +57,10 @@ public class WeChatSession extends SuperEntity {
         this.status = "N";
     }
 
-    public WeChatSession(String openId, String sessionKey) {
+    public WeChatSession(String openId, String sessionKey, String sessionId) {
         this.openId = openId;
         this.sessionKey = sessionKey;
+        this.sessionId = sessionId;
         this.status = "N";
     }
 
@@ -72,6 +78,20 @@ public class WeChatSession extends SuperEntity {
 
     public void setSessionKey(String sessionKey) {
         this.sessionKey = sessionKey;
+    }
+
+    /**
+     * @return the sessionId
+     */
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    /**
+     * @param sessionId the sessionId to set
+     */
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 
     public String getUnionId() {

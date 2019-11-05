@@ -7,7 +7,6 @@ package cn.hanbell.wco.ejb;
 
 import cn.hanbell.wco.comm.SuperBean;
 import cn.hanbell.wco.entity.WeChatSession;
-import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.Query;
 
@@ -22,10 +21,10 @@ public class WeChatSessionBean extends SuperBean<WeChatSession> {
         super(WeChatSession.class);
     }
 
-    public WeChatSession findByCheckCode(String openId, String sessionKey, String checkCode) {
+    public WeChatSession findByCheckCode(String openId, String sessionId, String checkCode) {
         Query query = getEntityManager().createNamedQuery("WeChatSession.findByCheckCode");
         query.setParameter("openId", openId);
-        query.setParameter("sessionKey", sessionKey);
+        query.setParameter("sessionId", sessionId);
         query.setParameter("checkCode", checkCode);
         try {
             Object o = query.getSingleResult();
@@ -35,33 +34,34 @@ public class WeChatSessionBean extends SuperBean<WeChatSession> {
         }
     }
 
-    public List<WeChatSession> findByOpenIdAndSessionKey(String openId, String sessionKey) {
-        Query query = getEntityManager().createNamedQuery("WeChatSession.findByOpenIdAndSessionKey");
+    public WeChatSession findByOpenIdAndSessionId(String openId, String sessionId) {
+        Query query = getEntityManager().createNamedQuery("WeChatSession.findByOpenIdAndSessionId");
         query.setParameter("openId", openId);
-        query.setParameter("sessionKey", sessionKey);
+        query.setParameter("sessionId", sessionId);
         try {
-            return query.getResultList();
+            Object o = query.getSingleResult();
+            return (WeChatSession) o;
         } catch (Exception ex) {
             return null;
         }
     }
 
-    public boolean has(String openId, String sessionKey) {
-        List<WeChatSession> list = findByOpenIdAndSessionKey(openId, sessionKey);
-        if (list == null || list.isEmpty()) {
+    public boolean has(String openId, String sessionId) {
+        WeChatSession s = findByOpenIdAndSessionId(openId, sessionId);
+        if (s == null) {
             return false;
         } else {
             return true;
         }
     }
 
-    public void persistIfNotExist(String openId, String sessionKey) {
-        if (!has(openId, sessionKey)) {
-            WeChatSession wcs = new WeChatSession(openId, sessionKey);
+    public void persistIfNotExist(String openId, String sessionKey, String sessionId) {
+        if (!has(openId, sessionId)) {
+            WeChatSession wcs = new WeChatSession(openId, sessionKey, sessionId);
             wcs.setExpiresIn(-1);
-            wcs.setStatus("V");
-            wcs.setCredateToNow();
+            wcs.setStatus("N");
             wcs.setCreatorToSystem();
+            wcs.setCredateToNow();
             persist(wcs);
         }
     }

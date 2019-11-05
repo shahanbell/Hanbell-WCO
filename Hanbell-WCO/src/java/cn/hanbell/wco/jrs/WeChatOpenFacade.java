@@ -8,6 +8,7 @@ package cn.hanbell.wco.jrs;
 import cn.hanbell.wco.ejb.WeChatSessionBean;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import javax.ejb.EJB;
 import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
@@ -34,6 +35,8 @@ public abstract class WeChatOpenFacade<T> {
     protected Class<T> entityClass;
 
     protected T currentEntity;
+
+    protected String charset = "UTF-8";
 
     public WeChatOpenFacade(Class<T> entityClass) {
         this.entityClass = entityClass;
@@ -105,6 +108,10 @@ public abstract class WeChatOpenFacade<T> {
             sb.append(base.charAt(number));
         }
         return sb.toString();
+    }
+
+    public String getUUID() {
+        return UUID.randomUUID().toString().replaceAll("-", "").toLowerCase();
     }
 
 }

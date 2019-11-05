@@ -14,6 +14,7 @@ import cn.hanbell.wco.lazy.DepartmentModel;
 import cn.hanbell.wco.web.SuperSingleBean;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -28,6 +29,11 @@ import org.primefaces.model.TreeNode;
 @ManagedBean(name = "organizationManagedBean")
 @SessionScoped
 public class OrganizationManagedBean extends SuperSingleBean<Department> {
+
+    @EJB
+    private cn.hanbell.hrm.ejb.DepartmentBean hrmDepartmentBean;
+    @EJB
+    private cn.hanbell.hrm.ejb.EmployeeBean hrmEmployeeBean;
 
     @EJB
     private DepartmentBean departmentBean;
@@ -219,6 +225,54 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
         }
     }
 
+    public void syncDeptByHRM() {
+        try {
+            // 同步部门
+            List<cn.hanbell.hrm.entity.Department> departmentList = hrmDepartmentBean.findAll();
+            if (departmentList != null && !departmentList.isEmpty()) {
+                departmentList.forEach((hd) -> {
+                    // EAP
+                    cn.hanbell.eap.entity.Department ep = null;
+                    cn.hanbell.hrm.entity.Department hp = hrmDepartmentBean.findByDepartmentId(hd.getParentId());
+                    if (hp != null) {
+                        ep = departmentBean.findByDeptno(hp.getCode());
+                    }
+                    cn.hanbell.eap.entity.Department ed = departmentBean.findByDeptno(hd.getCode());
+                    if (ed == null) {
+                        ed = new cn.hanbell.eap.entity.Department();
+                        ed.setDeptno(hd.getCode());
+                        ed.setDept(hd.getName());
+                        if (ep != null) {
+                            ed.setParentDept(ep);
+                        }
+                        if (hd.getFlag()) {
+                            ed.setStatus("N");
+                        } else {
+                            ed.setStatus("X");
+                        }
+                        ed.setCreatorToSystem();
+                        ed.setCredateToNow();
+                        departmentBean.persist(ed);
+                    } else {
+                        if (!ed.getDept().equals(hd.getName()) || !Objects.equals(ed.getParentDept(), ep)) {
+                            ed.setDept(hd.getName());
+                            if (ep != null) {
+                                ed.setParentDept(ep);
+                            }
+                            if (!hd.getFlag()) {
+                                ed.setStatus("X");
+                            }
+                            ed.setOptdate(hd.getLastModifiedDate());
+                            departmentBean.update(ed);
+                        }
+                    }
+                });
+            }
+        } catch (Exception ex) {
+            showErrorMsg("Error", ex.toString());
+        }
+    }
+
     public void syncEmployee() {
         if (userList != null && !userList.isEmpty()) {
             String msg;
@@ -276,6 +330,74 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
         } else {
             showInfoMsg("Info", "没有需要同步的资料");
         }
+    }
+
+    public void syncEmployeeByHRM() {
+        if (currentEntity != null) {
+            if (syncEmployeeByHRM(currentEntity)) {
+                loadUserOnJob();
+                showInfoMsg("Info", "同步成功");
+            }
+        }
+    }
+
+    private boolean syncEmployeeByHRM(Department dept) {
+        // 同步人员
+        if (dept != null) {
+            try {
+                List<cn.hanbell.hrm.entity.Employee> employeeList = hrmEmployeeBean.findByDepartmentCode(dept.getDeptno());
+                if (employeeList != null && !employeeList.isEmpty()) {
+                    employeeList.forEach((e) -> {
+                        boolean flag = false;
+                        // EAP
+                        cn.hanbell.eap.entity.SystemUser eu = systemUserBean.findByUserId(e.getCode());
+                        if (eu == null) {
+                            eu = new cn.hanbell.eap.entity.SystemUser();
+                            eu.setUserid(e.getCode());
+                            eu.setUsername(e.getCnName());
+                            eu.setDeptno(e.getDepartment().getCode());
+                            eu.setPhone(e.getMobilePhone());
+                            eu.setEmail(e.getEmail());
+                            eu.setCreatorToSystem();
+                            eu.setCredateToNow();
+                            eu.setOptdate(eu.getCredate());
+                            systemUserBean.persist(eu);
+                        } else {
+                            if (eu.getOptdate() != null && eu.getOptdate().before(e.getLastModifiedDate())) {
+                                eu.setUsername(e.getCnName());
+                                eu.setDeptno(e.getDepartment().getCode());
+                                eu.setPhone(e.getMobilePhone());
+                                eu.setEmail(e.getEmail());
+                                eu.setOptuserToSystem();
+                                eu.setOptdate(e.getLastModifiedDate());
+                                flag = true;
+                            }
+                            if (!eu.getStatus().equals("X") && e.getLastModifiedDate().compareTo(e.getLastWorkDate()) != -1) {
+                                eu.setStatus("X");
+                                eu.setOptuserToSystem();
+                                eu.setOptdate(e.getLastModifiedDate());
+                            }
+                            if (flag) {
+                                systemUserBean.update(eu);
+                            }
+                        }
+                    });
+                }
+                entityList = departmentBean.findByPId(dept.getId());
+                if (entityList != null && !entityList.isEmpty()) {
+                    for (Department e : entityList) {
+                        if (e.getStatus().equals("X")) {
+                            continue;
+                        }
+                        syncEmployeeByHRM(e);
+                    }
+                }
+            } catch (Exception ex) {
+                showErrorMsg("Error", ex.toString());
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

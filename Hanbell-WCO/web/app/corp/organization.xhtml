@@ -13,8 +13,9 @@
                 <div class="card">
                     <h:form id="formOne">
                         <p:menubar>
-                            <p:menuitem id="btnSync" value="同步" actionListener="#{organizationManagedBean.syncDept()}" icon="ui-icon-sync" update="formOne,growl"/>
-                            <p:menuitem id="btnLoad" value="刷新" actionListener="#{organizationManagedBean.init()}" icon="ui-icon-refresh" update="formOne"/>
+                            <p:menuitem id="btnSync" value="同步微信" actionListener="#{organizationManagedBean.syncDept()}" icon="ui-icon-sync" update="formOne,growl"/>
+                            <p:menuitem id="btnLoad" value="刷新部门" actionListener="#{organizationManagedBean.init()}" icon="ui-icon-refresh" update="formOne"/>
+                            <p:menuitem id="btnSyncDeptByHRM" value="HR同步" actionListener="#{organizationManagedBean.syncDeptByHRM()}" icon="ui-icon-file-download" update="formOne,growl"/>
                         </p:menubar>
                         <p:treeTable value="#{organizationManagedBean.rootNode}" var="item" styleClass="tableList Mtop10"
                                      selectionMode="single" selection="#{organizationManagedBean.selectedNode}">
@@ -46,9 +47,10 @@
                 <div class="card">
                     <h:form id="formTwo">
                         <p:menubar>
-                            <p:menuitem id="btnSyncUser" value="同步" actionListener="#{organizationManagedBean.syncEmployee()}" icon="ui-icon-sync" update="formTwo,growl"/>
-                            <p:menuitem id="btnLoadUserOnJob" value="在职" actionListener="#{organizationManagedBean.loadUserOnJob()}" icon="ui-icon-search" update="formTwo"/>
-                            <p:menuitem id="btnLoadUserAll" value="全部" actionListener="#{organizationManagedBean.loadUserAll()}" icon="ui-icon-search" update="formTwo"/>
+                            <p:menuitem id="btnSyncUser" value="同步微信" actionListener="#{organizationManagedBean.syncEmployee()}" icon="ui-icon-sync" update="formTwo,growl"/>
+                            <p:menuitem id="btnLoadUserOnJob" value="查询在职" actionListener="#{organizationManagedBean.loadUserOnJob()}" icon="ui-icon-search" update="formTwo"/>
+                            <p:menuitem id="btnLoadUserAll" value="查询全部" actionListener="#{organizationManagedBean.loadUserAll()}" icon="ui-icon-search" update="formTwo"/>
+                            <p:menuitem id="btnSyncUserByHRM" value="HR同步" actionListener="#{organizationManagedBean.syncEmployeeByHRM()}" icon="ui-icon-file-download" update="formTwo,growl"/>
                         </p:menubar>
                         <p:dataTable value="#{organizationManagedBean.userList}" var="item"  styleClass="tableList Mtop10" paginator="true" paginatorPosition="bottom" rows="15"
                                      paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
@@ -82,7 +84,7 @@
                                 <h:outputText value="#{item.syncWeChatStatus}"/>
                             </p:column>
                         </p:dataTable>
-                        <p:blockUI id="blockTwo" block="formTwo"  trigger="btnSyncUser,btnLoadUserOnJob,btnLoadUserAll">
+                        <p:blockUI id="blockTwo" block="formTwo"  trigger="btnSyncUser,btnLoadUserOnJob,btnLoadUserAll,btnSyncUserByHRM">
                             <p:graphicImage name="images/ajaxloadingbar.gif" library="ultima-layout"/>
                         </p:blockUI>
                     </h:form>

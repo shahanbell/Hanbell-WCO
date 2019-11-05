@@ -7,7 +7,6 @@ package cn.hanbell.wco.jrs;
 
 import cn.hanbell.wco.ejb.JobTaskBean;
 import cn.hanbell.wco.ejb.Prg9f247ab6d5e4Bean;
-import cn.hanbell.wco.ejb.WeChatSessionBean;
 import cn.hanbell.wco.ejb.WeChatUserBean;
 import cn.hanbell.wco.entity.JobTask;
 import cn.hanbell.wco.entity.WeChatSession;
@@ -18,7 +17,6 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -90,14 +88,14 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
         }
         try {
             WeChatUser wcu = wechatUserBean.findByOpenId(openid);
-            if (wcu != null) {
+            WeChatSession wcs = wechatSessionBean.findByOpenIdAndSessionId(openid, sessionkey);
+            if (wcu != null && wcs != null) {
                 String code = this.getCheckCode();
-                WeChatSession wcs = new WeChatSession(openid, sessionkey);
                 wcs.setCheckCode(code);
                 wcs.setExpiresIn(180);// 秒
                 wcs.setCredateToNow();
                 wcs.setCreatorToSystem();
-                wechatSessionBean.persist(wcs);
+                wechatSessionBean.update(wcs);
                 String[] value = new String[]{code, "3"};
                 BaseLib.sendShortMessage("8aaf07085adadc12015aeae7d82003a4", mobile, "460510", value);
                 return new ResponseMessage("200", "已经发送");
@@ -132,20 +130,19 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                 prg9f247ab6d5e4Bean.getAppSecret(), code);
         if (jo != null) {
             log4j.info("微信小程序code2session:" + jo.toString());
+            String uuid = getUUID();
             MiniProgramSession s = new MiniProgramSession();
             s.setOpenId(jo.getString("openid"));
-            s.setSessionKey(jo.getString("session_key"));
+            s.setSessionKey(uuid);// 3rd_session
             if (jo.has("unionid")) {
                 s.setUnionId(jo.getString("unionid"));
             }
+            wechatSessionBean.persistIfNotExist(jo.getString("openid"), jo.getString("session_key"), uuid);
             currentEntity = wechatUserBean.findByOpenId(jo.getString("openid"));
             if (currentEntity != null) {
                 s.setAuthorized(currentEntity.getAuthorized());
                 s.setEmployeeId(currentEntity.getEmployeeId());
                 s.setEmployeeName(currentEntity.getEmployeeName());
-                if (currentEntity.getAuthorized()) {
-                    wechatSessionBean.persistIfNotExist(jo.getString("openid"), jo.getString("session_key"));
-                }
             }
             return s;
         }
@@ -260,6 +257,9 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         try {
+            log4j.info(openid);
+            log4j.info(sessionkey);
+            log4j.info(checkcode);
             WeChatSession wcs = wechatSessionBean.findByCheckCode(openid, sessionkey, checkcode);
             if (wcs != null) {
                 wcs.setStatus("V");
