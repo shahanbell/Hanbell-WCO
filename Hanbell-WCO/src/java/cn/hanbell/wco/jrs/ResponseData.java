@@ -10,6 +10,7 @@ import java.util.List;
 /**
  *
  * @author C0160
+ * @param <T>
  */
 public class ResponseData<T> extends ResponseMessage {
 

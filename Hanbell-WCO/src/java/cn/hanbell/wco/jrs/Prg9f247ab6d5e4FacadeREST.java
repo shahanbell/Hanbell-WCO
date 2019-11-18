@@ -257,9 +257,6 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         try {
-            log4j.info(openid);
-            log4j.info(sessionkey);
-            log4j.info(checkcode);
             WeChatSession wcs = wechatSessionBean.findByCheckCode(openid, sessionkey, checkcode);
             if (wcs != null) {
                 wcs.setStatus("V");

@@ -33,6 +33,7 @@ public class WeChatTokenManagedBean extends SuperSingleBean<WeChatToken> {
     public void init() {
         superEJB = wechatTokenBean;
         model = new WeChatTokenModel(wechatTokenBean);
+        model.getSortFields().put("app", "ASC");
         super.init();
     }
 

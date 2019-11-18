@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                template="./../../WEB-INF/template.xhtml"
+                template="./../WEB-INF/template.xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
@@ -24,9 +24,9 @@
                     Token信息－新增
                 </f:facet>
                 <p:outputLabel value="ID:" for="appId" />
-                <p:inputText id="appId" value="#{wechatTokenManagedBean.newEntity.appId}" title="AppId" required="true" requiredMessage="The AppId field is required."/>
+                <p:inputText id="appId" value="#{wechatTokenManagedBean.newEntity.appId}" title="AppId" required="true" requiredMessage="请输入应用ID"/>
                 <p:outputLabel value="App:" for="app" />
-                <p:inputText id="app" value="#{wechatTokenManagedBean.newEntity.app}" title="App" required="true" requiredMessage="The App field is required."/>
+                <p:inputText id="app" value="#{wechatTokenManagedBean.newEntity.app}" title="App" required="true" requiredMessage="请输入应用编号"/>
                 <p:outputLabel value="AppSecret:" for="appSecret" />
                 <p:inputText id="appSecret" value="#{wechatTokenManagedBean.newEntity.appSecret}" title="AppSecret" />
                 <p:outputLabel value="AppASEKey:" for="appASEKey" />

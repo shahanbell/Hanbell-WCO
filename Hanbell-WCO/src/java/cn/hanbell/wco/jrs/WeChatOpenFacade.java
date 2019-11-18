@@ -30,13 +30,13 @@ public abstract class WeChatOpenFacade<T> {
     @EJB
     protected WeChatSessionBean wechatSessionBean;
 
-    protected final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
-
     protected Class<T> entityClass;
 
     protected T currentEntity;
 
     protected String charset = "UTF-8";
+
+    protected final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
 
     public WeChatOpenFacade(Class<T> entityClass) {
         this.entityClass = entityClass;
