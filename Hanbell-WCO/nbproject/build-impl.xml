@@ -840,10 +840,14 @@ exists or setup the property manually. For example like this:
             -->
     <target depends="init" if="no.dist.ear.dir" name="deps-module-jar" unless="no.deps">
         <ant antfile="${project.EAP-ejb}/build.xml" inheritall="false" target="dist"/>
+        <ant antfile="${project.HRM-ejb}/build.xml" inheritall="false" target="dist"/>
         <ant antfile="${project.WCO-ejb}/build.xml" inheritall="false" target="dist"/>
     </target>
     <target depends="init" if="dist.ear.dir" name="deps-ear-jar" unless="no.deps">
         <ant antfile="${project.EAP-ejb}/build.xml" inheritall="false" target="dist-ear">
+            <property location="${build.dir}" name="dist.ear.dir"/>
+        </ant>
+        <ant antfile="${project.HRM-ejb}/build.xml" inheritall="false" target="dist-ear">
             <property location="${build.dir}" name="dist.ear.dir"/>
         </ant>
         <ant antfile="${project.WCO-ejb}/build.xml" inheritall="false" target="dist-ear">
@@ -1423,6 +1427,7 @@ exists or setup the property manually. For example like this:
             -->
     <target depends="init" name="deps-clean" unless="no.deps">
         <ant antfile="${project.EAP-ejb}/build.xml" inheritall="false" target="clean"/>
+        <ant antfile="${project.HRM-ejb}/build.xml" inheritall="false" target="clean"/>
         <ant antfile="${project.WCO-ejb}/build.xml" inheritall="false" target="clean"/>
     </target>
     <target depends="init" name="do-clean">
