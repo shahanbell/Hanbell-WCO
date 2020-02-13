@@ -37,7 +37,7 @@
                                 <h:outputText value="#{item.dept}"/>
                             </p:column>
                         </p:treeTable>
-                        <p:blockUI id="blockOne" block="formOne"  trigger="btnSync,btnLoad">
+                        <p:blockUI id="blockOne" block="formOne"  trigger="btnSync,btnLoad,btnSyncDeptByHRM">
                             <p:graphicImage name="images/ajaxloadingbar.gif" library="ultima-layout"/>
                         </p:blockUI>
                     </h:form>
@@ -79,9 +79,15 @@
                             </p:column>
                             <p:column>
                                 <f:facet name="header">
-                                    <h:outputText value="同步状态"/>
+                                    <h:outputText value="状态"/>
                                 </f:facet>
                                 <h:outputText value="#{item.syncWeChatStatus}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="在职"/>
+                                </f:facet>
+                                <h:outputText value="#{item.status}"/>
                             </p:column>
                         </p:dataTable>
                         <p:blockUI id="blockTwo" block="formTwo"  trigger="btnSyncUser,btnLoadUserOnJob,btnLoadUserAll,btnSyncUserByHRM">

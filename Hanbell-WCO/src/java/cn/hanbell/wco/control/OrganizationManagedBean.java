@@ -97,13 +97,16 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
             if (entityList != null && !entityList.isEmpty()) {
                 for (Department e : entityList) {
                     if (e.getStatus().equals("X")) {
+                        // 已停用部门无需载入
                         continue;
                     }
                     loadUser(e, inservice);
                 }
             }
             if (inservice) {
-                userList.addAll(systemUserBean.findByDeptnoAndOnJob(dept.getDeptno()));
+                // userList.addAll(systemUserBean.findByDeptnoAndOnJob(dept.getDeptno()));
+                // 改成获取企业微信有效人员,这样可以同时处理离职同步逻辑
+                userList.addAll(systemUserBean.findByDeptnoAndSyncWeChatStatus(dept.getDeptno()));
             } else {
                 userList.addAll(systemUserBean.findByDeptno(dept.getDeptno()));
             }
@@ -254,7 +257,7 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                         ed.setCredateToNow();
                         departmentBean.persist(ed);
                     } else {
-                        if (!ed.getDept().equals(hd.getName()) || !Objects.equals(ed.getParentDept(), ep)) {
+                        if (!ed.getDept().equals(hd.getName()) || !Objects.equals(ed.getParentDept(), ep) || (ed.getOptdate() != null && ed.getOptdate().before(hd.getLastModifiedDate()))) {
                             ed.setDept(hd.getName());
                             if (ep != null) {
                                 ed.setParentDept(ep);

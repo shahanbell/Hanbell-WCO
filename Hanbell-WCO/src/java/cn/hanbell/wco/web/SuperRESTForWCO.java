@@ -44,7 +44,7 @@ public abstract class SuperRESTForWCO<T> {
     protected cn.hanbell.eap.ejb.SystemNameBean systemNameBean;
 
     protected final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
-    
+
     public SuperRESTForWCO(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
