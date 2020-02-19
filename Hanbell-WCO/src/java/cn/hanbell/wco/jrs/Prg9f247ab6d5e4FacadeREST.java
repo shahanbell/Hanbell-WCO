@@ -5,6 +5,8 @@
  */
 package cn.hanbell.wco.jrs;
 
+import cn.hanbell.eap.ejb.SystemUserBean;
+import cn.hanbell.eap.entity.SystemUser;
 import cn.hanbell.wco.ejb.JobTaskBean;
 import cn.hanbell.wco.ejb.Prg9f247ab6d5e4Bean;
 import cn.hanbell.wco.ejb.WeChatUserBean;
@@ -45,6 +47,8 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
     private Prg9f247ab6d5e4Bean prg9f247ab6d5e4Bean;
     @EJB
     private WeChatUserBean wechatUserBean;
+    @EJB
+    private SystemUserBean systemUserBean;
 
     public Prg9f247ab6d5e4FacadeREST() {
         super(WeChatUser.class);
@@ -268,6 +272,14 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                     wcu.setEmployeeName(entity.getEmployeeName());
                     wcu.setMobile(entity.getMobile());
                     // 需要加入工号+预留手机检查
+                    SystemUser su = systemUserBean.findByUserId(entity.getEmployeeId());
+                    if(null==su){
+                         return new ResponseSession("401", "授权工号不存在");
+                    }else{
+                        if(!su.getPhone().equals(entity.getMobile())){
+                             return new ResponseSession("401", "手机号与企业预留不一致");
+                        }
+                    }
                     wcu.setAuthorized(Boolean.TRUE);
                     wcu.setStatus("V");
                     wechatUserBean.update(wcu);
