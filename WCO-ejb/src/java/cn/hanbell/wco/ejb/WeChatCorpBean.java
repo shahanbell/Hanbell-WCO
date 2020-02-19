@@ -115,6 +115,76 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         return "系统异常操作失败";
     }
 
+    public String createWeChatTag(JsonObject jo) {
+        currentToken = this.getWeChatToken("org");
+        if (currentToken == null) {
+            return "Token参数异常";
+        }
+        this.setAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
+        String access_token = getAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
+        if (access_token != null && !"".equals(access_token)) {
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/tag/create?access_token=" + access_token;
+            CloseableHttpResponse response = post(urlString, initStringEntity(jo.toString()));
+            if (response != null) {
+                HttpEntity httpEntity = response.getEntity();
+                try {
+                    JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
+                    //log4j.info(jor.getString("errmsg"));
+                    int errcode = jor.getInt("errcode");
+                    if (errcode == 0) {
+                        return "success";
+                    } else {
+                        return jor.getString("errmsg");
+                    }
+                } catch (IOException | ParseException | JSONException ex) {
+                    log4j.error(ex);
+                } finally {
+                    try {
+                        response.close();
+                    } catch (IOException ex) {
+                        log4j.error(ex);
+                    }
+                }
+            }
+        }
+        return "系统异常操作失败";
+    }
+
+    public String createWeChatTagUser(JsonObject jo) {
+        currentToken = this.getWeChatToken("org");
+        if (currentToken == null) {
+            return "Token参数异常";
+        }
+        this.setAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
+        String access_token = getAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
+        if (access_token != null && !"".equals(access_token)) {
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/tag/addtagusers?access_token=" + access_token;
+            CloseableHttpResponse response = post(urlString, initStringEntity(jo.toString()));
+            if (response != null) {
+                HttpEntity httpEntity = response.getEntity();
+                try {
+                    JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
+                    //log4j.info(jor.getString("errmsg"));
+                    int errcode = jor.getInt("errcode");
+                    if (errcode == 0) {
+                        return "success";
+                    } else {
+                        return jor.getString("errmsg");
+                    }
+                } catch (IOException | ParseException | JSONException ex) {
+                    log4j.error(ex);
+                } finally {
+                    try {
+                        response.close();
+                    } catch (IOException ex) {
+                        log4j.error(ex);
+                    }
+                }
+            }
+        }
+        return "系统异常操作失败";
+    }
+    
     public String deleteDepartment(int id) {
         currentToken = this.getWeChatToken("org");
         if (currentToken == null) {
@@ -185,6 +255,76 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         return "系统异常操作失败";
     }
 
+    public String deleteWeChatTag(int tagid) {
+        currentToken = this.getWeChatToken("org");
+        if (currentToken == null) {
+            return "Token参数异常";
+        }
+        this.setAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
+        String access_token = getAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
+        if (access_token != null && !"".equals(access_token)) {
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/tag/delete?access_token=" + access_token + "&tagid=" + tagid;
+            CloseableHttpResponse response = get(urlString, null, null);
+            if (response != null) {
+                HttpEntity httpEntity = response.getEntity();
+                try {
+                    JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
+                    //log4j.info(jor.getString("errmsg"));
+                    int errcode = jor.getInt("errcode");
+                    if (errcode == 0) {
+                        return "success";
+                    } else {
+                        return jor.getString("errmsg");
+                    }
+                } catch (IOException | ParseException | JSONException ex) {
+                    log4j.error(ex);
+                } finally {
+                    try {
+                        response.close();
+                    } catch (IOException ex) {
+                        log4j.error(ex);
+                    }
+                }
+            }
+        }
+        return "系统异常操作失败";
+    }
+    
+    public String deleteWechatTagUser(JsonObject jo) {
+        currentToken = this.getWeChatToken("org");
+        if (currentToken == null) {
+            return "Token参数异常";
+        }
+        this.setAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
+        String access_token = getAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
+        if (access_token != null && !"".equals(access_token)) {
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/tag/deltagusers?access_token=" + access_token;
+            CloseableHttpResponse response = post(urlString, initStringEntity(jo.toString()));
+            if (response != null) {
+                HttpEntity httpEntity = response.getEntity();
+                try {
+                    JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
+                    //log4j.info(jor.getString("errmsg"));
+                    int errcode = jor.getInt("errcode");
+                    if (errcode == 0) {
+                        return "success";
+                    } else {
+                        return jor.getString("errmsg");
+                    }
+                } catch (IOException | ParseException | JSONException ex) {
+                    log4j.error(ex);
+                } finally {
+                    try {
+                        response.close();
+                    } catch (IOException ex) {
+                        log4j.error(ex);
+                    }
+                }
+            }
+        }
+        return "系统异常操作失败";
+    }
+        
     protected WeChatToken getWeChatToken(String app) {
         if (tokenList == null) {
             tokenList = wechatTokenBean.findByAppId(getAppID());
@@ -368,6 +508,41 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         String access_token = getAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
             String urlString = "https://qyapi.weixin.qq.com/cgi-bin/user/update?access_token=" + access_token;
+            CloseableHttpResponse response = post(urlString, initStringEntity(jo.toString()));
+            if (response != null) {
+                HttpEntity httpEntity = response.getEntity();
+                try {
+                    JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
+                    //log4j.info(jor.getString("errmsg"));
+                    int errcode = jor.getInt("errcode");
+                    if (errcode == 0) {
+                        return "success";
+                    } else {
+                        return jor.getString("errmsg");
+                    }
+                } catch (IOException | ParseException | JSONException ex) {
+                    log4j.error(ex);
+                } finally {
+                    try {
+                        response.close();
+                    } catch (IOException ex) {
+                        log4j.error(ex);
+                    }
+                }
+            }
+        }
+        return "系统异常操作失败";
+    }
+
+    public String updateWeChatTag(JsonObject jo) {
+        currentToken = this.getWeChatToken("org");
+        if (currentToken == null) {
+            return "Token参数异常";
+        }
+        this.setAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
+        String access_token = getAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
+        if (access_token != null && !"".equals(access_token)) {
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/tag/update?access_token=" + access_token;
             CloseableHttpResponse response = post(urlString, initStringEntity(jo.toString()));
             if (response != null) {
                 HttpEntity httpEntity = response.getEntity();
