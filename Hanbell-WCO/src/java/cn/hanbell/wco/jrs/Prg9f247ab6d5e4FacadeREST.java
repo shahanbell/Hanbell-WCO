@@ -5,6 +5,7 @@
  */
 package cn.hanbell.wco.jrs;
 
+import cn.hanbell.eap.ejb.CompanyBean;
 import cn.hanbell.eap.ejb.SystemUserBean;
 import cn.hanbell.eap.entity.SystemUser;
 import cn.hanbell.wco.ejb.JobTaskBean;
@@ -49,6 +50,8 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
     private WeChatUserBean wechatUserBean;
     @EJB
     private SystemUserBean systemUserBean;
+    @EJB
+    private CompanyBean companyBean;
 
     public Prg9f247ab6d5e4FacadeREST() {
         super(WeChatUser.class);
@@ -287,6 +290,11 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                     session.setAuthorized(wcu.getAuthorized());
                     session.setEmployeeId(wcu.getEmployeeId());
                     session.setEmployeeName(wcu.getEmployeeName());
+                    //session 加入部门和事业单位
+                    session.setDeptno(su.getDeptno());
+                    session.setDeptName(su.getDept().getDept());
+                    session.setCompany(su.getDept().getCompany());
+                    session.setCompanyName(companyBean.findByCompany(session.getCompany()).getName());                   
                     return session;
                 } else {
                     return new ResponseSession("401", "授权异常");
