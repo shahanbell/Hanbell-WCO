@@ -75,8 +75,23 @@
             <redirect/>
         </navigation-case>
         <navigation-case>
+            <from-outcome>wechattag</from-outcome>
+            <to-view-id>/app/corp/wechattag.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
             <from-outcome>token</from-outcome>
             <to-view-id>/app/token.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>
+    </navigation-rule>
+    <!--模态开窗-->
+    <navigation-rule>
+        <description>模态开窗</description>
+        <from-view-id>/*</from-view-id>
+        <navigation-case>
+            <from-outcome>sysuserSelect</from-outcome>
+            <to-view-id>/app/df/sysuserSelect.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
     </navigation-rule>
