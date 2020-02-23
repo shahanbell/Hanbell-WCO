@@ -5,7 +5,7 @@
  */
 package cn.hanbell.wco.lazy;
 
-import cn.hanbell.eap.entity.WechatTag;
+import cn.hanbell.eap.entity.WeChatTag;
 import com.lightshell.comm.BaseLazyModel;
 import com.lightshell.comm.SuperEJB;
 
@@ -13,9 +13,9 @@ import com.lightshell.comm.SuperEJB;
  *
  * @author C1879
  */
-public class WechatTagModel extends BaseLazyModel<WechatTag> {
+public class WeChatTagModel extends BaseLazyModel<WeChatTag> {
 
-    public WechatTagModel(SuperEJB superEJB) {
+    public WeChatTagModel(SuperEJB superEJB) {
         this.superEJB = superEJB;
     }
 

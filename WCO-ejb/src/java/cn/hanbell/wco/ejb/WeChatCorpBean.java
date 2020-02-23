@@ -290,7 +290,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         return "系统异常操作失败";
     }
     
-    public String deleteWechatTagUser(JsonObject jo) {
+    public String deleteWeChatTagUser(JsonObject jo) {
         currentToken = this.getWeChatToken("org");
         if (currentToken == null) {
             return "Token参数异常";

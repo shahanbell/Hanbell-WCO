@@ -9,7 +9,6 @@ import cn.hanbell.wco.ejb.WeChatTokenBean;
 import cn.hanbell.wco.entity.WeChatToken;
 import cn.hanbell.wco.lazy.WeChatTokenModel;
 import cn.hanbell.wco.web.SuperSingleBean;
-import java.io.Serializable;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;

@@ -273,11 +273,11 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                     wcu.setMobile(entity.getMobile());
                     // 需要加入工号+预留手机检查
                     SystemUser su = systemUserBean.findByUserId(entity.getEmployeeId());
-                    if(null==su){
-                         return new ResponseSession("401", "授权工号不存在");
-                    }else{
-                        if(!su.getPhone().equals(entity.getMobile())){
-                             return new ResponseSession("401", "手机号与企业预留不一致");
+                    if (null == su) {
+                        return new ResponseSession("401", "授权工号不存在");
+                    } else {
+                        if (!su.getPhone().equals(entity.getMobile())) {
+                            return new ResponseSession("401", "手机号与企业预留不一致");
                         }
                     }
                     wcu.setAuthorized(Boolean.TRUE);

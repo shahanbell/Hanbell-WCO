@@ -52,7 +52,7 @@
                                 <f:facet name="header">
                                     <h:outputText value="微信状态"/>
                                 </f:facet>
-                                <h:outputText value="#{wechatTagManagedBean.WeChatStatus(item.weChatStatus)}"/>
+                                <h:outputText value="#{wechatTagManagedBean.syncWeChatStatus(item.weChatStatus)}"/>
                             </p:column>
                         </p:dataTable>
                         <p:blockUI id="blockOne" block="formOne"  trigger="btnSync,btnLoad,btnSyncTagByHRM">
@@ -66,14 +66,14 @@
                     <h:form id="formTwo">
                         <p:toolbar id="toolbar" styleClass="topToolbar">
                             <f:facet name="left">
-                                <p:commandButton id="btnLoadTagUser" value="刷新当前" actionListener="#{wechatTagManagedBean.loadWechatTagUser()}" icon="ui-icon-refresh" update="formTwo,growl"/>
-                                <p:commandButton id="btnLoadTagUserAll" value="查询全部" actionListener="#{wechatTagManagedBean.loadWechatTagUserAll()}" icon="ui-icon-search" update="formTwo,growl"/>
+                                <p:commandButton id="btnLoadTagUser" value="刷新当前" actionListener="#{wechatTagManagedBean.loadWeChatTagUser()}" icon="ui-icon-refresh" update="formTwo,growl"/>
+                                <p:commandButton id="btnLoadTagUserAll" value="查询全部" actionListener="#{wechatTagManagedBean.loadWeChatTagUserAll()}" icon="ui-icon-search" update="formTwo,growl"/>
                             </f:facet>
                             <f:facet name="right">
                                 <p:commandButton id="btnSynAddTagUser" value="增加成员"  actionListener="#{wechatTagManagedBean.openDialog('sysuserSelect')}"  icon="ui-icon-plus" update="growl">
                                     <p:ajax event="dialogReturn" listener="#{wechatTagManagedBean.handleDialogReturnWhenDetailAllNew}" update="formTwo,growl"  />
                                 </p:commandButton>
-                                <p:commandButton id="btnSynDeleteTagUser" value="删除成员" icon="ui-icon-trash" actionListener="#{wechatTagManagedBean.deleteWeCharTagUser()}"  update="formTwo,growl" >
+                                <p:commandButton id="btnSynDeleteTagUser" value="删除成员" icon="ui-icon-trash" actionListener="#{wechatTagManagedBean.deleteWeChatTagUser()}"  update="formTwo,growl" >
                                     <p:confirm header="系统提示" message="删除吗?" icon="ui-icon-alert" />
                                 </p:commandButton>
                             </f:facet>
