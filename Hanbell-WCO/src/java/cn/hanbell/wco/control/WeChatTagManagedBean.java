@@ -5,13 +5,13 @@
  */
 package cn.hanbell.wco.control;
 
-import cn.hanbell.eap.ejb.WechatTagBean;
-import cn.hanbell.eap.ejb.WechatTagUserBean;
+import cn.hanbell.eap.ejb.WeChatTagBean;
+import cn.hanbell.eap.ejb.WeChatTagUserBean;
 import cn.hanbell.eap.entity.SystemUser;
-import cn.hanbell.eap.entity.WechatTag;
-import cn.hanbell.eap.entity.WechatTagUser;
+import cn.hanbell.eap.entity.WeChatTag;
+import cn.hanbell.eap.entity.WeChatTagUser;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
-import cn.hanbell.wco.lazy.WechatTagModel;
+import cn.hanbell.wco.lazy.WeChatTagModel;
 import cn.hanbell.wco.web.SuperSingleBean;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import org.primefaces.event.SelectEvent;
  */
 @ManagedBean(name = "wechatTagManagedBean")
 @SessionScoped
-public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
+public class WeChatTagManagedBean extends SuperSingleBean<WeChatTag> {
 
     @EJB
     private cn.hanbell.hrm.ejb.EmployeeBean hrmEmployeeBean;
@@ -37,21 +37,20 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
     private cn.hanbell.hrm.ejb.CodeInfoBean codeInfoBean;
 
     @EJB
-    private WechatTagBean wechatTagBean;
+    private WeChatTagBean wechatTagBean;
     @EJB
-    private WechatTagUserBean wechatTagUserBean;
+    private WeChatTagUserBean wechatTagUserBean;
 
     @EJB
     private Agent1000002Bean wechatCorpBean;
 
-    private WechatTag selectTag;
     private List<SystemUser> userList;
-    private List<WechatTag> tagList;
-    private List<WechatTagUser> tagUserList;
-    private List<WechatTagUser> selectTagUserList;
+    private List<WeChatTag> tagList;
+    private List<WeChatTagUser> tagUserList;
+    private List<WeChatTagUser> selectTagUserList;
 
-    public WechatTagManagedBean() {
-        super(WechatTag.class);
+    public WeChatTagManagedBean() {
+        super(WeChatTag.class);
     }
 
     @Override
@@ -61,18 +60,15 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
         tagList = new ArrayList<>();
         tagUserList = new ArrayList<>();
         selectTagUserList = new ArrayList<>();
-        selectTag = new WechatTag();
         superEJB = wechatTagBean;
-        model = new WechatTagModel(wechatTagBean);
+        model = new WeChatTagModel(wechatTagBean);
         model.getFilterFields().put("weChatStatus =", "V");
         super.init();
     }
 
     @Override
     public void query() {
-        selectTag = new WechatTag();
         tagUserList.clear();
-        super.query();
         model.getFilterFields().clear();
         if (queryName != null && !"".equals(queryName)) {
             model.getFilterFields().put("tagname", queryName);
@@ -86,20 +82,19 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
 
     @Override
     public void reset() {
-        super.reset();
-        selectTag = new WechatTag();
         tagUserList.clear();
+        super.reset();
     }
 
-    public void loadWechatTagUser() {
+    public void loadWeChatTagUser() {
         tagUserList = new ArrayList<>();
-        if (selectTag.getId() == null) {
+        if (currentEntity == null || currentEntity.getId() == null) {
             showErrorMsg("Error", "请选中标签");
             return;
         }
-        tagUserList.addAll(wechatTagUserBean.findByTagid(selectTag.getId()));
+        tagUserList.addAll(wechatTagUserBean.findByTagid(currentEntity.getId()));
         if (tagUserList.size() > 1) {
-            tagUserList.sort((WechatTagUser o1, WechatTagUser o2) -> {
+            tagUserList.sort((WeChatTagUser o1, WeChatTagUser o2) -> {
                 if (o1.getUserid().compareTo(o2.getUserid()) < 0) {
                     return -1;
                 } else {
@@ -109,13 +104,12 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
         }
     }
 
-    public void loadWechatTagUserAll() {
+    public void loadWeChatTagUserAll() {
         //查询全部把选中的Tag清掉，删除做管控
-        selectTag = new WechatTag();
         tagUserList.clear();
         tagUserList.addAll(wechatTagUserBean.findAll());
         if (tagUserList.size() > 1) {
-            tagUserList.sort((WechatTagUser o1, WechatTagUser o2) -> {
+            tagUserList.sort((WeChatTagUser o1, WeChatTagUser o2) -> {
                 if (o1.getUserid().compareTo(o2.getUserid()) < 0) {
                     return -1;
                 } else {
@@ -127,16 +121,15 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
 
     public void syncTag() {
         //微信同步标签，对当前model中的数据进行更新
-        selectTag = new WechatTag();
         tagUserList.clear();
         Boolean ret = true;
         String msg;
         tagList.clear();
         tagList.addAll(model.getDataList());
         if (tagList != null && !tagList.isEmpty()) {
-            for (WechatTag tg : tagList) {
+            for (WeChatTag tg : tagList) {
                 ret = true;
-                //"V"代表已同步 "X"代表无效  不执行同步
+                //"V"代表已同步,"X"代表无效不执行同步
                 if ("V".equals(tg.getWeChatStatus()) || "X".equals(tg.getWeChatStatus())) {
                     continue;
                 }
@@ -169,7 +162,7 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
                 //删除
                 if ("U".equals(tg.getWeChatStatus()) && "X".equals(tg.getStatus())) {
                     //对于失效的标签删除、先删除组员
-                    deleteWeCharTagUser(wechatTagUserBean.findByTagid(tg.getId()), tg.getId());
+                    WeChatTagManagedBean.this.deleteWeChatTagUser(wechatTagUserBean.findByTagid(tg.getId()), tg.getId());
                     msg = wechatCorpBean.deleteWeChatTag(tg.getId());
                     if (msg.equals("success")) {
                         tg.setWeChatStatus("X");
@@ -187,15 +180,14 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
         }
     }
 
-    public boolean syncTagUser(List<WechatTagUser> tagUserList) {
+    public boolean syncTagUser(List<WeChatTagUser> tagUserList) {
         //微信同步标签组员
         Boolean ret = true;
         String msg;
         if (tagUserList != null && !tagUserList.isEmpty()) {
-            JsonObject jo = wechatTagUserBean.createJsonObjectBuilder(selectTagUserList, selectTag.getId()).build();
+            JsonObject jo = wechatTagUserBean.createJsonObjectBuilder(selectTagUserList, currentEntity.getId()).build();
             msg = wechatCorpBean.createWeChatTagUser(jo);
-            if (msg.equals("success")) {
-            } else {
+            if (!msg.equals("success")) {
                 ret = false;
                 showErrorMsg("Error", msg);
             }
@@ -206,15 +198,15 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
     public void syncTagByHRM() {
         try {
             //标签更新数据源HR CodeInfo表
-            List<cn.hanbell.hrm.entity.CodeInfo> infolist = codeInfoBean.findByKindCodeForWechatTag();
+            List<cn.hanbell.hrm.entity.CodeInfo> infolist = codeInfoBean.findByDecisionLevel();
             if (infolist != null && !infolist.isEmpty()) {
                 infolist.forEach((ld) -> {
-                    WechatTag ed = wechatTagBean.findByTagcode(ld.getCodeInfoId());
-                    WechatTag wt = wechatTagBean.findByTagname(ld.getScName());
+                    WeChatTag ed = wechatTagBean.findByTagcode(ld.getCodeInfoId());
+                    WeChatTag wt = wechatTagBean.findByTagname(ld.getScName());
                     if (ed == null) {
                         //标签名相同不可新增
                         if (wt == null) {
-                            ed = new WechatTag();
+                            ed = new WeChatTag();
                             ed.setTagcode(ld.getCodeInfoId());
                             ed.setTagname(ld.getScName());
                             if (ld.getFlag()) {
@@ -250,20 +242,20 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
 
             }
             //标签更新数据源HR员工表levelid
-            List levelidList = hrmEmployeeBean.findByLevelIdForWechatTag();
+            List levelidList = null;//hrmEmployeeBean.findByLevelIdForWeChatTag();
             if (levelidList != null && !levelidList.isEmpty()) {
                 for (Object ob : levelidList) {
                     if (ob != null) {
-                        WechatTag wt = wechatTagBean.findByTagcode(ob.toString());
-                        if (wt == null) {
-                            WechatTag ed = new WechatTag();
-                            ed.setTagcode(ob.toString());
-                            ed.setTagname(ob.toString());
-                            ed.setStatus("N");
-                            ed.setWeChatStatus("N");
-                            ed.setCreator(userManagedBean.getUserid());
-                            ed.setCredateToNow();
-                            wechatTagBean.persist(ed);
+                        WeChatTag wct = wechatTagBean.findByTagcode(ob.toString());
+                        if (wct == null) {
+                            WeChatTag tag = new WeChatTag();
+                            tag.setTagcode(ob.toString());
+                            tag.setTagname(ob.toString());
+                            tag.setStatus("N");
+                            tag.setWeChatStatus("N");
+                            tag.setCreator(userManagedBean.getUserid());
+                            tag.setCredateToNow();
+                            wechatTagBean.persist(tag);
                         }
                     }
                 }
@@ -276,11 +268,11 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
 
     @Override
     public void openDialog(String view) {
-        if (selectTag.getId() == null) {
+        if (currentEntity == null || currentEntity.getId() == null) {
             showErrorMsg("Error", "请选中标签");
             return;
         }
-        if (!"V".equals(selectTag.getWeChatStatus()) && !"U".equals(selectTag.getWeChatStatus())) {
+        if (!"V".equals(currentEntity.getWeChatStatus()) && !"U".equals(currentEntity.getWeChatStatus())) {
             showErrorMsg("Error", "未同步企业微信标签不能新增组员");
             return;
         }
@@ -289,19 +281,19 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
 
     public void handleDialogReturnWhenDetailAllNew(SelectEvent event) {
         //同步企业微信、EAP新增资料
-        if (selectTag.getId() == null) {
+        if (currentEntity == null || currentEntity.getId() == null) {
             showErrorMsg("Error", "请选中标签");
             return;
         }
         try {
             if (event.getObject() != null) {
                 List<SystemUser> userlist = (List<SystemUser>) event.getObject();
-                List<WechatTagUser> taguserlist = new ArrayList<>();
+                List<WeChatTagUser> taguserlist = new ArrayList<>();
                 userlist.forEach((user) -> {
                     //未已同步人员筛选
-                    if (wechatTagUserBean.findByTagidAndUserid(selectTag.getId(), user.getUserid()) == null) {
-                        WechatTagUser taguser = new WechatTagUser();
-                        taguser.setTagid(selectTag.getId());
+                    if (wechatTagUserBean.findByTagidAndUserid(currentEntity.getId(), user.getUserid()) == null) {
+                        WeChatTagUser taguser = new WeChatTagUser();
+                        taguser.setTagid(currentEntity.getId());
                         taguser.setUserid(user.getUserid());
                         taguser.setCredateToNow();
                         taguser.setCreator(userManagedBean.getUserid());
@@ -310,7 +302,7 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
                 });
                 //进行企业微信同步,成功后新增记录数据
                 if (!taguserlist.isEmpty() && taguserlist.size() > 0) {
-                   if (syncTagUser(taguserlist)) {
+                    if (syncTagUser(taguserlist)) {
                         taguserlist.forEach((taguser) -> {
                             taguser.setWeChatStatus("V");
                             wechatTagUserBean.persist(taguser);
@@ -319,7 +311,7 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
                     }
                 }
             }
-            loadWechatTagUser();
+            loadWeChatTagUser();
         } catch (Exception e) {
             showErrorMsg("Error", e.toString());
         }
@@ -328,19 +320,19 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
     /**
      * 删除企业微信标签成员、并删除WeCharTagUser记录数据 只能一组组删除
      */
-    public void deleteWeCharTagUser() {
-        if (selectTag.getId() == null) {
+    public void deleteWeChatTagUser() {
+        if (currentEntity == null || currentEntity.getId() == null) {
             showErrorMsg("Error", "请选中标签且只能按标签组删除");
             return;
         }
         if (selectTagUserList != null && !selectTagUserList.isEmpty()) {
             Boolean ret = true;
             String msg;
-            JsonObject jo = wechatTagUserBean.createJsonObjectBuilder(selectTagUserList, selectTag.getId()).build();
-            msg = wechatCorpBean.deleteWechatTagUser(jo);
+            JsonObject jo = wechatTagUserBean.createJsonObjectBuilder(selectTagUserList, currentEntity.getId()).build();
+            msg = wechatCorpBean.deleteWeChatTagUser(jo);
             if (msg.equals("success")) {
                 wechatTagUserBean.delete(selectTagUserList);
-                loadWechatTagUser();
+                loadWeChatTagUser();
             } else {
                 showErrorMsg("Error", msg);
             }
@@ -349,12 +341,12 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
         }
     }
 
-    public void deleteWeCharTagUser(List<WechatTagUser> list, int tagid) {
+    public void deleteWeChatTagUser(List<WeChatTagUser> list, int tagid) {
         if (list != null && !list.isEmpty()) {
             Boolean ret = true;
             String msg;
             JsonObject jo = wechatTagUserBean.createJsonObjectBuilder(list, tagid).build();
-            msg = wechatCorpBean.deleteWechatTagUser(jo);
+            msg = wechatCorpBean.deleteWeChatTagUser(jo);
             if (msg.equals("success")) {
                 wechatTagUserBean.delete(list);
             } else {
@@ -363,7 +355,7 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
         }
     }
 
-    public String WeChatStatus(String value) {
+    public String syncWeChatStatus(String value) {
         if (value != null) {
             switch (value) {
                 case "N":
@@ -406,38 +398,37 @@ public class WechatTagManagedBean extends SuperSingleBean<WechatTag> {
     }
 
     @Override
-    public void setCurrentEntity(WechatTag currentEntity) {
+    public void setCurrentEntity(WeChatTag currentEntity) {
         super.setCurrentEntity(currentEntity);
         if (currentEntity != null) {
-            selectTag = currentEntity;
-            loadWechatTagUser();
+            loadWeChatTagUser();
         }
     }
 
     /**
      * @return the tagList
      */
-    public List<WechatTag> getTagList() {
+    public List<WeChatTag> getTagList() {
         return tagList;
     }
 
-    public void setTagList(List<WechatTag> tagList) {
+    public void setTagList(List<WeChatTag> tagList) {
         this.tagList = tagList;
     }
 
-    public List<WechatTagUser> getTagUserList() {
+    public List<WeChatTagUser> getTagUserList() {
         return tagUserList;
     }
 
-    public void setTagUserList(List<WechatTagUser> tagUserList) {
+    public void setTagUserList(List<WeChatTagUser> tagUserList) {
         this.tagUserList = tagUserList;
     }
 
-    public List<WechatTagUser> getSelectTagUserList() {
+    public List<WeChatTagUser> getSelectTagUserList() {
         return selectTagUserList;
     }
 
-    public void setSelectTagUserList(List<WechatTagUser> selectTagUserList) {
+    public void setSelectTagUserList(List<WeChatTagUser> selectTagUserList) {
         this.selectTagUserList = selectTagUserList;
     }
 

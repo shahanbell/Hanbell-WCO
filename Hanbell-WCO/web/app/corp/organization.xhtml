@@ -57,7 +57,7 @@
                                      rowsPerPageTemplate="15,30,45"
                                      selectionMode="single" selection="#{organizationManagedBean.currentUser}" rowKey="#{item.id}" >
                             <f:facet name="header">
-                                员工资产
+                                员工资料
                             </f:facet>
                             <p:column>
                                 <f:facet name="header">
@@ -77,11 +77,11 @@
                                 </f:facet>
                                 <h:outputText value="#{item.phone}"/>
                             </p:column>
-                             <p:column>
+                            <p:column>
                                 <f:facet name="header">
                                     <h:outputText value="职务"/>
                                 </f:facet>
-                                 <h:outputText value="#{item.position}"/>
+                                <h:outputText value="#{item.position}"/>
                             </p:column>
                             <p:column >
                                 <f:facet name="header">

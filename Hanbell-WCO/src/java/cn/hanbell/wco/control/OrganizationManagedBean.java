@@ -7,10 +7,10 @@ package cn.hanbell.wco.control;
 
 import cn.hanbell.eap.ejb.DepartmentBean;
 import cn.hanbell.eap.ejb.SystemUserBean;
-import cn.hanbell.eap.ejb.WechatTagUserBean;
+import cn.hanbell.eap.ejb.WeChatTagUserBean;
 import cn.hanbell.eap.entity.Department;
 import cn.hanbell.eap.entity.SystemUser;
-import cn.hanbell.eap.entity.WechatTagUser;
+import cn.hanbell.eap.entity.WeChatTagUser;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
 import cn.hanbell.wco.lazy.DepartmentModel;
 import cn.hanbell.wco.web.SuperSingleBean;
@@ -42,7 +42,7 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
     @EJB
     private SystemUserBean systemUserBean;
     @EJB
-    private WechatTagUserBean wechatTagUserBean;
+    private WeChatTagUserBean wechatTagUserBean;
 
     @EJB
     private Agent1000002Bean wechatCorpBean;
@@ -289,6 +289,11 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                     continue;
                 }
                 if (user.getPhone() == null || "".equals(user.getPhone()) || user.getDeptno() == null || "".equals(user.getDeptno())) {
+                    // 离职人员没有手机号码也要更新微信同步状态
+                    if ("X".equals(user.getStatus())) {
+                        user.setSyncWeChatStatus(user.getStatus());
+                        systemUserBean.update(user);
+                    }
                     continue;
                 }
                 JsonObject jo = systemUserBean.createJsonObjectBuilder(user).build();
@@ -423,13 +428,13 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
         return true;
     }
 
-    public void deleteWeCharTagUser(List<WechatTagUser> list) {
+    public void deleteWeCharTagUser(List<WeChatTagUser> list) {
         if (list != null && !list.isEmpty()) {
             Boolean ret = true;
             String msg;
-            for (WechatTagUser tagUser : list) {
+            for (WeChatTagUser tagUser : list) {
                 JsonObject jo = wechatTagUserBean.createJsonObjectBuilder(tagUser).build();
-                msg = wechatCorpBean.deleteWechatTagUser(jo);
+                msg = wechatCorpBean.deleteWeChatTagUser(jo);
                 if (msg.equals("success")) {
                     wechatTagUserBean.delete(tagUser);
                 } else {

@@ -46,7 +46,7 @@ public class SystemUserQueryBean extends SuperQueryBean<SystemUser> {
         model.getFilterFields().put("syncWeChatStatus =", "V");
         super.init();
     }
-    
+
     @Override
     public void reset() {
         super.reset();
@@ -74,12 +74,12 @@ public class SystemUserQueryBean extends SuperQueryBean<SystemUser> {
             this.model.getFilterFields().put("syncWeChatStatus =", "V");
         }
     }
-    
+
     public void closeMultiSelect() {
         if (entityList != null && !entityList.isEmpty()) {
             PrimeFaces.current().dialog().closeDynamic(entityList);
         } else {
-            showErrorMsg("Error", "没有选择数据源");
+            showErrorMsg("Error", "没有选择数据");
         }
     }
 
@@ -124,5 +124,5 @@ public class SystemUserQueryBean extends SuperQueryBean<SystemUser> {
     public void setQueryPosition(String queryPosition) {
         this.queryPosition = queryPosition;
     }
-    
+
 }
