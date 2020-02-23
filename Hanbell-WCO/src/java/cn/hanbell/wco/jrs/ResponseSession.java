@@ -14,6 +14,10 @@ public class ResponseSession extends ResponseMessage {
     private boolean authorized;
     private String employeeId;
     private String employeeName;
+    private String deptno;
+    private String deptName;
+    private String company;
+    private String companyName;
 
     public ResponseSession() {
 
@@ -64,6 +68,38 @@ public class ResponseSession extends ResponseMessage {
      */
     public void setEmployeeName(String employeeName) {
         this.employeeName = employeeName;
+    }
+
+    public String getDeptno() {
+        return deptno;
+    }
+
+    public void setDeptno(String deptno) {
+        this.deptno = deptno;
+    }
+
+    public String getDeptName() {
+        return deptName;
+    }
+
+    public void setDeptName(String deptName) {
+        this.deptName = deptName;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
 }
