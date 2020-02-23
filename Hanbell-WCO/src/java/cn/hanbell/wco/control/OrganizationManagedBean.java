@@ -285,6 +285,11 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                     continue;
                 }
                 if (user.getPhone() == null || "".equals(user.getPhone()) || user.getDeptno() == null || "".equals(user.getDeptno())) {
+                    // 离职人员没有手机号码也要更新微信同步状态
+                    if ("X".equals(user.getStatus())) {
+                        user.setSyncWeChatStatus(user.getStatus());
+                        systemUserBean.update(user);
+                    }
                     continue;
                 }
                 JsonObject jo = systemUserBean.createJsonObjectBuilder(user).build();
