@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/template.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="content">
+        <p:growl id="growl" showSummary="false" showDetail="true"/>
+        <div class="ui-g-12 ui-g-nopad">
+            <div class="ui-g-12 ui-lg-6" style="width: 40%">
+                <div class="card" >
+                    <h:form id="formOne" >
+                        <p:toolbar id="toolbar" styleClass="topToolbar">
+                            <f:facet name="left">
+                                <p:inputText id="queryName" value="#{wechatTagManagedBean.queryName}" title="标签名查询" style="background-color: white" />
+                                <p:splitButton id="btnLoad" value="查询" actionListener="#{wechatTagManagedBean.query()}" icon="ui-icon-search" update="formOne,formTwo">
+                                    <p:menuitem id="btnLoadAll" value="查询全部" actionListener="#{wechatTagManagedBean.reset()}" icon="ui-icon-search"  update="formOne,formTwo" />
+                                    <p:menuitem id="btnLoadV" value="查询已同步" actionListener="#{wechatTagManagedBean.query('V')}" icon="ui-icon-search"   update="formOne,formTwo" />
+                                    <p:menuitem id="btnLoadU" value="查询待更新" actionListener="#{wechatTagManagedBean.query('U')}" icon="ui-icon-search"  update="formOne,formTwo" />
+                                    <p:menuitem id="btnLoadN" value="查询未同步" actionListener="#{wechatTagManagedBean.query('N')}" icon="ui-icon-search"  update="formOne,formTwo" />
+                                </p:splitButton>
+                            </f:facet>
+                            <f:facet name="right">
+                                <p:commandButton id="btnSync" value="同步微信" actionListener="#{wechatTagManagedBean.syncTag()}" icon="ui-icon-sync" update="formOne,formTwo,growl"/>
+                                <p:commandButton  id="btnSyncTagByHRM" value="HR同步" actionListener="#{wechatTagManagedBean.syncTagByHRM()}" icon="ui-icon-file-download" update="formOne,growl"/>
+                            </f:facet>
+                        </p:toolbar>
+                        <p:dataTable value="#{wechatTagManagedBean.model}" var="item"  styleClass="tableList Mtop10" paginator="true" paginatorPosition="bottom" rows="15"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="15,30,60" lazy="true"
+                                     selectionMode="single" selection="#{wechatTagManagedBean.currentEntity}" rowKey="#{item.id}" >
+                            <f:facet name="header">
+                                标签资料
+                            </f:facet>
+                            <p:ajax event="rowSelect"  update="formTwo,growl" />
+                            <p:ajax event="rowUnselect" update="formTwo,growl" />
+                            <p:column styleClass="Wid30">
+                                <f:facet name="header">
+                                    <h:outputText value="编号"/>
+                                </f:facet>
+                                <h:outputText value="#{item.tagcode}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="标签名"/>
+                                </f:facet>
+                                <h:outputText value="#{item.tagname}"/>
+                            </p:column>
+                            <p:column styleClass="Wid30">
+                                <f:facet name="header">
+                                    <h:outputText value="微信状态"/>
+                                </f:facet>
+                                <h:outputText value="#{wechatTagManagedBean.WeChatStatus(item.weChatStatus)}"/>
+                            </p:column>
+                        </p:dataTable>
+                        <p:blockUI id="blockOne" block="formOne"  trigger="btnSync,btnLoad,btnSyncTagByHRM">
+                            <p:graphicImage name="images/ajaxloadingbar.gif" library="ultima-layout"/>
+                        </p:blockUI>
+                    </h:form>
+                </div>
+            </div>
+            <div class="ui-g-12 ui-lg-6" style="width: 60%">
+                <div class="card" >
+                    <h:form id="formTwo">
+                        <p:toolbar id="toolbar" styleClass="topToolbar">
+                            <f:facet name="left">
+                                <p:commandButton id="btnLoadTagUser" value="刷新当前" actionListener="#{wechatTagManagedBean.loadWechatTagUser()}" icon="ui-icon-refresh" update="formTwo,growl"/>
+                                <p:commandButton id="btnLoadTagUserAll" value="查询全部" actionListener="#{wechatTagManagedBean.loadWechatTagUserAll()}" icon="ui-icon-search" update="formTwo,growl"/>
+                            </f:facet>
+                            <f:facet name="right">
+                                <p:commandButton id="btnSynAddTagUser" value="增加成员"  actionListener="#{wechatTagManagedBean.openDialog('sysuserSelect')}"  icon="ui-icon-plus" update="growl">
+                                    <p:ajax event="dialogReturn" listener="#{wechatTagManagedBean.handleDialogReturnWhenDetailAllNew}" update="formTwo,growl"  />
+                                </p:commandButton>
+                                <p:commandButton id="btnSynDeleteTagUser" value="删除成员" icon="ui-icon-trash" actionListener="#{wechatTagManagedBean.deleteWeCharTagUser()}"  update="formTwo,growl" >
+                                    <p:confirm header="系统提示" message="删除吗?" icon="ui-icon-alert" />
+                                </p:commandButton>
+                            </f:facet>
+                        </p:toolbar>
+                        <p:dataTable value="#{wechatTagManagedBean.tagUserList}" var="item"  styleClass="tableList Mtop10" paginator="true" paginatorPosition="bottom" rows="15"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="15,30,60" lazy="true"
+                                     selection="#{wechatTagManagedBean.selectTagUserList}" rowKey="#{item.id}" >
+                            <p:column selectionMode="multiple" style="width:16px;text-align:center" />
+                            <f:facet name="header">
+                                标签组员资料
+                            </f:facet>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="标签名"/>
+                                </f:facet>
+                                <h:outputText value="#{item.tag.tagname}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="工号"/>
+                                </f:facet>
+                                <h:outputText value="#{item.userid}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="姓名"/>
+                                </f:facet>
+                                <h:outputText value="#{item.user.username}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="部门编号"/>
+                                </f:facet>
+                                <h:outputText value="#{item.user.deptno}"/>
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="部门"/>
+                                </f:facet>
+                                <h:outputText value="#{item.user.dept.dept}"/>
+                            </p:column>
+                            <p:column >
+                                <f:facet name="header">
+                                    <h:outputText value="微信状态"/>
+                                </f:facet>
+                                <h:outputText value="#{wechatTagManagedBean.WeChatStatus(item.weChatStatus)}"/>
+                            </p:column>
+                        </p:dataTable>
+                        <p:blockUI id="blockTwo" block="formTwo"  trigger="btnLoadTagUser,btnLoadTagUserAll,btnSynAddTagUser,btnSynDeleteTagUser">
+                            <p:graphicImage name="images/ajaxloadingbar.gif" library="ultima-layout"/>
+                        </p:blockUI>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+        </p:confirmDialog>
+    </ui:define>
+
+</ui:composition>

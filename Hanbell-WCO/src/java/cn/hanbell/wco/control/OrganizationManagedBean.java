@@ -7,8 +7,10 @@ package cn.hanbell.wco.control;
 
 import cn.hanbell.eap.ejb.DepartmentBean;
 import cn.hanbell.eap.ejb.SystemUserBean;
+import cn.hanbell.eap.ejb.WechatTagUserBean;
 import cn.hanbell.eap.entity.Department;
 import cn.hanbell.eap.entity.SystemUser;
+import cn.hanbell.eap.entity.WechatTagUser;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
 import cn.hanbell.wco.lazy.DepartmentModel;
 import cn.hanbell.wco.web.SuperSingleBean;
@@ -39,6 +41,8 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
     private DepartmentBean departmentBean;
     @EJB
     private SystemUserBean systemUserBean;
+    @EJB
+    private WechatTagUserBean wechatTagUserBean;
 
     @EJB
     private Agent1000002Bean wechatCorpBean;
@@ -312,6 +316,8 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             user.setSyncWeChatStatus("X");
                             user.setOptdate(user.getSyncWeChatDate());
                             systemUserBean.update(user);
+                            //企业微信人员删除后删除标签组人员
+                            deleteWeCharTagUser(wechatTagUserBean.findByUserid(user.getUserid()));
                         } else {
                             ret = false;
                             showErrorMsg("Error", msg);
@@ -366,6 +372,13 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             eu.setDeptno(e.getDepartment().getCode());
                             eu.setPhone(e.getMobilePhone());
                             eu.setEmail(e.getEmail());
+                            //增加标签tagcode信息
+                            if (e.getDecisionLevel() != null && "".equals(e.getDecisionLevel())) {
+                                eu.setDecisionLevel(e.getDecisionLevel());
+                            }
+                            if (e.getLevelId() != null && "".equals(e.getLevelId())) {
+                                eu.setLevelid(e.getLevelId());
+                            }
                             eu.setCreatorToSystem();
                             eu.setCredateToNow();
                             eu.setOptdate(eu.getCredate());
@@ -376,6 +389,13 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                 eu.setDeptno(e.getDepartment().getCode());
                                 eu.setPhone(e.getMobilePhone());
                                 eu.setEmail(e.getEmail());
+                                //增加标签tagcode信息
+                                if (e.getDecisionLevel() != null && "".equals(e.getDecisionLevel())) {
+                                    eu.setDecisionLevel(e.getDecisionLevel());
+                                }
+                                if (e.getLevelId() != null && "".equals(e.getLevelId())) {
+                                    eu.setLevelid(e.getLevelId());
+                                }
                                 eu.setOptuserToSystem();
                                 eu.setOptdate(e.getLastModifiedDate());
                                 flag = true;
@@ -406,6 +426,22 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
             }
         }
         return true;
+    }
+
+    public void deleteWeCharTagUser(List<WechatTagUser> list) {
+        if (list != null && !list.isEmpty()) {
+            Boolean ret = true;
+            String msg;
+            for (WechatTagUser tagUser : list) {
+                JsonObject jo = wechatTagUserBean.createJsonObjectBuilder(tagUser).build();
+                msg = wechatCorpBean.deleteWechatTagUser(jo);
+                if (msg.equals("success")) {
+                    wechatTagUserBean.delete(tagUser);
+                } else {
+                    showErrorMsg("Error", msg + "标签组组员" + tagUser.getUserid() + "删除失败");
+                }
+            }
+        }
     }
 
     /**
