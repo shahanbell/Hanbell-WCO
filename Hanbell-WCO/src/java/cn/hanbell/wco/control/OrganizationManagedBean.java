@@ -317,7 +317,7 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             user.setOptdate(user.getSyncWeChatDate());
                             systemUserBean.update(user);
                             //企业微信人员删除后删除标签组人员
-                            deleteWeCharTagUser(wechatTagUserBean.findByUserid(user.getUserid()));
+                            deleteWeChatTagUser(user.getUserid());
                         } else {
                             ret = false;
                             showErrorMsg("Error", msg);
@@ -428,12 +428,17 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
         return true;
     }
 
-    public void deleteWeCharTagUser(List<WeChatTagUser> list) {
+    public void deleteWeChatTagUser(String userid) {
+        List<WeChatTagUser> list = wechatTagUserBean.findByUserid(userid);
         if (list != null && !list.isEmpty()) {
             Boolean ret = true;
             String msg;
+            List<WeChatTagUser> tagUserList = new ArrayList<>();
             for (WeChatTagUser tagUser : list) {
-                JsonObject jo = wechatTagUserBean.createJsonObjectBuilder(tagUser).build();
+                // 单一用户多个标签处理逻辑
+                tagUserList.clear();
+                tagUserList.add(tagUser);
+                JsonObject jo = wechatTagUserBean.createJsonObjectBuilder(tagUserList, tagUser.getTagid()).build();
                 msg = wechatCorpBean.deleteWeChatTagUser(jo);
                 if (msg.equals("success")) {
                     wechatTagUserBean.delete(tagUser);
@@ -441,6 +446,7 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                     showErrorMsg("Error", msg + "标签组组员" + tagUser.getUserid() + "删除失败");
                 }
             }
+            tagUserList.clear();
         }
     }
 
