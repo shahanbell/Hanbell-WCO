@@ -185,7 +185,7 @@ public class WeChatTagManagedBean extends SuperSingleBean<WeChatTag> {
         Boolean ret = true;
         String msg;
         if (tagUserList != null && !tagUserList.isEmpty()) {
-            JsonObject jo = wechatTagUserBean.createJsonObjectBuilder(selectTagUserList, currentEntity.getId()).build();
+            JsonObject jo = wechatTagUserBean.createJsonObjectBuilder(tagUserList, currentEntity.getId()).build();
             msg = wechatCorpBean.createWeChatTagUser(jo);
             if (!msg.equals("success")) {
                 ret = false;

@@ -9,7 +9,7 @@
     <ui:define name="content">
         <p:growl id="growl" showSummary="false" showDetail="true"/>
         <div class="ui-g-12 ui-g-nopad">
-            <div class="ui-g-12 ui-lg-6" style="width: 40%">
+            <div class="ui-g-12 ui-lg-6">
                 <div class="card" >
                     <h:form id="formOne" >
                         <p:toolbar id="toolbar" styleClass="topToolbar">
@@ -61,7 +61,7 @@
                     </h:form>
                 </div>
             </div>
-            <div class="ui-g-12 ui-lg-6" style="width: 60%">
+            <div class="ui-g-12 ui-lg-6">
                 <div class="card" >
                     <h:form id="formTwo">
                         <p:toolbar id="toolbar" styleClass="topToolbar">
@@ -106,12 +106,6 @@
                             </p:column>
                             <p:column>
                                 <f:facet name="header">
-                                    <h:outputText value="部门编号"/>
-                                </f:facet>
-                                <h:outputText value="#{item.user.deptno}"/>
-                            </p:column>
-                            <p:column>
-                                <f:facet name="header">
                                     <h:outputText value="部门"/>
                                 </f:facet>
                                 <h:outputText value="#{item.user.dept.dept}"/>
@@ -120,7 +114,7 @@
                                 <f:facet name="header">
                                     <h:outputText value="微信状态"/>
                                 </f:facet>
-                                <h:outputText value="#{wechatTagManagedBean.WeChatStatus(item.weChatStatus)}"/>
+                                <h:outputText value="#{wechatTagManagedBean.syncWeChatStatus(item.weChatStatus)}"/>
                             </p:column>
                         </p:dataTable>
                         <p:blockUI id="blockTwo" block="formTwo"  trigger="btnLoadTagUser,btnLoadTagUserAll,btnSynAddTagUser,btnSynDeleteTagUser">
