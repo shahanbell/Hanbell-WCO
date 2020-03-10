@@ -294,7 +294,7 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                     session.setDeptno(su.getDeptno());
                     session.setDeptName(su.getDept().getDept());
                     session.setCompany(su.getDept().getCompany());
-                    session.setCompanyName(companyBean.findByCompany(session.getCompany()).getName());                   
+                    session.setCompanyName(companyBean.findByCompany(session.getCompany()).getName());
                     return session;
                 } else {
                     return new ResponseSession("401", "授权异常");

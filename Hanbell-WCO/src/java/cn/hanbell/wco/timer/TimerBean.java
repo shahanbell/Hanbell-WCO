@@ -52,9 +52,14 @@ public class TimerBean {
 
     private final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
 
-    //@Schedule(minute = "33", hour = "23", persistent = false)
+    public TimerBean() {
+
+    }
+
+    //@Schedule(minute = "35,55", hour = "23", persistent = false)
     public void syncWXWorkOrganizationByEAP() {
         //23:23先由EAP执行排程，从HRM同步到EAP
+        log4j.info("syncWXWorkOrganizationByEAP开始");
         Department dept = departmentBean.findByDeptno("00000");
         if (dept != null) {
             userList = new ArrayList<>();
@@ -83,6 +88,7 @@ public class TimerBean {
                 log4j.info("syncWXWorkEmployeeByEAP结束");
             }
         }
+        log4j.info("syncWXWorkOrganizationByEAP结束");
     }
 
     private void loadUser(Department dept) {
@@ -177,6 +183,11 @@ public class TimerBean {
             String msg;
             for (SystemUser user : userList) {
                 if (user.getSyncWeChatStatus() != null && "X".equals(user.getSyncWeChatStatus())) {
+                    continue;
+                }
+                if (user.getSyncWeChatStatus() == null && "X".equals(user.getStatus())) {
+                    user.setSyncWeChatStatus(user.getStatus());
+                    systemUserBean.update(user);
                     continue;
                 }
                 if (user.getPhone() == null || "".equals(user.getPhone()) || user.getDeptno() == null || "".equals(user.getDeptno())) {
