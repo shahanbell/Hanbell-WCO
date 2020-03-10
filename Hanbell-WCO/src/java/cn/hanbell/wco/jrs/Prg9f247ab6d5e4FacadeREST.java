@@ -15,8 +15,18 @@ import cn.hanbell.wco.entity.JobTask;
 import cn.hanbell.wco.entity.WeChatSession;
 import cn.hanbell.wco.entity.WeChatUser;
 import cn.hanbell.wco.comm.MiniProgramSession;
+import cn.hanbell.wco.ejb.WechatroleWechatauthorityBean;
+import cn.hanbell.wco.ejb.WechatroleWechatuserBean;
+import cn.hanbell.wco.entity.Wechatauthority;
+import cn.hanbell.wco.entity.Wechatrole;
+import cn.hanbell.wco.entity.WechatroleWechatauthority;
+import cn.hanbell.wco.entity.WechatroleWechatuser;
 import com.lightshell.comm.BaseLib;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -33,6 +43,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.json.JSONObject;
+import sun.font.EAttribute;
 
 /**
  *
@@ -48,10 +59,16 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
     private Prg9f247ab6d5e4Bean prg9f247ab6d5e4Bean;
     @EJB
     private WeChatUserBean wechatUserBean;
+
     @EJB
     private SystemUserBean systemUserBean;
     @EJB
     private CompanyBean companyBean;
+    @EJB
+    private WechatroleWechatuserBean wechatroleWechatuserBean;
+
+    @EJB
+    private WechatroleWechatauthorityBean wechatauthorityBean;
 
     public Prg9f247ab6d5e4FacadeREST() {
         super(WeChatUser.class);
@@ -294,7 +311,7 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                     session.setDeptno(su.getDeptno());
                     session.setDeptName(su.getDept().getDept());
                     session.setCompany(su.getDept().getCompany());
-                    session.setCompanyName(companyBean.findByCompany(session.getCompany()).getName());                   
+                    session.setCompanyName(companyBean.findByCompany(session.getCompany()).getName());
                     return session;
                 } else {
                     return new ResponseSession("401", "授权异常");
@@ -308,4 +325,22 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
         }
     }
 
+    @GET
+    @Path("AuthValidation")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Set<Wechatauthority> findAuthoityById(@QueryParam("employeeid") String employeeid) {
+        List<WechatroleWechatuser> wechatroleWechatuser = wechatroleWechatuserBean.findAllByUserid(employeeid);
+        Set<Wechatauthority> we = new HashSet<Wechatauthority>();
+        if (wechatroleWechatuser != null) {
+            for (int i = 0; i < wechatroleWechatuser.size(); i++) {
+                Wechatrole w = wechatroleWechatuser.get(i).getWechatrole();
+                if ("Y".equals(w.getStatus())) {
+                    List<Wechatauthority> wa = wechatauthorityBean.findAllAuth(w.getId());
+                    we.addAll(wa);
+                }
+            }
+            return we;
+        }
+        return null;
+    }
 }
