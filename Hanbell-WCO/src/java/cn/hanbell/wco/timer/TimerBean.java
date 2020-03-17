@@ -56,7 +56,7 @@ public class TimerBean {
 
     }
 
-    //@Schedule(minute = "35,55", hour = "23", persistent = false)
+    //@Schedule(minute = "35", hour = "7,23", persistent = false)
     public void syncWXWorkOrganizationByEAP() {
         //23:23先由EAP执行排程，从HRM同步到EAP
         log4j.info("syncWXWorkOrganizationByEAP开始");

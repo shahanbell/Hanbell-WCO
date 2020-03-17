@@ -36,6 +36,12 @@
                                 </f:facet>
                                 <h:outputText value="#{item.dept}"/>
                             </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="同步状态"/>
+                                </f:facet>
+                                <h:outputText value="#{item.syncWeChatStatus}"/>
+                            </p:column>
                         </p:treeTable>
                         <p:blockUI id="blockOne" block="formOne"  trigger="btnSync,btnLoad,btnSyncDeptByHRM">
                             <p:graphicImage name="images/ajaxloadingbar.gif" library="ultima-layout"/>
@@ -47,7 +53,9 @@
                 <div class="card" >
                     <h:form id="formTwo">
                         <p:menubar>
-                            <p:menuitem id="btnSyncUser" value="同步微信" actionListener="#{organizationManagedBean.syncEmployee()}" icon="ui-icon-sync" update="formTwo,growl"/>
+                            <p:menuitem id="btnSyncBatchUser" value="批量同步" actionListener="#{organizationManagedBean.syncBatchEmployee()}" icon="ui-icon-sync" update="formTwo,growl"/>
+                            <p:menuitem id="btnSyncCurrentUser" value="单个同步" actionListener="#{organizationManagedBean.syncCurrentEmployee()}" icon="ui-icon-sync" update="formTwo,growl"/>
+                            <p:menuitem id="btnResyncCurrentUser" value="删除重建" actionListener="#{organizationManagedBean.resyncCurrentEmployee()}" icon="ui-icon-sync" update="formTwo,growl"/>
                             <p:menuitem id="btnLoadUserOnJob" value="查询在职" actionListener="#{organizationManagedBean.loadUserOnJob()}" icon="ui-icon-search" update="formTwo"/>
                             <p:menuitem id="btnLoadUserAll" value="查询全部" actionListener="#{organizationManagedBean.loadUserAll()}" icon="ui-icon-search" update="formTwo"/>
                             <p:menuitem id="btnSyncUserByHRM" value="HR同步" actionListener="#{organizationManagedBean.syncEmployeeByHRM()}" icon="ui-icon-file-download" update="formTwo,growl"/>
@@ -59,6 +67,8 @@
                             <f:facet name="header">
                                 员工资料
                             </f:facet>
+                            <p:ajax event="rowSelect"  update="" />
+                            <p:ajax event="rowUnselect" update="" />
                             <p:column>
                                 <f:facet name="header">
                                     <h:outputText value="编号"/>
@@ -96,7 +106,7 @@
                                 <h:outputText value="#{item.status}"/>
                             </p:column>
                         </p:dataTable>
-                        <p:blockUI id="blockTwo" block="formTwo"  trigger="btnSyncUser,btnLoadUserOnJob,btnLoadUserAll,btnSyncUserByHRM">
+                        <p:blockUI id="blockTwo" block="formTwo"  trigger="btnSyncBatchUser,btnSyncCurrentUser,btnResyncCurrentUser,btnLoadUserOnJob,btnLoadUserAll,btnSyncUserByHRM">
                             <p:graphicImage name="images/ajaxloadingbar.gif" library="ultima-layout"/>
                         </p:blockUI>
                     </h:form>
