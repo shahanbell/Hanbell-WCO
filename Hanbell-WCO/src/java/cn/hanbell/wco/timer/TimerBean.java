@@ -190,7 +190,7 @@ public class TimerBean {
                     systemUserBean.update(user);
                     continue;
                 }
-                if (user.getPhone() == null || "".equals(user.getPhone()) || user.getDeptno() == null || "".equals(user.getDeptno())) {
+                if (((user.getPhone() == null || "".equals(user.getPhone())) && (user.getEmail() == null || "".equals(user.getEmail()))) || user.getDeptno() == null || "".equals(user.getDeptno())) {
                     // 离职人员没有手机号码也要更新微信同步状态
                     if ("X".equals(user.getStatus())) {
                         user.setSyncWeChatStatus(user.getStatus());
