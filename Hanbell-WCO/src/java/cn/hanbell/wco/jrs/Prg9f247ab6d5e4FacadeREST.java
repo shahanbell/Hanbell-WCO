@@ -283,9 +283,6 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
         try {
             WeChatSession wcs = wechatSessionBean.findByCheckCode(openid, sessionkey, checkcode);
             if (wcs != null) {
-                wcs.setStatus("V");
-                wcs.setCfmdateToNow();
-                wechatSessionBean.update(wcs);
                 WeChatUser wcu = wechatUserBean.findByOpenId(openid);
                 if (wcu != null) {
                     wcu.setEmployeeId(entity.getEmployeeId());
@@ -312,6 +309,11 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                     session.setDeptName(su.getDept().getDept());
                     session.setCompany(su.getDept().getCompany());
                     session.setCompanyName(companyBean.findByCompany(session.getCompany()).getName());
+                    // 更新WeChatSession状态
+                    wcs.setStatus("V");
+                    wcs.setCfmdateToNow();
+                    wechatSessionBean.update(wcs);
+
                     return session;
                 } else {
                     return new ResponseSession("401", "授权异常");
