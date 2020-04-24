@@ -79,6 +79,18 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
         return wechatUserBean.getEntityManager();
     }
 
+    @GET
+    @Path("loginfaild")
+    @Produces({MediaType.APPLICATION_JSON})
+    public void loginFaild(@QueryParam("faild") String faild) {
+        //前端wx.login()请求失败的回调请求，记录请求失败原因
+        if (faild == null) {
+            log4j.info("小程序登录失败：" + faild);
+        } else {
+            log4j.info("小程序登录失败：" + faild.toString());
+        }
+    }
+
     @DELETE
     @Path("jobtask/{id}")
     @Produces({"application/json"})
