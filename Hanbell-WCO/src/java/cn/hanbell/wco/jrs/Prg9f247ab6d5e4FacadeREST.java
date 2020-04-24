@@ -19,12 +19,9 @@ import cn.hanbell.wco.ejb.WechatroleWechatauthorityBean;
 import cn.hanbell.wco.ejb.WechatroleWechatuserBean;
 import cn.hanbell.wco.entity.Wechatauthority;
 import cn.hanbell.wco.entity.Wechatrole;
-import cn.hanbell.wco.entity.WechatroleWechatauthority;
 import cn.hanbell.wco.entity.WechatroleWechatuser;
 import com.lightshell.comm.BaseLib;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
@@ -43,7 +40,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.json.JSONObject;
-import sun.font.EAttribute;
 
 /**
  *
@@ -77,6 +73,18 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
     @Override
     protected EntityManager getEntityManager() {
         return wechatUserBean.getEntityManager();
+    }
+
+    @GET
+    @Path("loginfaild")
+    @Produces({MediaType.APPLICATION_JSON})
+    public void loginFaild(@QueryParam("faild") String faild) {
+        //前端wx.login()请求失败的回调请求，记录请求失败原因
+        if (faild == null) {
+            log4j.info("小程序登录失败：" + faild);
+        } else {
+            log4j.info("小程序登录失败：" + faild.toString());
+        }
     }
 
     @DELETE
