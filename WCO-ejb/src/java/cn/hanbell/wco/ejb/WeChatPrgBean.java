@@ -35,17 +35,12 @@ public abstract class WeChatPrgBean extends WeChatPubBean {
         sb.append("&secret=").append(secret);
         sb.append("&js_code=").append(code);
         sb.append("&grant_type=authorization_code");
-        
+
         CloseableHttpResponse response = get(sb.toString(), null, null);
         if (response != null) {
             try {
                 HttpEntity entity = response.getEntity();
                 JSONObject jo = new JSONObject(EntityUtils.toString(entity, "UTF-8"));
-                boolean b = "0".equals(jo.get("errcode").toString());
-                //查看当前状态码是否为0，状态码除了0之外的请求都是存在问题，须记录
-                if (b == false) {
-                    log4j.error("获取会话异常。" + jo.get("errcode") + ":" + jo.get("errmsg"));
-                }
                 if (!jo.has("errcode")) {
                     return jo;
                 } else {
