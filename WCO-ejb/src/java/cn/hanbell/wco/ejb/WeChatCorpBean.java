@@ -367,7 +367,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
     }
 
     public String sendMsgToUser(int agentid, String userid, String msgType, String data) {
-        currentToken = this.getWeChatToken("org");
+        currentToken = this.getWeChatToken("1000002");
         setAccessToken(this.getAppID(), currentToken.getAppSecret());
         String access_token = getAccessToken(this.getAppID(),  currentToken.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
