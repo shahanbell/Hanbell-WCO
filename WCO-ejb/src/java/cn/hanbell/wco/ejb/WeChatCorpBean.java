@@ -7,15 +7,17 @@ package cn.hanbell.wco.ejb;
 
 import com.lightshell.wx.WeChatUtil;
 import cn.hanbell.wco.entity.WeChatToken;
+import javax.ejb.EJB;
+import javax.json.JsonObject;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
-import javax.ejb.EJB;
-import javax.json.JsonObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -184,7 +186,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         }
         return "系统异常操作失败";
     }
-    
+
     public String deleteDepartment(int id) {
         currentToken = this.getWeChatToken("org");
         if (currentToken == null) {
@@ -289,7 +291,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         }
         return "系统异常操作失败";
     }
-    
+
     public String deleteWeChatTagUser(JsonObject jo) {
         currentToken = this.getWeChatToken("org");
         if (currentToken == null) {
@@ -324,7 +326,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         }
         return "系统异常操作失败";
     }
-        
+
     protected WeChatToken getWeChatToken(String app) {
         if (tokenList == null) {
             tokenList = wechatTokenBean.findByAppId(getAppID());
@@ -365,8 +367,9 @@ public abstract class WeChatCorpBean extends WeChatUtil {
     }
 
     public String sendMsgToUser(int agentid, String userid, String msgType, String data) {
-        setAccessToken(this.getAppID(), "VamHpPp_hvN6gehXFitmLGMjxqY8fgVv2xjcYiv8T1k");
-        String access_token = getAccessToken(this.getAppID(), "VamHpPp_hvN6gehXFitmLGMjxqY8fgVv2xjcYiv8T1k");
+        currentToken = this.getWeChatToken("org");
+        setAccessToken(this.getAppID(), currentToken.getAppSecret());
+        String access_token = getAccessToken(this.getAppID(),  currentToken.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
             String urlString = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=" + access_token;
             //构建消息
