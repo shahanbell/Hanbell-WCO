@@ -72,8 +72,8 @@ public class DineInfoFacadeREST extends SuperRESTForWCO<DineInfo> {
     public ResponseMessage notExist(DineInfo entity, @QueryParam("appid") String appid, @QueryParam("token") String token) {
         if (isAuthorized(appid, token)) {
             try {
-                boolean a=dineInfobean.notExist(entity.getUserid(), entity.getDinedate());
-                if(!a){
+                boolean a = dineInfobean.notExist(entity.getUserid(), entity.getDinedate());
+                if (!a) {
                     return new ResponseMessage("405", "验证失败");
                 }
                 return new ResponseMessage("200", "验证成功");

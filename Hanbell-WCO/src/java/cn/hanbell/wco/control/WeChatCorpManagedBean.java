@@ -68,9 +68,9 @@ public class WeChatCorpManagedBean implements Serializable {
     }
 
     public void sendTextMsg() {
-        String msg = "";
-        if (userId != null) {
-            msg = wechatCorpBean.sendMsgToUser(agentId, userId, "text", textMsg);
+        String msg = "Hello";
+        if (openId != null) {
+            msg = wechatCorpBean.sendMsgToUser(openId, "text", msg);
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", msg));
         }
     }

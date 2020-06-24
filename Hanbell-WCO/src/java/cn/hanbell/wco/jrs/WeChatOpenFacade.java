@@ -34,7 +34,7 @@ public abstract class WeChatOpenFacade<T> {
 
     protected T currentEntity;
 
-    protected String charset = "UTF-8";
+    protected final String CHARSET = "UTF-8";
 
     protected final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
 

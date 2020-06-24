@@ -20,14 +20,14 @@ import javax.inject.Named;
 public class Agent1000002Bean extends WeChatCorpBean {
 
     public Agent1000002Bean() {
-
+        agentId = 1000002;
     }
 
     @Override
     public void initConfiguration() {
-        agentId = 1000002;
-        WeChatToken token = getWeChatToken(String.valueOf(agentId));
+        WeChatToken token = getWeChatToken(String.valueOf(getAgentId()));
         if (token != null && !isConfigured) {
+            // 单例只需初始化一次
             initWeChatCrypt(token.getAppASEKey());
             this.appSecret = token.getAppSecret();
             this.appToken = token.getAppToken();

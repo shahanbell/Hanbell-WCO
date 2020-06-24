@@ -364,7 +364,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         }
     }
 
-    public String sendMsgToUser(int agentid, String userid, String msgType, String data) {
+    public String sendMsgToUser(String userid, String msgType, String data) {
         setAccessToken(this.getAppID(), this.getAppSecret());
         String access_token = getAccessToken(this.getAppID(), this.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
@@ -373,7 +373,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
             StringBuilder jsonString = new StringBuilder();
             switch (msgType) {
                 case "text":
-                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'text','agentid':").append(agentid).append(",'text':{'content':'").append(data).append("'},'safe':0}");
+                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'text','agentid':").append(this.agentId).append(",'text':{'content':'").append(data).append("'},'safe':0}");
                     break;
                 case "image":
                     jsonString.append("{'touser':'").append(userid).append("','msgtype':'image','image':{'media_id':'").append(data).append("'}}");
@@ -595,6 +595,13 @@ public abstract class WeChatCorpBean extends WeChatUtil {
      */
     public void setResPath(String resPath) {
         this.resPath = resPath;
+    }
+
+    /**
+     * @return the agentId
+     */
+    public int getAgentId() {
+        return agentId;
     }
 
 }
