@@ -10,6 +10,7 @@ import cn.hanbell.wco.ejb.Agent1000002Bean;
 import cn.hanbell.wco.entity.WeChatUser;
 import javax.ejb.EJB;
 import javax.persistence.EntityManager;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -33,20 +34,21 @@ public class SendMsgFacadeREST extends WeChatOpenFacade<WeChatUser> {
 
     @Override
     protected EntityManager getEntityManager() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @POST
     @Path("send")
+    @Consumes({"application/json"})
     @Produces({"application/json"})
-    public ResponseMessage complaintMessage(MSGApplication entity) {
+    public ResponseMessage sendMessage(MSGApplication entity) {
         if (entity.getUserId() == null || entity.getMsg() == null || entity.getOpenid() == null || entity.getSessionkey() == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         try {
             if (wechatSessionBean.has(entity.getOpenid(), entity.getSessionkey())) {
                 agent1000002Bean.initConfiguration();
-                String errmsg = agent1000002Bean.sendMsgToUser(1000002, entity.getUserId(), "text", entity.getMsg());
+                String errmsg = agent1000002Bean.sendMsgToUser(entity.getUserId(), "text", entity.getMsg());
                 return new ResponseMessage("200", errmsg);
             } else {
                 return new ResponseMessage("401", "会话异常");

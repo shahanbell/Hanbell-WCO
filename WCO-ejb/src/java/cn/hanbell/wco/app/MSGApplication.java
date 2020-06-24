@@ -5,8 +5,6 @@
  */
 package cn.hanbell.wco.app;
 
-import javax.ws.rs.QueryParam;
-
 /**
  *
  * @author C2082
