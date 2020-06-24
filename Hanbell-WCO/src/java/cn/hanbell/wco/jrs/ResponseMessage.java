@@ -5,8 +5,6 @@
  */
 package cn.hanbell.wco.jrs;
 
-import cn.hanbell.wco.comm.MiniProgramSession;
-
 /**
  *
  * @author C0160

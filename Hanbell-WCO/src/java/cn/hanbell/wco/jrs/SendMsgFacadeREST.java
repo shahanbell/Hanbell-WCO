@@ -7,18 +7,12 @@ package cn.hanbell.wco.jrs;
 
 import cn.hanbell.wco.app.MSGApplication;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
-import cn.hanbell.wco.ejb.WeChatCorpBean;
-import cn.hanbell.wco.entity.JobTask;
 import cn.hanbell.wco.entity.WeChatUser;
 import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
@@ -26,14 +20,14 @@ import javax.ws.rs.core.Response;
  *
  * @author C2082
  */
-@Path("sendmsg/crm")
+@Path("sendmsg/")
 @javax.enterprise.context.RequestScoped
-public class SendCRMMsgFacadeREST extends WeChatOpenFacade<WeChatUser> {
+public class SendMsgFacadeREST extends WeChatOpenFacade<WeChatUser> {
 
     @EJB
     private Agent1000002Bean agent1000002Bean;
 
-    public SendCRMMsgFacadeREST() {
+    public SendMsgFacadeREST() {
         super(WeChatUser.class);
     }
 
@@ -43,16 +37,17 @@ public class SendCRMMsgFacadeREST extends WeChatOpenFacade<WeChatUser> {
     }
 
     @POST
-    @Path("compltaint")
+    @Path("send")
     @Produces({"application/json"})
     public ResponseMessage complaintMessage(MSGApplication entity) {
         if (entity.getUserId() == null || entity.getMsg() == null || entity.getOpenid() == null || entity.getSessionkey() == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         try {
-            if (wechatSessionBean.has( entity.getOpenid(), entity.getSessionkey())) {
-            String errmsg = agent1000002Bean.sendMsgToUser(1000003,entity.getUserId(), "text", entity.getMsg());
-            return new ResponseMessage("200", errmsg);
+            if (wechatSessionBean.has(entity.getOpenid(), entity.getSessionkey())) {
+                agent1000002Bean.initConfiguration();
+                String errmsg = agent1000002Bean.sendMsgToUser(1000002, entity.getUserId(), "text", entity.getMsg());
+                return new ResponseMessage("200", errmsg);
             } else {
                 return new ResponseMessage("401", "会话异常");
             }

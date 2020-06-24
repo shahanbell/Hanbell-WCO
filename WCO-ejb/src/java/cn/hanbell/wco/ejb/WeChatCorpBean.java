@@ -9,7 +9,6 @@ import com.lightshell.wx.WeChatUtil;
 import cn.hanbell.wco.entity.WeChatToken;
 import javax.ejb.EJB;
 import javax.json.JsonObject;
-
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
@@ -17,7 +16,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -328,7 +326,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
     }
 
     protected WeChatToken getWeChatToken(String app) {
-        if (tokenList == null) {
+        if (tokenList == null || tokenList.isEmpty()) {
             tokenList = wechatTokenBean.findByAppId(getAppID());
         }
         for (WeChatToken e : tokenList) {
@@ -367,9 +365,8 @@ public abstract class WeChatCorpBean extends WeChatUtil {
     }
 
     public String sendMsgToUser(int agentid, String userid, String msgType, String data) {
-        currentToken = this.getWeChatToken("1000002");
-        setAccessToken(this.getAppID(), currentToken.getAppSecret());
-        String access_token = getAccessToken(this.getAppID(),  currentToken.getAppSecret());
+        setAccessToken(this.getAppID(), this.getAppSecret());
+        String access_token = getAccessToken(this.getAppID(), this.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
             String urlString = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=" + access_token;
             //构建消息
