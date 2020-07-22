@@ -8,7 +8,6 @@ package cn.hanbell.wco.ejb;
 import cn.hanbell.wco.entity.WeChatToken;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.inject.Named;
 
 /**
  *
@@ -16,7 +15,6 @@ import javax.inject.Named;
  */
 @Startup
 @Singleton
-@Named
 public class Agent1000002Bean extends WeChatCorpBean {
 
     public Agent1000002Bean() {

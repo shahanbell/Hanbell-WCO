@@ -268,7 +268,10 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             }
                             if (!hd.getFlag()) {
                                 ed.setStatus("X");
+                            } else {
+                                ed.setStatus("N");
                             }
+                            ed.setOptuserToSystem();
                             ed.setOptdate(hd.getLastModifiedDate());
                             departmentBean.update(ed);
                         }
@@ -413,16 +416,15 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             eu = new cn.hanbell.eap.entity.SystemUser();
                             eu.setUserid(e.getCode());
                             eu.setUsername(e.getCnName());
+                            eu.setJobCode(e.getJob().getCode());
+                            eu.setJob(e.getJob().getName());
+                            eu.setPositionCode(e.getPosition().getCode());
+                            eu.setPosition(e.getPosition().getName());
+                            eu.setLevelId(e.getLevelId());
+                            eu.setDecisionLevel(e.getDecisionlevelInfo().getInfoCode());
                             eu.setDeptno(e.getDepartment().getCode());
                             eu.setPhone(e.getMobilePhone());
                             eu.setEmail(e.getEmail());
-                            //增加标签tagcode信息
-                            if (e.getDecisionLevel() != null && "".equals(e.getDecisionLevel())) {
-                                eu.setDecisionLevel(e.getDecisionLevel());
-                            }
-                            if (e.getLevelId() != null && "".equals(e.getLevelId())) {
-                                eu.setLevelid(e.getLevelId());
-                            }
                             eu.setCreatorToSystem();
                             eu.setCredateToNow();
                             eu.setOptdate(eu.getCredate());
@@ -430,16 +432,15 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                         } else {
                             if (eu.getOptdate() != null && eu.getOptdate().before(e.getLastModifiedDate())) {
                                 eu.setUsername(e.getCnName());
+                                eu.setJobCode(e.getJob().getCode());
+                                eu.setJob(e.getJob().getName());
+                                eu.setPositionCode(e.getPosition().getCode());
+                                eu.setPosition(e.getPosition().getName());
+                                eu.setLevelId(e.getLevelId());
+                                eu.setDecisionLevel(e.getDecisionlevelInfo().getInfoCode());
                                 eu.setDeptno(e.getDepartment().getCode());
                                 eu.setPhone(e.getMobilePhone());
                                 eu.setEmail(e.getEmail());
-                                //增加标签tagcode信息
-                                if (e.getDecisionLevel() != null && "".equals(e.getDecisionLevel())) {
-                                    eu.setDecisionLevel(e.getDecisionLevel());
-                                }
-                                if (e.getLevelId() != null && "".equals(e.getLevelId())) {
-                                    eu.setLevelid(e.getLevelId());
-                                }
                                 eu.setOptuserToSystem();
                                 eu.setOptdate(e.getLastModifiedDate());
                                 flag = true;
@@ -448,6 +449,7 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                 eu.setStatus("X");
                                 eu.setOptuserToSystem();
                                 eu.setOptdate(e.getLastModifiedDate());
+                                flag = true;
                             }
                             if (flag) {
                                 systemUserBean.update(eu);
@@ -457,11 +459,11 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                 }
                 entityList = departmentBean.findByPId(dept.getId());
                 if (entityList != null && !entityList.isEmpty()) {
-                    for (Department e : entityList) {
-                        if (e.getStatus().equals("X")) {
+                    for (Department d : entityList) {
+                        if (d.getStatus().equals("X")) {
                             continue;
                         }
-                        syncEmployeeByHRM(e);
+                        syncEmployeeByHRM(d);
                     }
                 }
             } catch (Exception ex) {
