@@ -5,11 +5,11 @@
  */
 package cn.hanbell.wco.servlet;
 
+import cn.hanbell.eap.ejb.SalarySendBean;
+import cn.hanbell.eap.entity.SalarySend;
 import cn.hanbell.wco.corp.ReqEncryptMessage;
 import cn.hanbell.wco.corp.ReqMessage;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
-import cn.hanbell.wco.ejb.SalarySendBean;
-import cn.hanbell.wco.entity.SalarySend;
 import cn.hanbell.wco.pub.OutputTextMessage;
 import com.lightshell.comm.BaseLib;
 import java.io.ByteArrayInputStream;
@@ -184,13 +184,6 @@ public class Agent1000002 extends HttpServlet {
                                             confirm.setStatus("V");
                                             confirm.setConfirmtime(new Date());
                                             salarySendBean.update(confirm);
-                                            break;
-                                        //质疑
-                                        case "query":
-                                            SalarySend query = salarySendBean.findByTaskidAndEmployeeid(taskId, userid);
-                                            query.setStatus("X");
-                                            query.setConfirmtime(new Date());
-                                            salarySendBean.update(query);
                                             break;
                                     }
                                     break;
