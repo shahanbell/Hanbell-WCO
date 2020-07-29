@@ -5,6 +5,8 @@
  */
 package cn.hanbell.wco.servlet;
 
+import cn.hanbell.eap.ejb.SalarySendBean;
+import cn.hanbell.eap.entity.SalarySend;
 import cn.hanbell.wco.corp.ReqEncryptMessage;
 import cn.hanbell.wco.corp.ReqMessage;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
@@ -15,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import javax.ejb.EJB;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -37,6 +40,9 @@ public class Agent1000002 extends HttpServlet {
 
     @EJB
     private Agent1000002Bean wechatCorpBean;
+
+    @EJB
+    private SalarySendBean salarySendBean;
 
     private final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
 
@@ -166,11 +172,19 @@ public class Agent1000002 extends HttpServlet {
                                     }
                                     break;
                                 case "taskcard_click":
+                                    log4j.info("==== "+"inputMsg="+inputMsg.toString()+" ====");
                                     eventKey = inputMsg.getEventKey();
                                     String taskId = inputMsg.getTaskId();
+                                    String userid = inputMsg.getFromUserName();
                                     String taskMsg;
                                     switch (eventKey) {
-
+                                        //确认
+                                        case "confirm":
+                                            SalarySend confirm = salarySendBean.findByTaskidAndEmployeeid(taskId, userid);
+                                            confirm.setStatus("V");
+                                            confirm.setConfirmtime(new Date());
+                                            salarySendBean.update(confirm);
+                                            break;
                                     }
                                     break;
                                 default:
