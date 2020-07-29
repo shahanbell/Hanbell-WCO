@@ -68,11 +68,11 @@ public class Agent1000002 extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-        //微信加密签名
+        // 微信加密签名
         String signature = request.getParameter("msg_signature");
-        //时间戳
+        // 时间戳
         String timestamp = request.getParameter("timestamp");
-        //随机数
+        // 随机数
         String nonce = request.getParameter("nonce");
         JSONObject jsonObject;
         InputStream is;
@@ -85,15 +85,15 @@ public class Agent1000002 extends HttpServlet {
                 String toUser = reqEncryptMsg.getToUserName();
                 int agentID = reqEncryptMsg.getAgentID();
                 String encrypt = reqEncryptMsg.getEncrypt();
-                //签名验证
+                // 签名验证
                 String checking = wechatCorpBean.getSignature(token, timestamp, nonce, encrypt);
                 if (!signature.equals(checking)) {
                     throw new Exception("ValidateSignatureError");
                 }
-                //得到明文消息
+                // 得到明文消息
                 String content = wechatCorpBean.decrypt(encrypt);
                 log4j.info(content);
-                //明文XML转成对象
+                // 明文XML转成对象
                 is = new ByteArrayInputStream(content.getBytes("UTF-8"));
                 ReqMessage inputMsg = BaseLib.convertXMLToObject(ReqMessage.class, is);
                 if (inputMsg != null) {
@@ -172,13 +172,13 @@ public class Agent1000002 extends HttpServlet {
                                     }
                                     break;
                                 case "taskcard_click":
-                                    log4j.info("==== "+"inputMsg="+inputMsg.toString()+" ====");
+                                    log4j.info("==== " + "inputMsg=" + inputMsg.toString() + " ====");
                                     eventKey = inputMsg.getEventKey();
                                     String taskId = inputMsg.getTaskId();
                                     String userid = inputMsg.getFromUserName();
                                     String taskMsg;
                                     switch (eventKey) {
-                                        //确认
+                                        // 确认
                                         case "confirm":
                                             SalarySend confirm = salarySendBean.findByTaskidAndEmployeeid(taskId, userid);
                                             confirm.setStatus("V");
@@ -190,7 +190,7 @@ public class Agent1000002 extends HttpServlet {
                                 default:
                                     break;
                             }
-                            break;//event
+                            break;// event
                         case "image":
                             String picurl = inputMsg.getPicUrl();
                             String mediaId = inputMsg.getMediaId();
@@ -232,12 +232,12 @@ public class Agent1000002 extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String path = request.getServletPath();
-        //消息接入验证
-        String signature = request.getParameter("msg_signature");   //微信加密签名
-        String timestamp = request.getParameter("timestamp");       //时间戳
-        String nonce = request.getParameter("nonce");               //随机数
-        String echostr = request.getParameter("echostr");           //随机字符串
-        //确认此次GET请求来自微信服务器，原样返回echostr参数中的msg，则接入生效
+        // 消息接入验证
+        String signature = request.getParameter("msg_signature"); // 微信加密签名
+        String timestamp = request.getParameter("timestamp"); // 时间戳
+        String nonce = request.getParameter("nonce"); // 随机数
+        String echostr = request.getParameter("echostr"); // 随机字符串
+        // 确认此次GET请求来自微信服务器，原样返回echostr参数中的msg，则接入生效
         String key = wechatCorpBean.getSignature(token, timestamp, nonce, echostr);
 
         if (signature.equals(key)) {
