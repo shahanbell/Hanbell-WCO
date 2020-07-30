@@ -109,10 +109,10 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
             String dateString = BaseLib.formatDate("yyyyMM", new Date(date));
             if (inservice) {
                 salaryList.addAll(salarySendBean.findByTaskidAndDeptno("XZHZ"+dateString, dept.getDeptno()));
-                userSet.addAll(systemUserBean.findByDeptnoOrStatus(dept.getDeptno()));
+                userSet.addAll(systemUserBean.findByDeptnoAndOnJob(dept.getDeptno()));
             } else {
                 salaryList.addAll(salarySendBean.findByTaskidAndDeptno("XZHZ"+dateString, dept.getDeptno()));
-                userSet.addAll(systemUserBean.findByDeptnoOrStatus(dept.getDeptno()));
+                userSet.addAll(systemUserBean.findByDeptnoAndOnJob(dept.getDeptno()));
             }
         }
     }
