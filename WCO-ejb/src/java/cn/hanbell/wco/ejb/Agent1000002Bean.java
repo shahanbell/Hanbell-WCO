@@ -18,7 +18,7 @@ import javax.ejb.Startup;
 public class Agent1000002Bean extends WeChatCorpBean {
 
     public Agent1000002Bean() {
-        agentId = 1000002;
+        agentId = 1000003;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class Agent1000002Bean extends WeChatCorpBean {
 
     @Override
     public String getAppID() {
-        return "ww94e6447967583b32";
+        return "ww6678f44a19cb2f3c";
     }
 
     @Override

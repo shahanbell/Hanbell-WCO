@@ -387,6 +387,26 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 case "wxcard":
                     jsonString.append("{'touser':'").append(userid).append("','msgtype':'wxcard','wxcard':{'card_id':'").append(data).append("'}}");
                     break;
+                case "taskcard":
+                    //截取data中的数据查看taskid的前缀,判断发送的是哪个回执
+                    String taskid = data.substring(data.indexOf("'task_id':'") + 11, data.indexOf("'task_id':'") + 15);
+                    switch (taskid) {
+                        //薪资回执
+                        case "XZHZ":
+                            jsonString.append("{'touser':'");
+                            jsonString.append("','toparty':'").append("1");
+                            jsonString.append("','totag':'").append("");
+                            jsonString.append("','msgtype':'").append("taskcard");
+                            jsonString.append("','agentid':'").append(this.agentId).append("',");
+                            jsonString.append(data);
+                            jsonString.append("'enable_id_trans':").append(0);
+                            jsonString.append(",'enable_duplicate_check':").append(0);
+                            jsonString.append(",'duplicate_check_interval':").append(1800);
+                            jsonString.append("}");
+                            break;
+                    }
+
+                    break;
             }
             //log4j.info(jsonString.toString());
             JSONObject jop = new JSONObject(jsonString.toString());
@@ -568,7 +588,6 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         }
         return "系统异常操作失败";
     }
-
     /**
      * @return the dataPath
      */
