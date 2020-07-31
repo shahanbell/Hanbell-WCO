@@ -84,6 +84,11 @@
             <to-view-id>/app/token.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>salarySend</from-outcome>
+            <to-view-id>/app/corp/salarySend.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>
     </navigation-rule>
     <!--模态开窗-->
     <navigation-rule>
@@ -93,6 +98,6 @@
             <from-outcome>sysuserSelect</from-outcome>
             <to-view-id>/app/df/sysuserSelect.xhtml</to-view-id>
             <redirect/>
-        </navigation-case>
+        </navigation-case>     
     </navigation-rule>
 </faces-config>
