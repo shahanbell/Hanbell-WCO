@@ -410,19 +410,29 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                 if (employeeList != null && !employeeList.isEmpty()) {
                     employeeList.forEach((e) -> {
                         boolean flag = false;
+                        cn.hanbell.hrm.entity.Employee manager = hrmEmployeeBean.findByEmployeeId(e.getDirectorId());
                         // EAP
                         cn.hanbell.eap.entity.SystemUser eu = systemUserBean.findByUserId(e.getCode());
                         if (eu == null) {
                             eu = new cn.hanbell.eap.entity.SystemUser();
                             eu.setUserid(e.getCode());
                             eu.setUsername(e.getCnName());
-                            eu.setJobCode(e.getJob().getCode());
-                            eu.setJob(e.getJob().getName());
-                            eu.setPositionCode(e.getPosition().getCode());
-                            eu.setPosition(e.getPosition().getName());
+                            if (e.getJob() != null) {
+                                eu.setJobCode(e.getJob().getCode());
+                                eu.setJob(e.getJob().getName());
+                            }
+                            if (e.getPosition() != null) {
+                                eu.setPositionCode(e.getPosition().getCode());
+                                eu.setPosition(e.getPosition().getName());
+                            }
                             eu.setLevelId(e.getLevelId());
-                            eu.setDecisionLevel(e.getDecisionlevelInfo().getInfoCode());
+                            if (e.getDecisionlevelInfo() != null) {
+                                eu.setDecisionLevel(e.getDecisionlevelInfo().getInfoCode());
+                            }
                             eu.setDeptno(e.getDepartment().getCode());
+                            if (manager != null) {
+                                eu.setManagerId(manager.getCode());
+                            }
                             eu.setPhone(e.getMobilePhone());
                             eu.setEmail(e.getEmail());
                             eu.setCreatorToSystem();
@@ -432,13 +442,22 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                         } else {
                             if (eu.getOptdate() != null && eu.getOptdate().before(e.getLastModifiedDate())) {
                                 eu.setUsername(e.getCnName());
-                                eu.setJobCode(e.getJob().getCode());
-                                eu.setJob(e.getJob().getName());
-                                eu.setPositionCode(e.getPosition().getCode());
-                                eu.setPosition(e.getPosition().getName());
+                                if (e.getJob() != null) {
+                                    eu.setJobCode(e.getJob().getCode());
+                                    eu.setJob(e.getJob().getName());
+                                }
+                                if (e.getPosition() != null) {
+                                    eu.setPositionCode(e.getPosition().getCode());
+                                    eu.setPosition(e.getPosition().getName());
+                                }
                                 eu.setLevelId(e.getLevelId());
-                                eu.setDecisionLevel(e.getDecisionlevelInfo().getInfoCode());
+                                if (e.getDecisionlevelInfo() != null) {
+                                    eu.setDecisionLevel(e.getDecisionlevelInfo().getInfoCode());
+                                }
                                 eu.setDeptno(e.getDepartment().getCode());
+                                if (manager != null) {
+                                    eu.setManagerId(manager.getCode());
+                                }
                                 eu.setPhone(e.getMobilePhone());
                                 eu.setEmail(e.getEmail());
                                 eu.setOptuserToSystem();
