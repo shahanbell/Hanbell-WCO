@@ -56,9 +56,9 @@ public class TimerBean {
 
     }
 
-    //@Schedule(minute = "35", hour = "7,23", persistent = false)
+    //@Schedule(minute = "45", hour = "7,16,23", persistent = false)
     public void syncWXWorkOrganizationByEAP() {
-        //23:23先由EAP执行排程，从HRM同步到EAP
+        // 先由EAP执行排程，从HRM同步到EAP
         log4j.info("syncWXWorkOrganizationByEAP开始");
         Department dept = departmentBean.findByDeptno("00000");
         if (dept != null) {
@@ -134,7 +134,7 @@ public class TimerBean {
             return ret;
         } else {
             if (dept.getStatus().equals("X")) {
-                //先删除子阶
+                // 先删除子阶
                 childDepts = departmentBean.findByPId(dept.getId());
                 if (childDepts != null && !childDepts.isEmpty()) {
                     for (Department e : childDepts) {
@@ -161,7 +161,8 @@ public class TimerBean {
                         ret = ret && syncDept(e);
                     }
                 }
-                if (("N".equals(dept.getSyncWeChatStatus()) || dept.getSyncWeChatDate().before(dept.getOptdate())) && ret) {
+                if (("N".equals(dept.getSyncWeChatStatus()) || dept.getSyncWeChatDate().before(dept.getOptdate()))
+                        && ret) {
                     msg = wechatCorpBean.updateDepartment(jo);
                     if (msg.equals("success")) {
                         dept.setSyncWeChatDate(BaseLib.getDate());
@@ -190,7 +191,9 @@ public class TimerBean {
                     systemUserBean.update(user);
                     continue;
                 }
-                if (((user.getPhone() == null || "".equals(user.getPhone())) && (user.getEmail() == null || "".equals(user.getEmail()))) || user.getDeptno() == null || "".equals(user.getDeptno())) {
+                if (((user.getPhone() == null || "".equals(user.getPhone()))
+                        && (user.getEmail() == null || "".equals(user.getEmail()))) || user.getDeptno() == null
+                        || "".equals(user.getDeptno())) {
                     // 离职人员没有手机号码也要更新微信同步状态
                     if ("X".equals(user.getStatus())) {
                         user.setSyncWeChatStatus(user.getStatus());
@@ -212,7 +215,7 @@ public class TimerBean {
                     }
                 } else {
                     if (user.getStatus().equals("X")) {
-                        //企业微信人员删除后删除标签组人员
+                        // 企业微信人员删除后删除标签组人员
                         List<WeChatTagUser> list = wechatTagUserBean.findByUserid(user.getUserid());
                         if (list != null && !list.isEmpty()) {
                             List<WeChatTagUser> tagUserList = new ArrayList<>();
@@ -241,7 +244,8 @@ public class TimerBean {
                             log4j.error(msg);
                         }
                     } else {
-                        if (("N".equals(user.getSyncWeChatStatus()) || user.getSyncWeChatDate().before(user.getOptdate()))) {
+                        if (("N".equals(user.getSyncWeChatStatus())
+                                || user.getSyncWeChatDate().before(user.getOptdate()))) {
                             jo = systemUserBean.createJsonObjectBuilder(user).build();
                             msg = wechatCorpBean.updateEmployee(jo);
                             if (msg.equals("success")) {
