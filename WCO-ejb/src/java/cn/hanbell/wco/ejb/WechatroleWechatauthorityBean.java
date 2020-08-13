@@ -7,15 +7,12 @@ package cn.hanbell.wco.ejb;
 
 import cn.hanbell.wco.comm.SuperBean;
 import cn.hanbell.wco.entity.Wechatauthority;
-import cn.hanbell.wco.entity.Wechatrole;
 import cn.hanbell.wco.entity.WechatroleWechatauthority;
-import cn.hanbell.wco.entity.WechatroleWechatuser;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.Query;
-import sun.font.EAttribute;
 
 /**
  *
