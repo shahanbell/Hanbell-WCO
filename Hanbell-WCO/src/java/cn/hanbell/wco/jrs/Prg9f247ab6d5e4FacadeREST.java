@@ -8,10 +8,8 @@ package cn.hanbell.wco.jrs;
 import cn.hanbell.eap.ejb.CompanyBean;
 import cn.hanbell.eap.ejb.SystemUserBean;
 import cn.hanbell.eap.entity.SystemUser;
-import cn.hanbell.wco.ejb.JobTaskBean;
 import cn.hanbell.wco.ejb.Prg9f247ab6d5e4Bean;
 import cn.hanbell.wco.ejb.WeChatUserBean;
-import cn.hanbell.wco.entity.JobTask;
 import cn.hanbell.wco.entity.WeChatSession;
 import cn.hanbell.wco.entity.WeChatUser;
 import cn.hanbell.wco.comm.MiniProgramSession;
@@ -28,7 +26,6 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -49,8 +46,6 @@ import org.json.JSONObject;
 @Path("prg9f247ab6d5e4")
 public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
 
-    @EJB
-    private JobTaskBean jobTaskBean;
     @EJB
     private Prg9f247ab6d5e4Bean prg9f247ab6d5e4Bean;
     @EJB
@@ -87,29 +82,6 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
         }
     }
 
-    @DELETE
-    @Path("jobtask/{id}")
-    @Produces({"application/json"})
-    public ResponseMessage deleteJobTask(@PathParam("id") Integer id, @QueryParam("openid") String openid,
-            @QueryParam("sessionkey") String sessionkey) {
-        if (openid == null || sessionkey == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        }
-        log4j.info(String.format("deleteJobTask openid:%s sessionkey:%s", openid, sessionkey));
-        try {
-            JobTask jt = jobTaskBean.findById(id);
-            if (jt != null) {
-                jobTaskBean.delete(jt);
-                return new ResponseMessage("200", "删除成功");
-            } else {
-                return new ResponseMessage("404", "删除异常");
-            }
-        } catch (Exception ex) {
-            log4j.error(ex);
-            return new ResponseMessage("500", "系统异常");
-        }
-    }
-
     @GET
     @Path("checkcode")
     @Produces({MediaType.APPLICATION_JSON})
@@ -136,21 +108,6 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
             }
         } catch (Exception ex) {
             return new ResponseMessage("500", "发送异常");
-        }
-    }
-
-    @GET
-    @Path("jobtask")
-    @Produces({MediaType.APPLICATION_JSON})
-    public ResponseJobTask getJobTask(@QueryParam("openid") String openid, @QueryParam("sessionkey") String sessionkey,
-            @QueryParam("employeeid") String employeeid) {
-        try {
-            List<JobTask> list = jobTaskBean.findByLeaderIdAndStatus(employeeid, "N");
-            ResponseJobTask res = new ResponseJobTask("200", "获取成功");
-            res.setData(list);
-            return res;
-        } catch (Exception ex) {
-            return new ResponseJobTask("500", "系统异常");
         }
     }
 
@@ -182,28 +139,6 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
     }
 
     @POST
-    @Path("jobtask")
-    @Consumes({"application/json"})
-    @Produces({"application/json"})
-    public ResponseMessage createJobTask(JobTask entity, @QueryParam("openid") String openid,
-            @QueryParam("sessionkey") String sessionkey) {
-        if (entity == null || openid == null || sessionkey == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        }
-        try {
-            if (wechatSessionBean.has(openid, sessionkey)) {
-                jobTaskBean.persist(entity);
-                return new ResponseMessage("201", "提交成功");
-            } else {
-                return new ResponseMessage("401", "会话异常");
-            }
-        } catch (Exception ex) {
-            log4j.error(ex);
-            return new ResponseMessage("500", "系统异常");
-        }
-    }
-
-    @POST
     @Path("wechatuser")
     @Consumes({"application/json"})
     @Produces({"application/json"})
@@ -219,59 +154,6 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                 return new ResponseMessage("201", "授权成功");
             } else {
                 return new ResponseMessage("200", "授权成功");
-            }
-        } catch (Exception ex) {
-            log4j.error(ex);
-            return new ResponseMessage("500", "系统异常");
-        }
-    }
-
-    @PUT
-    @Path("jobtask/{id}")
-    @Consumes({"application/json"})
-    @Produces({"application/json"})
-    public ResponseMessage updateJobTask(@PathParam("id") Integer id, JobTask entity, @QueryParam("openid") String openid,
-            @QueryParam("sessionkey") String sessionkey) {
-        if (id == null || entity == null || openid == null || sessionkey == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        }
-        try {
-            if (wechatSessionBean.has(openid, sessionkey)) {
-                JobTask jt = jobTaskBean.findById(id);
-                if (jt != null) {
-                    jt.setName(entity.getName());
-                    if (entity.getDescription() != null) {
-                        jt.setDescription(entity.getDescription());
-                    }
-                    jt.setLeaderId(entity.getLeaderId());
-                    jt.setLeader(entity.getLeader());
-                    jt.setPlannedStartDate(entity.getPlannedStartDate());
-                    jt.setPlannedStartTime(entity.getPlannedStartTime());
-                    jt.setPlannedFinishDate(entity.getPlannedFinishDate());
-                    jt.setPlannedFinishTime(entity.getPlannedFinishTime());
-                    if (entity.getActualStartDate() != null) {
-                        jt.setActualStartDate(entity.getActualStartDate());
-                    }
-                    if (entity.getActualStartTime() != null) {
-                        jt.setActualStartTime(entity.getActualStartTime());
-                    }
-                    if (entity.getActualFinishDate() != null) {
-                        jt.setActualFinishDate(entity.getActualFinishDate());
-                    }
-                    if (entity.getActualFinishTime() != null) {
-                        jt.setActualFinishTime(entity.getActualFinishTime());
-                    }
-                    if (entity.getLocation() != null) {
-                        jt.setLocation(entity.getLocation());
-                    }
-                    jt.setStatus(entity.getStatus());
-                    jobTaskBean.update(jt);
-                    return new ResponseMessage("200", "更新成功");
-                } else {
-                    return new ResponseMessage("404", "更新异常");
-                }
-            } else {
-                return new ResponseMessage("401", "会话异常");
             }
         } catch (Exception ex) {
             log4j.error(ex);
