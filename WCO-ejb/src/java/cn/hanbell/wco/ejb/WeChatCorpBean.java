@@ -393,8 +393,9 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                     switch (taskid) {
                         //薪资回执
                         case "XZHZ":
+                            //传过来的是userid在薪资回执中为部门ID，通过部门去发放
                             jsonString.append("{'touser':'");
-                            jsonString.append("','toparty':'").append("1");
+                            jsonString.append("','toparty':'").append(userid.toString());
                             jsonString.append("','totag':'").append("");
                             jsonString.append("','msgtype':'").append("taskcard");
                             jsonString.append("','agentid':'").append(this.agentId).append("',");
