@@ -173,18 +173,20 @@ public class Agent1000002 extends HttpServlet {
                                     break;
                                 case "taskcard_click":
                                     log4j.info("==== " + "inputMsg=" + inputMsg.toString() + " ====");
-                                    eventKey = inputMsg.getEventKey();
                                     String taskId = inputMsg.getTaskId();
-                                    String userid = inputMsg.getFromUserName();
-                                    String taskMsg;
-                                    switch (eventKey) {
-                                        // 确认
-                                        case "confirm":
-                                            SalarySend confirm = salarySendBean.findByTaskidAndEmployeeid(taskId, userid);
-                                            confirm.setStatus("V");
-                                            confirm.setConfirmtime(new Date());
-                                            salarySendBean.update(confirm);
-                                            break;
+                                    if (taskId.startsWith("XZHZ")) {
+                                        eventKey = inputMsg.getEventKey();
+                                        String userid = inputMsg.getFromUserName();
+                                        String taskMsg;
+                                        switch (eventKey) {
+                                            // 确认
+                                            case "confirm":
+                                                SalarySend confirm = salarySendBean.findByTaskidAndEmployeeid(taskId, userid);
+                                                confirm.setStatus("V");
+                                                confirm.setConfirmtime(new Date());
+                                                salarySendBean.update(confirm);
+                                                break;
+                                        }
                                     }
                                     break;
                                 default:

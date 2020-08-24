@@ -142,7 +142,8 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
         StringBuffer data = new StringBuffer();
         long date = new Date().getTime() + 1000 * 60 * 60 * 24 * 31 + 1000 * 60 * 60 * 24 * 31;
         String dateString = BaseLib.formatDate("yyyyMM", new Date(date));
-//        String taskid="XZHZ"+dateString+"3";
+        List<SalarySend> list=salarySendBean.findByLikeTaskid("XZHZ"+dateString);
+        List<SalarySend> saveData=new ArrayList<>();
         String taskid=salarySendBean.getTaskId("XZHZ"+dateString);
         for (SystemUser user : userSet) {
             SalarySend s = new SalarySend();
@@ -156,11 +157,23 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
             s.setDept(user.getDept().getDept());
             s.setSendtime(new Date());
             s.setStatus("N");
+            saveData.add(s);
             //由于树状结构部门，可能存在一个人会被多次加入进来，导致后面全部失败
-            try {
-                salarySendBean.persist(s);
-            } catch (Exception e) {
-            }
+            //移除重复的人员
+            for(SalarySend salarySendUser:list){
+                //这两个工号相等说明重复
+                if(salarySendUser.getSalarySendPK().getEmployeeid().equals(user.getUserid())){
+                   saveData.remove(s);
+                }
+            }       
+        }
+        StringBuffer userid=new StringBuffer();
+        for(SalarySend s:saveData){
+          userid.append(s.getSalarySendPK().getEmployeeid());
+          salarySendBean.persist(s);
+          if(saveData.indexOf(s)!=saveData.size()-1){
+              userid.append("|");
+          }
         }
         data.append("'taskcard':{");
         data.append("'title':'").append(dateString).append("期薪资发放回执'");
@@ -173,7 +186,7 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
         data.append(",'replace_name':'").append("已确认'");
         data.append(",'is_bold':").append(true).append("}");
         data.append("]},");
-        agent1000002Bean.sendMsgToUser(currentEntity.getId().toString(), "taskcard", data.toString());
+        agent1000002Bean.sendMsgToUser(userid.toString(), "taskcard", data.toString());
     }
 
     /**
