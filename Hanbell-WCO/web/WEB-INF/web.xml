@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
-  <context-param>
+    <context-param>
         <param-name>cn.hanbell.web.system</param-name>
         <param-value>WCO</param-value>
     </context-param>
@@ -79,6 +79,14 @@
     <servlet-mapping>
         <servlet-name>WeChatPrg</servlet-name>
         <url-pattern>/WeChatPrg</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>AuthCallBackServlet</servlet-name>
+        <servlet-class>cn.hanbell.wco.servlet.AuthCallBack</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AuthCallBackServlet</servlet-name>
+        <url-pattern>/AuthCallBackServlet</url-pattern>
     </servlet-mapping>
     <mime-mapping>
         <extension>ttf</extension>
