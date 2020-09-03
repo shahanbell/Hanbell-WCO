@@ -67,7 +67,7 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
     }
 
     private void initTree() {
-       setRootNode(new DefaultTreeNode(new Department("Root", "Root"), null));
+        setRootNode(new DefaultTreeNode(new Department("Root", "Root"), null));
         getRootNode().setExpanded(true);
         Department root = departmentBean.findByDeptno("00000");
         if (root != null) {
@@ -108,14 +108,15 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
             long date = new Date().getTime() + 1000 * 60 * 60 * 24 * 31 + 1000 * 60 * 60 * 24 * 31;
             String dateString = BaseLib.formatDate("yyyyMM", new Date(date));
             if (inservice) {
-                salaryList.addAll(salarySendBean.findByTaskidAndDeptno("XZHZ"+dateString, dept.getDeptno()));
-                userSet.addAll(systemUserBean.findByDeptnoAndOnJob(dept.getDeptno()));
+                salaryList.addAll(salarySendBean.findByTaskidAndDeptno("XZHZ" + dateString, dept.getDeptno()));
+                userSet.addAll(systemUserBean.findBySyncWeChatStatusAndDeptno(dept.getDeptno()));
             } else {
-                salaryList.addAll(salarySendBean.findByTaskidAndDeptno("XZHZ"+dateString, dept.getDeptno()));
-                userSet.addAll(systemUserBean.findByDeptnoAndOnJob(dept.getDeptno()));
+                salaryList.addAll(salarySendBean.findByTaskidAndDeptno("XZHZ" + dateString, dept.getDeptno()));
+                userSet.addAll(systemUserBean.findBySyncWeChatStatusAndDeptno(dept.getDeptno()));
             }
         }
     }
+
     public void loadUserOnJob() {
         if (currentEntity != null) {
             salaryList.clear();
@@ -140,11 +141,11 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
         }
         loadUserOnJob();
         StringBuffer data = new StringBuffer();
-        long date = new Date().getTime() + 1000 * 60 * 60 * 24 * 31 + 1000 * 60 * 60 * 24 * 31;
+        long date = new Date().getTime() + 1000 * 60 * 60 * 24 * 31 ;
         String dateString = BaseLib.formatDate("yyyyMM", new Date(date));
-        List<SalarySend> list=salarySendBean.findByLikeTaskid("XZHZ"+dateString);
-        List<SalarySend> saveData=new ArrayList<>();
-        String taskid=salarySendBean.getTaskId("XZHZ"+dateString);
+        String taskid = salarySendBean.getTaskId("XZHZ" + dateString);
+        //发送人
+        StringBuffer userid = new StringBuffer();
         for (SystemUser user : userSet) {
             SalarySend s = new SalarySend();
             SalarySendPK spk = new SalarySendPK();
@@ -157,24 +158,18 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
             s.setDept(user.getDept().getDept());
             s.setSendtime(new Date());
             s.setStatus("N");
-            saveData.add(s);
-            //由于树状结构部门，可能存在一个人会被多次加入进来，导致后面全部失败
-            //移除重复的人员
-            for(SalarySend salarySendUser:list){
-                //这两个工号相等说明重复
-                if(salarySendUser.getSalarySendPK().getEmployeeid().equals(user.getUserid())){
-                   saveData.remove(s);
+            //排除已经发过的员工和一些劳务等临时账号
+            if (!user.getUserid().startsWith("CL") && !user.getUserid().startsWith("CM") && !user.getUserid().startsWith("CG")) {
+                SalarySend salarySend = salarySendBean.findByTaskNameAndEmployeeid(s.getTaskname(), user.getUserid());
+                if (salarySend == null) {
+                    salarySendBean.persist(s);
+                    userid.append(user.getUserid());
+                    userid.append("|");
                 }
-            }       
+            }
         }
-        StringBuffer userid=new StringBuffer();
-        for(SalarySend s:saveData){
-          userid.append(s.getSalarySendPK().getEmployeeid());
-          salarySendBean.persist(s);
-          if(saveData.indexOf(s)!=saveData.size()-1){
-              userid.append("|");
-          }
-        }
+        //清除最后一个|
+        String users = userid.substring(0, userid.length() - 1);
         data.append("'taskcard':{");
         data.append("'title':'").append(dateString).append("期薪资发放回执'");
         data.append(",'description':'").append("感谢您一个月的辛勤耕耘。").append(dateString).append("期工资单已发出，请查收！'");
@@ -186,7 +181,7 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
         data.append(",'replace_name':'").append("已确认'");
         data.append(",'is_bold':").append(true).append("}");
         data.append("]},");
-        agent1000002Bean.sendMsgToUser(userid.toString(), "taskcard", data.toString());
+        agent1000002Bean.sendMsgToUser(users, "taskcard", data.toString());
     }
 
     /**
