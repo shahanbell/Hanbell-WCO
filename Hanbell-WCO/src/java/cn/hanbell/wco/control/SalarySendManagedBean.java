@@ -172,13 +172,14 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
         String users = userid.substring(0, userid.length() - 1);
         data.append("'taskcard':{");
         data.append("'title':'").append(dateString).append("期薪资发放回执'");
-        data.append(",'description':'").append("感谢您一个月的辛勤耕耘。").append(dateString).append("期工资单已发出，请查收！'");
+        data.append(",'description':'").append("感谢您一个月的辛勤耕耘。").append(dateString).append("期工资单已发出，请查收！</br>工资单已收到请点下方确认！谢谢！'");
         data.append(",'url':'").append("'");
         data.append(",'task_id':'").append(taskid).append("'");
         data.append(",'btn':[{");
         data.append("'key':'").append("confirm'");
         data.append(",'name':'").append("确认'");
         data.append(",'replace_name':'").append("已确认'");
+        data.append(",'color':'").append("red'");
         data.append(",'is_bold':").append(true).append("}");
         data.append("]},");
         agent1000002Bean.sendMsgToUser(users, "taskcard", data.toString());
