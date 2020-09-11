@@ -12,18 +12,24 @@ import cn.hanbell.eap.entity.Department;
 import cn.hanbell.eap.entity.SystemUser;
 import cn.hanbell.eap.entity.WeChatTagUser;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
+import cn.hanbell.wco.ejb.Agent3010011Bean;
 import com.lightshell.comm.BaseLib;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
-import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.TimerService;
 import javax.json.JsonObject;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.QueryParam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  *
@@ -42,7 +48,8 @@ public class TimerBean {
     private SystemUserBean systemUserBean;
     @EJB
     private WeChatTagUserBean wechatTagUserBean;
-
+    @EJB
+    private Agent3010011Bean agent3010011Bean;
     @EJB
     private Agent1000002Bean wechatCorpBean;
 
@@ -263,4 +270,62 @@ public class TimerBean {
         }
     }
 
+   
+     public void syncWechatOAToEAP() throws ParseException {
+        log4j.info("========开始企业微信OA数据抛转到本地数据库中========");
+        agent3010011Bean.initConfiguration();
+        //获取最大的部门人员，并递归获取每个部门下的人员
+        JSONObject js = agent3010011Bean.getWechatUser("1", "1");
+        if (js != null) {
+            JSONArray users = js.getJSONArray("userlist");
+            JSONArray recordArray = new JSONArray();
+            JSONArray records = gerRecords(users, 1, 100, recordArray);
+            for (int i = 0; i < records.length(); i++) {
+                JSONArray ja = records.getJSONArray(i);
+                agent3010011Bean.syncPunchCardRecordToEap(ja);
+            }
+        }
+        log4j.info("========企业微信OA数据跑转到本地数据库中结束========");
+    }
+
+    /**
+     *
+     * @param array 所有的人员集合
+     * @param m 前置索引下标
+     * @param n 后置索引小标
+     */
+    public JSONArray gerRecords(JSONArray user, int m, int n, JSONArray records) throws ParseException {
+        Long end1 = new Date().getTime();
+        long start1 = end1 - 1000 * 60 * 60 * 24 * 3;
+        long end = end1 / 1000;
+        long start = start1 / 1000;
+        if (user.length() < 100) {
+            List<String> users = new ArrayList<>();
+            for (int i = 0; i < user.length(); i++) {
+                users.add(user.optJSONObject(i).getString("userid"));
+            }
+            return agent3010011Bean.getPunchCardRecord(3, start, end, users).getJSONArray("checkindata");
+        } else {
+            int floor = (int) (user.length() / 100);
+            //这是最后一次了
+            if (floor * 100 + 1 == m) {
+                List<String> users = new ArrayList<>();
+                for (int i = m - 1; i < user.length(); i++) {
+                    users.add(user.optJSONObject(i).getString("userid"));
+                }
+                JSONArray a = agent3010011Bean.getPunchCardRecord(3, start, end, users).getJSONArray("checkindata");
+                records.put(a);
+            } else {
+                List<String> users = new ArrayList<>();
+                for (int i = m - 1; i <= n - 1; i++) {
+                    users.add(user.optJSONObject(i).getString("userid"));
+                }
+                JSONArray a = agent3010011Bean.getPunchCardRecord(3, start, end, users).getJSONArray("checkindata");
+                records.put(a);
+                gerRecords(user, m + 100, n + 100, records);
+
+            }
+        }
+        return records;
+    }
 }
