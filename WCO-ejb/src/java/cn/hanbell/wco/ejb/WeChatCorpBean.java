@@ -588,6 +588,55 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         }
         return "系统异常操作失败";
     }
+
+    /**
+     * 获取部门下的人员（非详细数据）
+     * @param department_id 部门ID
+     * @param fetch_child   是否递归部门人员，0：否   1：是
+     * @return 
+     */
+    public JSONObject getWechatUser(String department_id,String fetch_child){
+        WeChatToken t = this.getWeChatToken("org");
+        if (t == null) {
+            return null;
+        }
+        this.setAccessToken(t.getAppId(), t.getAppSecret());
+        String access_token = getAccessToken(t.getAppId(), t.getAppSecret());
+        if (access_token != null && !"".equals(access_token)) {
+            StringBuffer url = new StringBuffer("https://qyapi.weixin.qq.com/cgi-bin/user/simplelist?access_token=");
+            url.append(access_token).append("&department_id=");
+            url.append(department_id).append("&fetch_child=").append(fetch_child);
+            CloseableHttpResponse response = get(url.toString(), null,null);
+            if (response != null) {
+                HttpEntity httpEntity = response.getEntity();
+                try {
+                    JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
+                    //log4j.info(jor.getString("errmsg"));
+                    int errcode = jor.getInt("errcode");
+                    if (errcode == 0) {
+                        return jor;
+                    } else {
+                        return null;
+                    }
+                } catch (IOException | ParseException | JSONException ex) {
+                    log4j.error(ex);
+                    return  null;
+                } finally {
+                    try {
+                        response.close();
+                    } catch (IOException ex) {
+                        log4j.error(ex);
+                    }
+                }
+            } else {
+                return null;
+            }
+
+        } else {
+            return null;
+        }
+    }
+   
     /**
      * @return the dataPath
      */
@@ -622,5 +671,4 @@ public abstract class WeChatCorpBean extends WeChatUtil {
     public int getAgentId() {
         return agentId;
     }
-
 }
