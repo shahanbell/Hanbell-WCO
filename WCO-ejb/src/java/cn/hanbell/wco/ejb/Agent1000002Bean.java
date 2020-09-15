@@ -5,7 +5,9 @@
  */
 package cn.hanbell.wco.ejb;
 
+import cn.hanbell.wco.entity.ConfigProperties;
 import cn.hanbell.wco.entity.WeChatToken;
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 
@@ -13,16 +15,21 @@ import javax.ejb.Startup;
  *
  * @author kevindong
  */
+
 @Startup
 @Singleton
 public class Agent1000002Bean extends WeChatCorpBean {
 
+    @EJB
+    private ConfigPropertiesBean configPropertiesBean;
+    
     public Agent1000002Bean() {
-        agentId = 1000002;
+            agentId=100002;
     }
 
     @Override
     public void initConfiguration() {
+         this.agentId=Integer.valueOf(configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000002Bean.agentId").getConfigvalue());
         WeChatToken token = getWeChatToken(String.valueOf(getAgentId()));
         if (token != null && !isConfigured) {
             // 单例只需初始化一次
@@ -35,8 +42,8 @@ public class Agent1000002Bean extends WeChatCorpBean {
 
     @Override
     public String getAppID() {
-        return "ww94e6447967583b32";
-        //return "ww6678f44a19cb2f3c";
+        ConfigProperties cp = configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000002Bean.appld");
+        return cp.getConfigvalue();
     }
 
     @Override

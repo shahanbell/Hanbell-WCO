@@ -25,18 +25,17 @@ import org.json.JSONObject;
 @Singleton
 public class ServicePubBean extends WeChatPubBean {
 
+    @EJB
+    private ConfigPropertiesBean configPropertiesBean;
     private String openId;
-
     @Override
     protected String getAppID() {
-        //测试环境
-        return "wx197c3762bc4258f0";
+        return configPropertiesBean.findByKey("cn.hanbell.wco.ejb.ServicePubBean.appld").getConfigvalue();
     }
 
     @Override
     protected String getAppSecret() {
-        //测试环境
-        return "d036e02e18ec8de135b223c852e4f882";
+         return configPropertiesBean.findByKey("cn.hanbell.wco.ejb.ServicePubBean.appSecret").getConfigvalue();
     }
 
     public String getOpenId() {
