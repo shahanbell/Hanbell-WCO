@@ -28,7 +28,9 @@ public class ApplicationConfig extends Application {
      * out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
+        resources.add(cn.hanbell.wco.jrs.AssetcardFacadeREST.class);
         resources.add(cn.hanbell.wco.jrs.CORSFilter.class);
+        resources.add(cn.hanbell.wco.jrs.EquipmentRepairFacadeREST.class);
         resources.add(cn.hanbell.wco.jrs.Prg9f247ab6d5e4FacadeREST.class);
     }
 
