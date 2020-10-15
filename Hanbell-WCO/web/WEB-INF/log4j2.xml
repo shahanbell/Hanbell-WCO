@@ -7,7 +7,7 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd 'at' HH:mm:ss z} %-5level %class{36} %L %M - %msg%xEx%n" />
         </Console>
-        <RollingFile name="rollingFile" fileName="${LOG_HOME}/wco.log"
+        <RollingFile name="WCO" fileName="${LOG_HOME}/wco.log"
                      filePattern="${LOG_HOME}/wco-%d{yyyy-MM-dd}-%i.log">
             <PatternLayout pattern="%d{yyyy-MM-dd 'at' HH:mm:ss z} %-5level %class{36} %L %M - %msg%xEx%n"/>
             <Policies>
@@ -15,14 +15,22 @@
                 <SizeBasedTriggeringPolicy size="10 MB"/>
             </Policies>
         </RollingFile>
+        <RollingFile name="Ext" fileName="${LOG_HOME}/ext.log"
+                     filePattern="${LOG_HOME}/ext-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"  modulate="true" />
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
     </appenders>
     <loggers>
-        <root level="info">
-            <appender-ref ref="Console" level="info"/>
-            <appender-ref ref="rollingFile" />
-        </root>
         <Logger name="cn.hanbell.wco" level="info" additivity="false">
-            <appender-ref ref="rollingFile" />
+            <appender-ref ref="WCO" />
         </Logger>
+        <Root level="info">
+            <appender-ref ref="Console" level="info"/>
+            <appender-ref ref="Ext" />
+        </Root>
     </loggers>
 </configuration>
