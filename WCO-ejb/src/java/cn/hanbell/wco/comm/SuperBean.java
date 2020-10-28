@@ -21,7 +21,7 @@ public abstract class SuperBean<T> extends SuperEJB<T> {
     @PersistenceContext(unitName = "WeChatOpenPU")
     private EntityManager em;
 
-    protected final Logger logger = LogManager.getLogger();
+    protected final Logger logger = LogManager.getLogger("cn.hanbell.wco");
 
     public SuperBean(Class<T> entityClass) {
         super(entityClass);
