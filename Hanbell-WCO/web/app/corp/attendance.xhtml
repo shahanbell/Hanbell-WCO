@@ -9,8 +9,8 @@
     <ui:define name="content">
         <style>
             .ui-fileupload-row>div {
-                     background-color: black;
-}
+                background-color: black;
+            }
         </style>
         <h:form id="formList">
             <p:growl id="growl" showSummary="false" showDetail="true"/>
@@ -30,6 +30,17 @@
                         <!--<p:calendar id="date" value="#{attendanceManagedBean.date}" title="" pattern="yyyyMM" />-->
                         <p:datePicker id="month" view="month" value="#{attendanceManagedBean.date}" pattern="yyyy/MM" yearNavigator="true" yearRange="2000:2030" />
 
+                    </p:column>
+                </p:row>
+                <p:row>
+                   <p:column> <h:outputText value="状态"/></p:column>
+
+                    <p:column>
+                        <p:selectOneMenu id="facno" value="#{attendanceManagedBean.status}" style="width:100%;"  >
+                            <f:selectItem itemLabel="全部" itemValue="All"/>
+                            <f:selectItem itemLabel="已发送" itemValue="V"/>
+                            <f:selectItem itemLabel="未发送" itemValue="X"/>
+                        </p:selectOneMenu>
                     </p:column>
                 </p:row>
             </p:panelGrid>
@@ -154,7 +165,7 @@
                     </f:facet>
                     <h:outputText value="#{item.publicLeave!=0 ?item.publicLeave : ''}"/>
                 </p:column>
-                           <p:column styleClass="Wid15">
+                <p:column styleClass="Wid15">
                     <f:facet name="header">
                         <h:outputText value="哺乳假"/>
                     </f:facet>
@@ -213,10 +224,10 @@
                 <p:graphicImage name="images/ajaxloadingbar.gif" library="ultima-layout"/>
             </p:blockUI>
         </h:form>
-             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
             <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
             <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
         </p:confirmDialog>
-        
+
     </ui:define>
 </ui:composition>
