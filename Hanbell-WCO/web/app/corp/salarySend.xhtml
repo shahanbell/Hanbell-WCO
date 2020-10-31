@@ -45,7 +45,7 @@
                         <p:dataTable value="#{salarySendManagedBean.salaryList}" var="item"  styleClass="tableList Mtop10" paginator="true" paginatorPosition="bottom" rows="15"
                                      paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                      rowsPerPageTemplate="15,30,45"
-                                     selectionMode="single" rowKey="#{item.employeeid}" >
+                                     selectionMode="single" rowKey="#{item.salarySendPK.employeeid}" >
                             <f:facet name="header">
                                 回执资料
                             </f:facet>
@@ -55,13 +55,13 @@
                                 <f:facet name="header">
                                     <h:outputText value="任务"/>
                                 </f:facet>
-                                <h:outputText value="#{item.taskid}"/>
+                                <h:outputText value="#{item.salarySendPK.taskid}"/>
                             </p:column>
                             <p:column>
                                 <f:facet name="header">
                                     <h:outputText value="工号"/>
                                 </f:facet>
-                                <h:outputText value="#{item.employeeid}"/>
+                                <h:outputText value="#{item.salarySendPK.employeeid}"/>
                             </p:column>
                             <p:column>
                                 <f:facet name="header">

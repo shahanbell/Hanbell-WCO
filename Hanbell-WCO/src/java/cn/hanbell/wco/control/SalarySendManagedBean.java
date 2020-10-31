@@ -10,14 +10,13 @@ import cn.hanbell.eap.ejb.SalarySendBean;
 import cn.hanbell.eap.ejb.SystemUserBean;
 import cn.hanbell.eap.entity.Department;
 import cn.hanbell.eap.entity.SalarySend;
+import cn.hanbell.eap.entity.SalarySendPK;
 import cn.hanbell.eap.entity.SystemUser;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
 import cn.hanbell.wco.lazy.DepartmentModel;
 import cn.hanbell.wco.web.SuperSingleBean;
 import com.lightshell.comm.BaseLib;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -125,7 +124,7 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
             loadUser(currentEntity, true);
             if (salaryList.size() > 1) {
                 salaryList.sort((SalarySend o1, SalarySend o2) -> {
-                    if (o1.getEmployeeid().compareTo(o2.getEmployeeid()) < 0) {
+                    if (o1.getSalarySendPK().getEmployeeid().compareTo(o2.getSalarySendPK().getEmployeeid()) < 0) {
                         return -1;
                     } else {
                         return 1;
@@ -141,19 +140,18 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
         if (userSet.isEmpty()) {
         }
         loadUserOnJob();
-        StringBuffer data=new StringBuffer();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        cal.add(Calendar.MONTH, -1);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
-        String dateString = sdf.format(cal.getTime());
+        StringBuffer data = new StringBuffer();
+        long date = new Date().getTime() + 1000 * 60 * 60 * 24 * 31 ;
+        String dateString = BaseLib.formatDate("yyyyMM", new Date(date));
         String taskid = salarySendBean.getTaskId("XZHZ" + dateString);
         //发送人
         StringBuffer userid = new StringBuffer();
         for (SystemUser user : userSet) {
             SalarySend s = new SalarySend();
-            s.setEmployeeid(user.getUserid());
-            s.setTaskid(taskid);
+            SalarySendPK spk = new SalarySendPK();
+            spk.setEmployeeid(user.getUserid());
+            spk.setTaskid(taskid);
+            s.setSalarySendPK(spk);
             s.setTaskname(dateString + "月薪资发放");
             s.setEmployeename(user.getUsername());
             s.setDeptno(user.getDeptno());
@@ -174,7 +172,7 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
         String users = userid.substring(0, userid.length() - 1);
         data.append("'taskcard':{");
         data.append("'title':'").append(dateString).append("期薪资发放回执'");
-        data.append(",'description':'").append("感谢您一个月的辛勤耕耘。").append(dateString).append("期工资单已发出，请查收！<br>工资单已收到请点下方确认！谢谢！'");
+        data.append(",'description':'").append("感谢您一个月的辛勤耕耘。").append(dateString).append("期工资单已发出，请查收！</br>工资单已收到请点下方确认！谢谢！'");
         data.append(",'url':'").append("'");
         data.append(",'task_id':'").append(taskid).append("'");
         data.append(",'btn':[{");
