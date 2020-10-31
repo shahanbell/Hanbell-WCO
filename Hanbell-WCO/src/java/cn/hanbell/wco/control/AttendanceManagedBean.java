@@ -40,6 +40,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     private String employeeName;
     private Date date;
     private String uploadDate;
+    private String status;
     @EJB
     private AttendanceBean attendanceBean;
     
@@ -66,6 +67,9 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
             }
             if (date != null) {
                 this.model.getFilterFields().put("attendanceDate", BaseLib.formatDate("YYYYMM", date));
+            }
+              if (status != null&&!"All".equals(status)) {
+                this.model.getFilterFields().put("status", status);
             }
         }
     }
@@ -176,7 +180,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
 
     //发送消息
     public void upload() {
-         List<Attendance> attendacnes=attendanceBean.findByAttendanceAndEmployeeId(employeeName, BaseLib.formatDate("YYYYMM", date));
+         List<Attendance> attendacnes=attendanceBean.findByAttendanceAndEmployeeIdAndStatus(employeeName, BaseLib.formatDate("YYYYMM", date),status);
          for(Attendance a:attendacnes){
              if("X".equals(a.getStatus())){
                      agent1000002Bean.initConfiguration();
@@ -213,4 +217,13 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
         this.date = date;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    
 }
