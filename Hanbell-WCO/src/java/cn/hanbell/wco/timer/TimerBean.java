@@ -20,12 +20,11 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
+import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.TimerService;
 import javax.json.JsonObject;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.QueryParam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -63,7 +62,7 @@ public class TimerBean {
 
     }
 
-    //@Schedule(minute = "45", hour = "7,16,23", persistent = false)
+    @Schedule(minute = "45", hour = "7,16,23", persistent = false)
     public void syncWXWorkOrganizationByEAP() {
         // 先由EAP执行排程，从HRM同步到EAP
         log4j.info("syncWXWorkOrganizationByEAP开始");
@@ -96,6 +95,15 @@ public class TimerBean {
             }
         }
         log4j.info("syncWXWorkOrganizationByEAP结束");
+    }
+
+    @Schedule(minute = "35", hour = "7,12,16", persistent = false)
+    public void syncWXWorkCheckInData() {
+        try {
+            syncWeChatOAToEAP();
+        } catch (Exception ex) {
+            log4j.error(ex);
+        }
     }
 
     private void loadUser(Department dept) {
@@ -270,12 +278,11 @@ public class TimerBean {
         }
     }
 
-   
-     public void syncWechatOAToEAP() throws ParseException {
+    public void syncWeChatOAToEAP() throws ParseException {
         log4j.info("========开始企业微信OA数据抛转到本地数据库中========");
         agent3010011Bean.initConfiguration();
         //获取最大的部门人员，并递归获取每个部门下的人员
-        JSONObject js = agent3010011Bean.getWechatUser("1", "1");
+        JSONObject js = agent3010011Bean.getWeChatUser("1", "1");
         if (js != null) {
             JSONArray users = js.getJSONArray("userlist");
             JSONArray recordArray = new JSONArray();

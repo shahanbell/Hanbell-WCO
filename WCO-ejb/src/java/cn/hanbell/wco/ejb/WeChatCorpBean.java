@@ -595,7 +595,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
      * @param fetch_child   是否递归部门人员，0：否   1：是
      * @return 
      */
-    public JSONObject getWechatUser(String department_id,String fetch_child){
+    public JSONObject getWeChatUser(String department_id,String fetch_child){
         WeChatToken t = this.getWeChatToken("org");
         if (t == null) {
             return null;
