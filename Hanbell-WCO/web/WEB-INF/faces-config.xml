@@ -94,11 +94,6 @@
             <to-view-id>/app/corp/attendance.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
-          <navigation-case>
-            <from-outcome>salarySendReport</from-outcome>
-            <to-view-id>/app/corp/salarySendReport.xhtml</to-view-id>
-            <redirect/>
-        </navigation-case>
     </navigation-rule>
     <!--模态开窗-->
     <navigation-rule>
