@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/template.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="content">
+        <style>
+            .ui-fileupload-row>div {
+                background-color: black;
+            }
+        </style>
+        <h:form id="formList">
+            <p:growl id="growl" showSummary="false" showDetail="true"/>
+            <p:panelGrid id="plgQuery" styleClass="plgQuery Wid100">
+                <f:facet name="header">
+                    <p:row>
+                        <p:column colspan="4">查询条件</p:column>
+                    </p:row>
+                </f:facet>
+                <p:row>
+                    <p:column > <h:outputLabel value="工号" for="employeeId"/></p:column>         
+                    <p:column >
+                        <p:inputText id="employeeId"  value="#{salarySendReportManagedBean.employeeId}" title="" />
+                    </p:column>
+                    <p:column > <h:outputLabel value="姓名" for="employeeName"/></p:column>         
+                    <p:column >
+                        <p:inputText id="employeeName"  value="#{salarySendReportManagedBean.employeeName}" title="" />
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column><h:outputLabel value="日期" for="date" /></p:column>
+                    <p:column>
+                        <p:datePicker id="month" view="month" value="#{salarySendReportManagedBean.date}" pattern="yyyy/MM" yearNavigator="true" yearRange="2000:2030" />
+                    </p:column>
+                    <p:column > <h:outputText value="状态"/></p:column>
+                    <p:column>
+                        <p:selectOneMenu id="facno" value="#{salarySendReportManagedBean.status}" style="width:100%;"  >
+                            <f:selectItem itemLabel="全部" itemValue="All"/>
+                            <f:selectItem itemLabel="已确认" itemValue="V"/>
+                            <f:selectItem itemLabel="未确认" itemValue="N"/>
+                        </p:selectOneMenu>
+                    </p:column>
+                </p:row>
+            </p:panelGrid>
+            <p:toolbar id="toolbar" styleClass="topToolbar">
+                 <f:facet name="left">
+                    <p:commandButton id="btnMsg" value="发送" actionListener="#{salarySendReportManagedBean.upload()}" icon="ui-icon-refresh"
+                                     update=":formList"/>
+                </f:facet>
+                <f:facet name="right">
+                    <p:commandButton id="btnPrint" value="打印" actionListener="#{salarySendReportManagedBean.print()}" icon="ui-icon-print"
+                                     update=":formList"/>
+                    <p:commandButton id="btnReset" value="重置" actionListener="#{salarySendReportManagedBean.reset()}" icon="ui-icon-refresh"
+                                     update=":formList"/>
+                    <p:commandButton id="btnQuery" value="查询" actionListener="#{salarySendReportManagedBean.query()}" icon="ui-icon-search"
+                                     update=":formList"/>
+                </f:facet>
+            </p:toolbar>
+            <p:dataTable  value="#{salarySendReportManagedBean.model}"  var="item"  tableStyleClass="tableList" paginator="true" paginatorPosition="bottom" rows="15"
+                          paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                          rowsPerPageTemplate="15,30,45" lazy="true" selection="#{salarySendReportManagedBean.selectData}" rowKey="#{item.id}">
+                <f:facet name="header">
+                    薪资回执确认明细
+                </f:facet>
+                <p:column selectionMode="multiple">  
+                <f:facet name="header">
+                        <h:outputText value="回执编号"/>
+                    </f:facet>
+               </p:column>
+                <p:column   >
+                    <f:facet name="header">
+                        <h:outputText value="回执编号"/>
+                    </f:facet>
+                    <h:outputText value="#{item.taskid}"/>
+                </p:column>
+                <p:column   >
+                    <f:facet name="header">
+                        <h:outputText value="回执名称"/>
+                    </f:facet>
+                    <h:outputText value="#{item.taskname}"/>
+                </p:column> 
+                <p:column >
+                    <f:facet name="header">
+                        <h:outputText value="发送时间"/>
+                    </f:facet>
+                    <h:outputText value="#{item.sendtime}">
+                        <f:convertDateTime pattern="yyyy/MM/dd hh:mm"/>
+                    </h:outputText>
+                </p:column>
+                <p:column   >
+                    <f:facet name="header">
+                        <h:outputText value="工号"/>
+                    </f:facet>
+                    <h:outputText value="#{item.employeeid}"/>
+                </p:column>
+                <p:column   >
+                    <f:facet name="header">
+                        <h:outputText value="姓名"/>
+                    </f:facet>
+                    <h:outputText value="#{item.employeename}"/>
+                </p:column>
+                <p:column >
+                    <f:facet name="header">
+                        <h:outputText value="部门编号"/>
+                    </f:facet>
+                    <h:outputText value="#{item.deptno}">
+
+                    </h:outputText>
+                </p:column>
+                <p:column >
+                    <f:facet name="header">
+                        <h:outputText value="部门名称"/>
+                    </f:facet>
+                    <h:outputText value="#{item.dept}">
+
+                    </h:outputText>
+                </p:column>
+                <p:column >
+                    <f:facet name="header">
+                        <h:outputText value="状态"/>
+                    </f:facet>
+                    <h:outputText value="#{item.status}">
+                    </h:outputText>
+                </p:column>
+                <p:column >
+                    <f:facet name="header">
+                        <h:outputText value="确认时间"/>
+                    </f:facet>
+                    <h:outputText value="#{item.confirmtime}">
+                        <f:convertDateTime pattern="yyyy/MM/dd hh:mm"/>
+                    </h:outputText>
+                </p:column>
+            </p:dataTable>
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+            </p:confirmDialog>
+            <p:blockUI id="blockUI" block="formList" trigger="btnQuery">
+                <p:graphicImage name="images/ajaxloadingbar.gif" library="ultima-layout"/>
+            </p:blockUI>
+        </h:form>
+        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+        </p:confirmDialog>
+    </ui:define>
+</ui:composition>
