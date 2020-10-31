@@ -115,7 +115,6 @@ public class SalarySendReportManagedBean extends SuperQueryBean<SalarySend> {
             FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "请选择"));
             return;
         }
-        System.out.println("this=" + this.selectData);
         StringBuffer toUsers = new StringBuffer("");
         for (SalarySend s : this.selectData) {
             if ("N".equals(s.getStatus())) {
@@ -128,10 +127,8 @@ public class SalarySendReportManagedBean extends SuperQueryBean<SalarySend> {
         StringBuffer msg = new StringBuffer("【上海汉钟】");
         msg.append(data).append("期薪资发放回执已与").append(BaseLib.formatDate("yyyyMMdd", sendDate));
         msg.append("发出，您还未确认，请进入企业微信 系统消息 及时签收！谢谢！");
-
-        System.out.println("toUser=" + toUsers.substring(0, toUsers.length()));
         agent1000002Bean.initConfiguration();
-        String errmsg = agent1000002Bean.sendMsgToUser("C2082", "text", msg.toString());
+        String errmsg = agent1000002Bean.sendMsgToUser(toUsers.substring(0, toUsers.length()-1), "text", msg.toString());
     }
 
     @Override
