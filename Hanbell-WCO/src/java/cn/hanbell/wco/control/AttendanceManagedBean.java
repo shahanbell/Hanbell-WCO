@@ -15,6 +15,7 @@ import com.lightshell.comm.BaseLib;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -188,7 +189,8 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
          msg.append("您的").append(a.getAttendanceDate()).append("考勤记录已生成，<br>");
           msg.append("<a href=\"");
           StringBuffer url=new StringBuffer( configPropertiesBean.findByKey("cn.hanbell.wco.control.AttendanceManagedBean.attendanceUrl").getConfigvalue());
-          url.append(a.getEmployeeId()).append("&attendanceDate=").append(a.getAttendanceDate());
+          a.setCheckcode(getCheckCode());
+          url.append(a.getEmployeeId()).append("&attendanceDate=").append(a.getAttendanceDate()).append("&checkcode=").append(a.getCheckcode());
                 msg.append(url).append("\">请点击此处").append("</a>   ");
                 msg.append("查看");
                 String errmsg = agent1000002Bean.sendMsgToUser(a.getEmployeeId(), "text", msg.toString());
@@ -199,6 +201,17 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
              }
          }
      
+    }
+    
+     public String getCheckCode() {
+        String base = "0123456789qwertyuiopasdfghjklzxcvbnm";
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 4; i++) {
+            int number = random.nextInt(base.length());
+            sb.append(base.charAt(number));
+        }
+        return sb.toString();
     }
 
     public String getEmployeeName() {

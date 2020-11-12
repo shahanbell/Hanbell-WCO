@@ -99,6 +99,11 @@
             <to-view-id>/app/corp/salarySendReport.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
+              <navigation-case>
+            <from-outcome>personnelChange</from-outcome>
+            <to-view-id>/app/corp/personnelChange.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>
     </navigation-rule>
     <!--模态开窗-->
     <navigation-rule>
@@ -108,6 +113,16 @@
             <from-outcome>sysuserSelect</from-outcome>
             <to-view-id>/app/df/sysuserSelect.xhtml</to-view-id>
             <redirect/>
-        </navigation-case>     
+        </navigation-case>   
+         <navigation-case>
+            <from-outcome>addPersonnelChange</from-outcome>
+            <to-view-id>/app/df/addPersonnelChange.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case> 
+         <navigation-case>
+            <from-outcome>sysuserSelectByDept</from-outcome>
+            <to-view-id>/app/df/sysuserSelectBydept.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>   
     </navigation-rule>
 </faces-config>

@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./../../WEB-INF/df.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+    
+    <ui:define name="content">
+        <h:form id="formList"  style="height:500px;width:100%">
+            <p:growl id="growl" showSummary="false" showDetail="true"/>
+            <p:panelGrid id="plgQuery" styleClass="plgQuery Wid100">
+                <f:facet name="header">
+                    <p:row>
+                        <p:column colspan="4">发送人员异动信息</p:column>
+                    </p:row>
+                </f:facet>
+                <p:row>
+                    <p:column> <h:outputText value="公司名称（标题）"/></p:column>
+                    <p:column>
+                        <p:selectOneMenu id="facno" value="#{addPersonnelChangeManagedBean.companyname}" style="width:100%;"  >
+                            <f:selectItem itemLabel="上海汉钟精机股份有限公司" itemValue="上海汉钟精机股份有限公司"/>
+                            <f:selectItem itemLabel="上海柯茂机械有限公司" itemValue="上海柯茂机械有限公司"/>
+                            <f:selectItem itemLabel="浙江柯茂节能环保工程设备有限公司" itemValue="浙江柯茂节能环保工程设备有限公司"/>
+                        </p:selectOneMenu>
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column > <h:outputLabel value="生效日期" for="sendTime"/></p:column>         
+                    <p:column >
+                        <p:calendar id="sendTime" value="#{addPersonnelChangeManagedBean.sendTime}" title="" pattern="yyyy-MM-dd" />
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column><h:outputLabel value="异动单日期" for="changeFormlTime" /></p:column>
+                    <p:column>
+                        <p:datePicker id="changeFormlTime" view="month" value="#{addPersonnelChangeManagedBean.changeFormlTime}" pattern="yyyy-MM" yearNavigator="true" yearRange="2000:2030" />
+                    </p:column>
+                </p:row>
+                <p:row>
+                      <p:column> <h:outputText value="人员职等类别"/></p:column>
+                    <p:column>
+                        <p:selectOneMenu id="personLevle" value="#{addPersonnelChangeManagedBean.personLevle}" style="width:100%;"  >
+                            <f:selectItem itemLabel="C职等以下" itemValue="C职等以下"/>
+                            <f:selectItem itemLabel="C职等及以上" itemValue="C职等及以上"/>
+                            <f:selectItem itemLabel="劳务员" itemValue="劳务员"/>
+                        </p:selectOneMenu>
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column> <h:outputLabel value="接收人员" for="acceptPerson" /></p:column>
+                    <p:column>
+                        <p:inputTextarea styleClass="inputWithButton" id="acceptPerson"  title="录入查询报价单号" value="#{addPersonnelChangeManagedBean.acceptPerson}" readonly="true"/>
+                        <p:commandButton id="acceptPersonButton" actionListener="#{addPersonnelChangeManagedBean.openDialog('sysuserSelect')}" icon="ui-icon-extlink"
+                                         process="@this" >
+                            <p:ajax event="dialogReturn" listener="#{addPersonnelChangeManagedBean.handleDialogReturnWhenDetailAllNew}" update="acceptPerson" />
+                        </p:commandButton>
+                        <p:commandButton id="acceptPersonButton1" actionListener="#{addPersonnelChangeManagedBean.openDialog('sysuserSelectByDept')}" icon="ui-icon-extlink"
+                                         process="@this" >
+                            <p:ajax event="dialogReturn" listener="#{addPersonnelChangeManagedBean.handleDialogReturnSysuserByDeptno}" update="acceptPerson" />
+                        </p:commandButton>
+                    </p:column>
+                </p:row>
+            </p:panelGrid>
+            <p:row>
+                <p:commandButton value="提交" actionListener="#{addPersonnelChangeManagedBean.save()}"/>
+                <p:commandButton value="重置"  actionListener="#{addPersonnelChangeManagedBean.reset()}" update=":formList"/>
+            </p:row>
+        </h:form>
+    </ui:define>
+</ui:composition>
+
