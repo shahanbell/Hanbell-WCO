@@ -5,7 +5,9 @@
  */
 package cn.hanbell.wco.servlet;
 
+import cn.hanbell.eap.ejb.PersonnelChangeBean;
 import cn.hanbell.eap.ejb.SalarySendBean;
+import cn.hanbell.eap.entity.PersonnelChange;
 import cn.hanbell.eap.entity.SalarySend;
 import cn.hanbell.wco.corp.ReqEncryptMessage;
 import cn.hanbell.wco.corp.ReqMessage;
@@ -43,7 +45,8 @@ public class Agent1000002 extends HttpServlet {
 
     @EJB
     private SalarySendBean salarySendBean;
-
+    @EJB
+    private PersonnelChangeBean personnelChangeBean;
     private final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
 
     protected String corpID = "";
@@ -185,6 +188,20 @@ public class Agent1000002 extends HttpServlet {
                                                 confirm.setStatus("V");
                                                 confirm.setConfirmtime(new Date());
                                                 salarySendBean.update(confirm);
+                                                break;
+                                        }
+                                    } else if (taskId.startsWith("RSYD")) {
+                                        //人事异动的确认回调
+                                        eventKey = inputMsg.getEventKey();
+                                        String userid = inputMsg.getFromUserName();
+                                        String taskMsg;
+                                        switch (eventKey) {
+                                            // 确认
+                                            case "confirm":
+                                                PersonnelChange p = personnelChangeBean.findByEmployeeIdAndTaskId(userid, taskId);
+                                                p.setStatus("V");
+                                                p.setConfirmtime(new Date());
+                                                personnelChangeBean.update(p);
                                                 break;
                                         }
                                     }
