@@ -101,11 +101,6 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                 Sheet sheet = excel.getSheetAt(0);
                 String fileName = file1.getFileName();
                 this.uploadDate=fileName;
-                List<Attendance> list = attendanceBean.findByAttendanceDate(fileName.substring(0, 6));
-                if (!list.isEmpty() || list == null) {
-                    FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "已经上传过该日期"));
-                    return;
-                }
                 for (int i = 2; i <= sheet.getLastRowNum(); i++) {
                     a=i;
                     Row row = sheet.getRow(i);
@@ -141,7 +136,10 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                     attendance.setOweClass(cellToVlaue(row.getCell(30)));
                     attendance.setStatus("X");
                     attendance.setCheckcode(getCheckCode());
+                     List<Attendance> list = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(attendance.getEmployeeId(), attendance.getAttendanceDate(), null);
+                    if (list == null || list.isEmpty()) {
                     attendanceBean.persist(attendance);
+                }
                 }
             } catch (Exception ex) {
                  FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "上传失败"));
