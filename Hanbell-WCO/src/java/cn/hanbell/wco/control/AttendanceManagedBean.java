@@ -140,6 +140,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                     attendance.setDinner(cellToVlaue(row.getCell(29)));
                     attendance.setOweClass(cellToVlaue(row.getCell(30)));
                     attendance.setStatus("X");
+                    attendance.setCheckcode(getCheckCode());
                     attendanceBean.persist(attendance);
                 }
             } catch (Exception ex) {
@@ -189,7 +190,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
          msg.append("您的").append(a.getAttendanceDate()).append("考勤记录已生成，<br>");
           msg.append("<a href=\"");
           StringBuffer url=new StringBuffer( configPropertiesBean.findByKey("cn.hanbell.wco.control.AttendanceManagedBean.attendanceUrl").getConfigvalue());
-          a.setCheckcode(getCheckCode());
+          
           url.append(a.getEmployeeId()).append("&attendanceDate=").append(a.getAttendanceDate()).append("&checkcode=").append(a.getCheckcode());
                 msg.append(url).append("\">请点击此处").append("</a>   ");
                 msg.append("查看");
