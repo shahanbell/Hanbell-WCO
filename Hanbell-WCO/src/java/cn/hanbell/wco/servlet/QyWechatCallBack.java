@@ -10,11 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 /**
  *
  * @author C2082
@@ -34,6 +29,7 @@ public class QyWechatCallBack extends HttpServlet {
         String code = req.getParameter("code");
         String state = req.getParameter("state");
         log4j.info("--------code=" + code + "---------" + "state=" + state);
+        agent1000002Bean.initConfiguration();
         String userid = agent1000002Bean.getUserIdByCode(code);
         log4j.info("--------userid=" + userid);
     }
