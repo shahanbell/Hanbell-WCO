@@ -96,6 +96,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
                     //log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
+                    
                     if (errcode == 0) {
                         return "success";
                     } else {
@@ -650,6 +651,70 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         }
     }
    
+    
+    public String updateApplication() {
+        setAccessToken(this.getAppID(), this.getAppSecret());
+        String access_token = getAccessToken(this.getAppID(), this.getAppSecret());
+        if (access_token != null && !"".equals(access_token)) {
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/agent/set_workbench_template?access_token=" + access_token;
+            //构建消息
+            StringBuilder jsonString = new StringBuilder("{'agentid':1000003,'type':'keydata','keydata':{ 'items':[{ 'key':'公司制度','data':'2','jump_url':'','pagepath':'pages/index'},{ 'key':'疫情规定','data':'4','jump_url':'http://www.qq.com','pagepath':'pages/index'},{'key':'祝福消息','data':'45','jump_url':'http://www.qq.com','pagepath':'pages/index'},{'key':'培训消息','data':'98','jump_url':'http://www.qq.com','pagepath':'pages/index'}]},'replace_user_data':true}");
+
+            JSONObject jop = new JSONObject(jsonString.toString());
+            CloseableHttpResponse response = post(urlString, initStringEntity(jop.toString()));
+            if (response != null) {
+                HttpEntity httpEntity = response.getEntity();
+                try {
+                    JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
+                    log4j.info(jor.getString("errmsg"));
+                    return jor.getString("errmsg");
+                } catch (IOException | ParseException | JSONException ex) {
+                    log4j.error(ex);
+                } finally {
+                    try {
+                        response.close();
+                    } catch (IOException ex) {
+                        log4j.error(ex);
+                    }
+                }
+            } else {
+                return "平台未响应";
+            }
+        }
+        return "系统异常操作失败";
+    }
+    
+     public String getUserIdByCode(String code) {
+        setAccessToken(this.getAppID(), this.getAppSecret());
+        String access_token = getAccessToken(this.getAppID(), this.getAppSecret());
+        if (access_token != null && !"".equals(access_token)) {
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=" + access_token + "&code=" + code;
+            CloseableHttpResponse response = get(urlString, null, null);
+            if (response != null) {
+                HttpEntity httpEntity = response.getEntity();
+                try {
+                    JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
+                    //log4j.info(jor.getString("errmsg"));
+                    int errcode = jor.getInt("errcode");
+                    if (errcode == 0) {
+                        return jor.getString("UserId");
+                    } else {
+                        return jor.getString("errmsg");
+                    }
+                } catch (IOException | ParseException | JSONException ex) {
+                    log4j.error(ex);
+                } finally {
+                    try {
+                        response.close();
+                    } catch (IOException ex) {
+                        log4j.error(ex);
+                    }
+                }
+            }
+        }
+        return "系统异常操作失败";
+    }
+    
     /**
      * @return the dataPath
      */
