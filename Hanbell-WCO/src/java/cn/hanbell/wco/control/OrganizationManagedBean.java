@@ -245,6 +245,7 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                         ep = departmentBean.findByDeptno(hp.getCode());
                     }
                     cn.hanbell.eap.entity.Department ed = departmentBean.findByDeptno(hd.getCode());
+                    //EAP中没有该子级别部门
                     if (ed == null) {
                         ed = new cn.hanbell.eap.entity.Department();
                         ed.setDeptno(hd.getCode());
@@ -438,6 +439,13 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             eu.setCreatorToSystem();
                             eu.setCredateToNow();
                             eu.setOptdate(eu.getCredate());
+                            if( e.getLastModifiedDate().compareTo(e.getLastWorkDate()) != -1){
+                            eu.setSyncWeChatStatus("X");
+                            eu.setSyncWeChatDate(e.getLastModifiedDate());
+                            eu.setStatus("X");
+                            eu.setOptuserToSystem();
+                            eu.setOptdate(e.getLastModifiedDate());
+                            }
                             systemUserBean.persist(eu);
                         } else {
                             if (eu.getOptdate() != null && eu.getOptdate().before(e.getLastModifiedDate())) {
