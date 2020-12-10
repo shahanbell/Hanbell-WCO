@@ -348,11 +348,13 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
             }
             return true;
         }
-        String msg;
+        String msg = "";
         boolean ret = true;
         JsonObject jo = systemUserBean.createJsonObjectBuilder(user).build();
         if (user.getSyncWeChatStatus() == null || user.getSyncWeChatDate() == null) {
-            msg = wechatCorpBean.createEmployee(jo);
+            if (user.getPhone() != null && !"".equals(user.getPhone())) {
+                msg = wechatCorpBean.createEmployee(jo);
+            }
             if (msg.equals("success")) {
                 user.setSyncWeChatDate(this.getDate());
                 user.setSyncWeChatStatus("V");
@@ -439,12 +441,12 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             eu.setCreatorToSystem();
                             eu.setCredateToNow();
                             eu.setOptdate(eu.getCredate());
-                            if( e.getLastModifiedDate().compareTo(e.getLastWorkDate()) != -1){
-                            eu.setSyncWeChatStatus("X");
-                            eu.setSyncWeChatDate(e.getLastModifiedDate());
-                            eu.setStatus("X");
-                            eu.setOptuserToSystem();
-                            eu.setOptdate(e.getLastModifiedDate());
+                            if (e.getLastModifiedDate().compareTo(e.getLastWorkDate()) != -1) {
+                                eu.setSyncWeChatStatus("X");
+                                eu.setSyncWeChatDate(e.getLastModifiedDate());
+                                eu.setStatus("X");
+                                eu.setOptuserToSystem();
+                                eu.setOptdate(e.getLastModifiedDate());
                             }
                             systemUserBean.persist(eu);
                         } else {
