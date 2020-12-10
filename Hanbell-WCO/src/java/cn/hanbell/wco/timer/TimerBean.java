@@ -196,7 +196,7 @@ public class TimerBean {
 
     private void syncEmployee() {
         if (userList != null && !userList.isEmpty()) {
-            String msg;
+            String msg = "";
             for (SystemUser user : userList) {
                 if (user.getSyncWeChatStatus() != null && "X".equals(user.getSyncWeChatStatus())) {
                     continue;
@@ -219,7 +219,9 @@ public class TimerBean {
                 JsonObject jo;
                 if (user.getSyncWeChatStatus() == null || user.getSyncWeChatDate() == null) {
                     jo = systemUserBean.createJsonObjectBuilder(user).build();
-                    msg = wechatCorpBean.createEmployee(jo);
+                    if (user.getPhone() != null && !"".equals(user.getPhone())) {
+                        msg = wechatCorpBean.createEmployee(jo);
+                    }
                     if (msg.equals("success")) {
                         user.setSyncWeChatDate(BaseLib.getDate());
                         user.setSyncWeChatStatus("V");

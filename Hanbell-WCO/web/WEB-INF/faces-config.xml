@@ -120,6 +120,11 @@
             <redirect/>
         </navigation-case> 
          <navigation-case>
+            <from-outcome>updateSalarySend</from-outcome>
+            <to-view-id>/app/df/updateSalarySend.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case> 
+         <navigation-case>
             <from-outcome>sysuserSelectByDept</from-outcome>
             <to-view-id>/app/df/sysuserSelectBydept.xhtml</to-view-id>
             <redirect/>

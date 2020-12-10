@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./../../WEB-INF/df.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+    
+    <ui:define name="content">
+        <h:form id="formList"  style="height:500px;width:100%">
+            <p:growl id="growl" showSummary="false" showDetail="true"/>
+            <p:panelGrid id="plgQuery" styleClass="plgQuery Wid100">
+                <f:facet name="header">
+                    <p:row>
+                        <p:column colspan="4">推送薪资回执</p:column>
+                    </p:row>
+                </f:facet>
+                <p:row>
+                    <p:column><h:outputLabel value="回执日期" for="changeFormlTime" /></p:column>
+                    <p:column>
+                        <p:datePicker id="changeFormlTime" view="month" value="#{salarySendReportManagedBean.changeFormlTime}" pattern="yyyyMM" yearNavigator="true" yearRange="2000:2030" />
+                    </p:column>
+                </p:row>
+              
+                <p:row>
+                    <p:column> <h:outputLabel value="接收人员" for="acceptPerson" /></p:column>
+                    <p:column>
+                        <p:inputTextarea styleClass="inputWithButton" id="acceptPerson"  title="" value="#{salarySendReportManagedBean.acceptPerson}" readonly="true"/>
+                    </p:column>
+                </p:row>
+            </p:panelGrid>
+            <p:row>
+                <p:commandButton value="提交" actionListener="#{salarySendReportManagedBean.sendmsg()}"/>
+                <p:commandButton value="重置"  actionListener="#{salarySendReportManagedBean.reset()}" update=":formList"/>
+            </p:row>
+        </h:form>
+    </ui:define>
+</ui:composition>
+

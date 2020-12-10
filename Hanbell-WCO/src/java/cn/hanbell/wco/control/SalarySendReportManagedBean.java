@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -34,6 +36,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 
@@ -52,7 +55,8 @@ public class SalarySendReportManagedBean extends SuperQueryBean<SalarySend> {
     private String employeeId;
     private Date date;
     private List<SalarySend> selectData;
-
+    private Date changeFormlTime;
+    private String acceptPerson;
     protected final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
     @EJB
     private SalarySendBean salarySendBean;
@@ -107,6 +111,7 @@ public class SalarySendReportManagedBean extends SuperQueryBean<SalarySend> {
 
     //发送消息
     public void upload() {
+
         if (date == null) {
             FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "发送时间前必须筛选月份"));
             return;
@@ -121,6 +126,7 @@ public class SalarySendReportManagedBean extends SuperQueryBean<SalarySend> {
                 toUsers.append(s.getEmployeeid()).append("|");
             }
         }
+
         System.out.println("toUser=" + toUsers);
         String data = this.selectData.get(0).getTaskname().substring(0, 6);
         Date sendDate = this.selectData.get(0).getSendtime();
@@ -128,13 +134,55 @@ public class SalarySendReportManagedBean extends SuperQueryBean<SalarySend> {
         msg.append(data).append("期薪资发放回执已与").append(BaseLib.formatDate("yyyyMMdd", sendDate));
         msg.append("发出，您还未确认，请进入企业微信 系统消息 及时签收！谢谢！");
         agent1000002Bean.initConfiguration();
-        String errmsg = agent1000002Bean.sendMsgToUser(toUsers.substring(0, toUsers.length()-1), "text", msg.toString());
+        String errmsg = agent1000002Bean.sendMsgToUser(toUsers.substring(0, toUsers.length() - 1), "text", msg.toString());
+    }
+
+    public void sendmsg() {
+        StringBuffer toUsers = new StringBuffer("");
+        String dateString = BaseLib.formatDate("yyyyMM", changeFormlTime);
+        String taskid = salarySendBean.getTaskId("XZHZ" + dateString);
+        StringBuffer data = new StringBuffer();
+        for (SalarySend s : this.selectData) {
+                toUsers.append(s.getEmployeeid()).append("|");
+                SalarySend salary = salarySendBean.findByTaskNameAndEmployeeid(dateString + "月薪资发放", s.getEmployeeid());
+                salary.setSendtime(new Date());
+                salary.setConfirmtime(null);
+                salary.setStatus("N");
+                salary.setTaskid(taskid);
+                salarySendBean.update(salary);
+        }
+        data.append("'taskcard':{");
+        data.append("'title':'").append(dateString).append("期薪资发放回执'");
+        data.append(",'description':'").append("感谢您一个月的辛勤耕耘。").append(dateString).append("期工资单已发出，请查收！<br>工资单已收到请点下方确认！谢谢！'");
+        data.append(",'url':'").append("'");
+        data.append(",'task_id':'").append(taskid).append("'");
+        data.append(",'btn':[{");
+        data.append("'key':'").append("confirm'");
+        data.append(",'name':'").append("确认'");
+        data.append(",'replace_name':'").append("已确认'");
+        data.append(",'color':'").append("red'");
+        data.append(",'is_bold':").append(true).append("}");
+        data.append("]},");
+        agent1000002Bean.initConfiguration();
+        agent1000002Bean.sendMsgToUser(toUsers.substring(0,toUsers.length()-1), "taskcard", data.toString());
+    }
+
+    @Override
+    public void openDialog(String view) {
+        StringBuffer p = new StringBuffer();
+        for (SalarySend s : this.selectData) {
+                p.append(s.getEmployeename()).append("|");
+        }
+        this.acceptPerson = p.toString();
+        Map<String, Object> options = new HashMap();
+        options.put("modal", true);
+        PrimeFaces.current().dialog().openDynamic(view, options, null);
     }
 
     @Override
     public void print() {
         query();
-         entityList = salarySendBean.findByFilters(model.getFilterFields(), model.getSortFields());
+        entityList = salarySendBean.findByFilters(model.getFilterFields(), model.getSortFields());
         InputStream is = null;
         try {
             try {
@@ -158,14 +206,14 @@ public class SalarySendReportManagedBean extends SuperQueryBean<SalarySend> {
                     Cell cell = row.createCell(0);
                     cell.setCellValue(i);
                     row.createCell(1).setCellValue(e.getTaskid() != null ? e.getTaskid() : "");
-                    row.createCell(2).setCellValue(e.getTaskname()!= null ? e.getTaskname() : "");
-                    row.createCell(3).setCellValue(e.getSendtime()!= null ? BaseLib.formatDate("yyyy/MM/dd", e.getSendtime()) : "");
-                    row.createCell(4).setCellValue(e.getEmployeeid()!= null ? e.getEmployeeid() : "");
-                    row.createCell(5).setCellValue(e.getEmployeename()!= null ? e.getEmployeename() : "");
-                    row.createCell(6).setCellValue(e.getDeptno()!= null ? e.getDeptno() : "");
-                    row.createCell(7).setCellValue(e.getDept()!= null ? e.getDept() : "");
-                    row.createCell(8).setCellValue(e.getStatus()!= null ? e.getStatus() : "");
-                    row.createCell(9).setCellValue(e.getConfirmtime()!= null ? BaseLib.formatDate("yyyy/MM/dd", e.getConfirmtime()) : "");
+                    row.createCell(2).setCellValue(e.getTaskname() != null ? e.getTaskname() : "");
+                    row.createCell(3).setCellValue(e.getSendtime() != null ? BaseLib.formatDate("yyyy/MM/dd", e.getSendtime()) : "");
+                    row.createCell(4).setCellValue(e.getEmployeeid() != null ? e.getEmployeeid() : "");
+                    row.createCell(5).setCellValue(e.getEmployeename() != null ? e.getEmployeename() : "");
+                    row.createCell(6).setCellValue(e.getDeptno() != null ? e.getDeptno() : "");
+                    row.createCell(7).setCellValue(e.getDept() != null ? e.getDept() : "");
+                    row.createCell(8).setCellValue(e.getStatus() != null ? e.getStatus() : "");
+                    row.createCell(9).setCellValue(e.getConfirmtime() != null ? BaseLib.formatDate("yyyy/MM/dd", e.getConfirmtime()) : "");
                 }
                 FileOutputStream os = null;
                 try {
@@ -244,6 +292,22 @@ public class SalarySendReportManagedBean extends SuperQueryBean<SalarySend> {
 
     public void onRowUnselect(UnselectEvent event) {
         System.out.println("event=" + event);
+    }
+
+    public Date getChangeFormlTime() {
+        return changeFormlTime;
+    }
+
+    public void setChangeFormlTime(Date changeFormlTime) {
+        this.changeFormlTime = changeFormlTime;
+    }
+
+    public String getAcceptPerson() {
+        return acceptPerson;
+    }
+
+    public void setAcceptPerson(String acceptPerson) {
+        this.acceptPerson = acceptPerson;
     }
 
 }
