@@ -10,12 +10,16 @@ import cn.hanbell.eap.entity.PersonnelChange;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
 import cn.hanbell.wco.lazy.PersonnelChangeModel;
 import cn.hanbell.wco.web.SuperQueryBean;
+import com.lightshell.comm.BaseLib;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.ejb.EJB;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 import org.primefaces.PrimeFaces;
 
 /**
@@ -33,6 +37,7 @@ public class PersonnelChangeManagedBean extends SuperQueryBean<PersonnelChange> 
     private Date startDate;
     private Date endDate;
     private String status;
+    private List<PersonnelChange> selectData;
     @EJB
     private PersonnelChangeBean personnelChangeBean;
 
@@ -80,7 +85,20 @@ public class PersonnelChangeManagedBean extends SuperQueryBean<PersonnelChange> 
         super.reset();
 
     }
-
+  public void press() {
+        agent1000002Bean.initConfiguration();
+        for(PersonnelChange p:selectData){
+            if("X".equals(p.getStatus())){
+                StringBuffer msg = new StringBuffer("【上海汉钟】");
+                msg.append(p.getTaskname()).append("已与").append(BaseLib.formatDate("yyyyMMdd", p.getSendtime()));
+                msg.append("发出，您还未确认，请进入企业微信 系统消息 及时签收！谢谢！");
+                String errmsg=agent1000002Bean.sendMsgToUser(p.getEmployeeid(), "text", msg.toString());
+                if("ok".equals(errmsg)){
+                 FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "发送成功"));
+                }
+            }
+        }
+    }
 
     @Override
     public void openDialog(String view) {
@@ -135,6 +153,13 @@ public class PersonnelChangeManagedBean extends SuperQueryBean<PersonnelChange> 
 
     public void setPersonnelChangeBean(PersonnelChangeBean personnelChangeBean) {
         this.personnelChangeBean = personnelChangeBean;
+    }
+    public List<PersonnelChange> getSelectData() {
+        return selectData;
+    }
+
+    public void setSelectData(List<PersonnelChange> selectData) {
+        this.selectData = selectData;
     }
 
 
