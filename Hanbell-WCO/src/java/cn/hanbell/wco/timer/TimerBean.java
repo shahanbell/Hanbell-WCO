@@ -221,6 +221,11 @@ public class TimerBean {
                     jo = systemUserBean.createJsonObjectBuilder(user).build();
                     if (user.getPhone() != null && !"".equals(user.getPhone())) {
                         msg = wechatCorpBean.createEmployee(jo);
+                    }else{
+                        user.setSyncWeChatDate(BaseLib.getDate());
+                        user.setSyncWeChatStatus("X");
+                        user.setOptdate(user.getSyncWeChatDate());
+                        systemUserBean.update(user);
                     }
                     if (msg.equals("success")) {
                         user.setSyncWeChatDate(BaseLib.getDate());

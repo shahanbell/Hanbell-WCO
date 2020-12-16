@@ -14,6 +14,7 @@ import cn.hanbell.eap.entity.WeChatTagUser;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
 import cn.hanbell.wco.lazy.DepartmentModel;
 import cn.hanbell.wco.web.SuperSingleBean;
+import com.lightshell.comm.BaseLib;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -354,6 +355,11 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
         if (user.getSyncWeChatStatus() == null || user.getSyncWeChatDate() == null) {
             if (user.getPhone() != null && !"".equals(user.getPhone())) {
                 msg = wechatCorpBean.createEmployee(jo);
+            } else {
+                user.setSyncWeChatDate(BaseLib.getDate());
+                user.setSyncWeChatStatus("X");
+                user.setOptdate(user.getSyncWeChatDate());
+                systemUserBean.update(user);
             }
             if (msg.equals("success")) {
                 user.setSyncWeChatDate(this.getDate());
