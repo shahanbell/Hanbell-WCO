@@ -221,7 +221,7 @@ public class TimerBean {
                     jo = systemUserBean.createJsonObjectBuilder(user).build();
                     if (user.getPhone() != null && !"".equals(user.getPhone())) {
                         msg = wechatCorpBean.createEmployee(jo);
-                    }else{
+                    } else {
                         user.setSyncWeChatDate(BaseLib.getDate());
                         user.setSyncWeChatStatus("X");
                         user.setOptdate(user.getSyncWeChatDate());
@@ -341,5 +341,59 @@ public class TimerBean {
             }
         }
         return records;
+    }
+
+    /**
+     * 发送生日祝福
+     */
+    @Schedule(minute = "30", hour = "9", persistent = false)
+    public void sendBirthdayBless() {
+        wechatCorpBean.initConfiguration();
+        String selectDate = BaseLib.formatDate("%MM-dd%", new Date());
+        List<SystemUser> list = systemUserBean.findByLikeBirthdayDateAndDeptno(selectDate);
+        StringBuffer user = new StringBuffer();
+        if (list != null && !list.isEmpty()) {
+            for (SystemUser s : list) {
+                if ("V".equals(s.getSyncWeChatStatus())) {
+                    //发送消息
+//                    StringBuffer data = new StringBuffer("{");
+//                    data.append("'title':'").append(s.getUsername() + ",生日快乐").append("',");
+//                    data.append("'description':'").append("愿你生日焕发光彩，伴随着喜悦和欢笑，从天明到日落。").append("',");
+//                    data.append("'url':'").append("").append("',");
+//                    data.append("'picurl':'").append("http://i2.hanbell.com.cn:8480/birthdayDate.png").append("'}");
+//                    wechatCorpBean.sendMsgToUser(s.getUserid(), "news", data.toString());
+                    user.append(s.getUserid()).append("|");
+                }
+            }
+            log4j.info("-----" + user.toString() + "----------");
+        }
+    }
+
+    /**
+     * 发送年资祝福
+     */
+    @Schedule(minute = "30", hour = "9", persistent = false)
+    public void sendWorkAgeBless() {
+        String selectDate = BaseLib.formatDate("%MM-dd%", new Date());
+        List<SystemUser> list = systemUserBean.findByLikeWorkingAgeBeginDateAndDeptno(selectDate);
+        StringBuffer user = new StringBuffer();
+        if (list != null && !list.isEmpty()) {
+            for (SystemUser s : list) {
+                //计算时间
+                Integer now = Integer.valueOf(BaseLib.formatDate("yyyy", new Date()));
+                Integer workYear = Integer.valueOf(BaseLib.formatDate("yyyy", s.getWorkingAgeBeginDate()));
+                if ("V".equals(s.getSyncWeChatStatus()) && (now - workYear) >= 1) {
+                    //发送消息
+//                    StringBuffer data = new StringBuffer("{");
+//                    data.append("'title':'").append(s.getUsername() + (now-workYear) + "周年快乐").append("',");
+//                    data.append("'description':'").append("每一天，距离着梦想更近一些，感谢你的付出的努力！").append("',");
+//                    data.append("'url':'").append("").append("',");
+//                    data.append("'picurl':'").append("http://i2.hanbell.com.cn:8480/workingAgeBeginDate.png").append("'}");
+//                    wechatCorpBean.sendMsgToUser(s.getUserid(), "news", data.toString());
+                    user.append(s.getUserid()).append("|");
+                }
+            }
+            log4j.info("-----" + user.toString() + "----------");
+        }
     }
 }

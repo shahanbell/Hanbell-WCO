@@ -5,11 +5,22 @@
  */
 package cn.hanbell.wco.jrs;
 
+import cn.hanbell.eap.ejb.SystemUserBean;
+import cn.hanbell.eap.entity.SystemUser;
+import cn.hanbell.wco.ejb.Agent1000002Bean;
 import cn.hanbell.wco.ejb.DineInfobean;
 import cn.hanbell.wco.entity.DineInfo;
 import cn.hanbell.wco.web.SuperRESTForWCO;
+import com.lightshell.comm.BaseLib;
 import com.lightshell.comm.SuperEJB;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
@@ -23,6 +34,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 /**
  *
@@ -34,6 +51,12 @@ public class DineInfoFacadeREST extends SuperRESTForWCO<DineInfo> {
 
     @EJB
     private DineInfobean dineInfobean;
+
+    @EJB
+    private SystemUserBean systemUserBean;
+
+    @EJB
+    private Agent1000002Bean wechatCorpBean;
 
     public DineInfoFacadeREST() {
         super(DineInfo.class);
@@ -119,6 +142,67 @@ public class DineInfoFacadeREST extends SuperRESTForWCO<DineInfo> {
         } else {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
+    }
+
+    @GET
+    @Path("initSystemUser")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    public ResponseMessage initSystemUser() {
+        try {
+            File file = new File("D:\\1.xls");
+            FileInputStream is;
+            is = new FileInputStream(file);
+            Workbook wb = WorkbookFactory.create(is);
+            Sheet sheet = wb.getSheetAt(0);
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                SystemUser s = systemUserBean.findByUserId(cellToVlaue(row.getCell(0)));
+                if (s != null) {
+                    if ("V".equals(s.getSyncWeChatStatus())) {
+                        s.setWorkingAgeBeginDate(row.getCell(2).getDateCellValue());
+                        s.setBirthdayDate(row.getCell(3).getDateCellValue());
+                        systemUserBean.update(s);
+                    }
+                }
+            }
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (InvalidFormatException ex) {
+            ex.printStackTrace();
+        }
+        log4j.info("----------------修改成功---------------------");
+        ResponseMessage resp = new ResponseMessage("200", "success");
+        return resp;
+    }
+
+    public String cellToVlaue(Cell cell) {
+        if (cell == null) {
+            return "";
+        }
+        int type = cell.getCellType();
+        switch (type) {
+            case 0:
+                double d = cell.getNumericCellValue();
+                //整数去掉小数点
+                if (d == (int) d) {
+                    return String.valueOf((int) d);
+                }
+                return String.valueOf(cell.getNumericCellValue());
+            case 1:
+                return cell.getStringCellValue();
+            case 2:
+                return cell.getCellFormula();
+            case 3:
+                return "0";
+            case 4:
+                return String.valueOf(cell.getBooleanCellValue());
+            case 5:
+                return String.valueOf(cell.getErrorCellValue());
+        }
+        return "";
     }
 
 }
