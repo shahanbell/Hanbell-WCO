@@ -106,8 +106,11 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
                     loadUser(e, inservice);
                 }
             }
-            long date = new Date().getTime() + 1000 * 60 * 60 * 24 * 31 + 1000 * 60 * 60 * 24 * 31;
-            String dateString = BaseLib.formatDate("yyyyMM", new Date(date));
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(new Date());
+            cal.add(Calendar.MONTH, -1);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+            String dateString = sdf.format(cal.getTime());
             if (inservice) {
                 salaryList.addAll(salarySendBean.findByTaskidAndDeptno("XZHZ" + dateString, dept.getDeptno()));
                 userSet.addAll(systemUserBean.findBySyncWeChatStatusAndDeptno(dept.getDeptno()));
@@ -141,7 +144,7 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
         if (userSet.isEmpty()) {
         }
         loadUserOnJob();
-        StringBuffer data=new StringBuffer();
+        StringBuffer data = new StringBuffer();
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
         cal.add(Calendar.MONTH, -1);

@@ -382,6 +382,9 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 case "voice":
                     jsonString.append("{'touser':'").append(userid).append("','msgtype':'voice','voice':{'media_id':'").append(data).append("'}}");
                     break;
+                  case "news":
+                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'news','agentid':").append(this.agentId).append(",'news':{'articles':[").append(data).append("]}}");
+                    break;
                 case "mpnews":
                     jsonString.append("{'touser':'").append(userid).append("','msgtype':'mpnews','mpnews':{'media_id':'").append(data).append("'}}");
                     break;
