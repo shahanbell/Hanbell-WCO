@@ -12,6 +12,7 @@ import cn.hanbell.eap.entity.Department;
 import cn.hanbell.eap.entity.SystemUser;
 import cn.hanbell.eap.entity.WeChatTagUser;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
+import cn.hanbell.wco.ejb.Agent1000016Bean;
 import cn.hanbell.wco.ejb.Agent3010011Bean;
 import com.lightshell.comm.BaseLib;
 import java.text.ParseException;
@@ -51,7 +52,8 @@ public class TimerBean {
     private Agent3010011Bean agent3010011Bean;
     @EJB
     private Agent1000002Bean wechatCorpBean;
-
+    @EJB
+    private Agent1000016Bean agent1000016Bean;
     private List<Department> deptList;
     private List<Department> childDepts;
     private List<SystemUser> userList;
@@ -233,7 +235,7 @@ public class TimerBean {
                         user.setOptdate(user.getSyncWeChatDate());
                         systemUserBean.update(user);
                     } else {
-                        log4j.error(msg);
+                        log4j.error(user.getUserid()+"同步失败："+msg);
                     }
                 } else {
                     if (user.getStatus().equals("X")) {
@@ -260,6 +262,8 @@ public class TimerBean {
                         if (msg.equals("success")) {
                             user.setSyncWeChatDate(BaseLib.getDate());
                             user.setSyncWeChatStatus("X");
+                            user.setBirthdayDate(null);
+                            user.setWorkingAgeBeginDate(null);
                             user.setOptdate(user.getSyncWeChatDate());
                             systemUserBean.update(user);
                         } else {
@@ -276,7 +280,7 @@ public class TimerBean {
                                 user.setOptdate(user.getSyncWeChatDate());
                                 systemUserBean.update(user);
                             } else {
-                                log4j.error(msg);
+                                log4j.error(user.getUserid()+"同步失败："+msg);
                             }
                         }
                     }
@@ -348,52 +352,53 @@ public class TimerBean {
      */
     @Schedule(minute = "30", hour = "9", persistent = false)
     public void sendBirthdayBless() {
-        wechatCorpBean.initConfiguration();
-        String selectDate = BaseLib.formatDate("%MM-dd%", new Date());
+        agent1000016Bean.initConfiguration();
+        String selectDate = BaseLib.formatDate("____-MM-dd%", new Date());
         List<SystemUser> list = systemUserBean.findByLikeBirthdayDateAndDeptno(selectDate);
-        StringBuffer user = new StringBuffer();
         if (list != null && !list.isEmpty()) {
+             log4j.info("----- 发送生日祝福开始----------");
             for (SystemUser s : list) {
                 if ("V".equals(s.getSyncWeChatStatus())) {
                     //发送消息
-//                    StringBuffer data = new StringBuffer("{");
-//                    data.append("'title':'").append(s.getUsername() + ",生日快乐").append("',");
-//                    data.append("'description':'").append("愿你生日焕发光彩，伴随着喜悦和欢笑，从天明到日落。").append("',");
-//                    data.append("'url':'").append("").append("',");
-//                    data.append("'picurl':'").append("http://i2.hanbell.com.cn:8480/birthdayDate.png").append("'}");
-//                    wechatCorpBean.sendMsgToUser(s.getUserid(), "news", data.toString());
-                    user.append(s.getUserid()).append("|");
+                    StringBuffer data = new StringBuffer("{");
+                    data.append("'title':'").append(s.getUsername() + ",祝您生日快乐").append("',");
+                    data.append("'description':'").append("愿您平安健康，事事舒心。也希望未来的日子里，您能实现心中所想，自由地追逐梦想！").append("',");
+                    data.append("'url':'").append("").append("',");
+                    data.append("'picurl':'").append(agent1000016Bean.getBirthdatPicteureUrl(s.getDeptno())).append("'}");
+                    agent1000016Bean.sendMsgToUser("C2082", "news", data.toString());
+                     log4j.info(data.toString());
                 }
             }
-            log4j.info("-----" + user.toString() + "----------");
+            log4j.info("----- 发送生日祝福结束----------");
         }
     }
 
     /**
      * 发送年资祝福
      */
-    @Schedule(minute = "30", hour = "9", persistent = false)
+    @Schedule(minute = "31", hour = "9", persistent = false)
     public void sendWorkAgeBless() {
-        String selectDate = BaseLib.formatDate("%MM-dd%", new Date());
+        agent1000016Bean.initConfiguration();
+        String selectDate = BaseLib.formatDate("____-MM-dd%", new Date());
         List<SystemUser> list = systemUserBean.findByLikeWorkingAgeBeginDateAndDeptno(selectDate);
-        StringBuffer user = new StringBuffer();
         if (list != null && !list.isEmpty()) {
+             log4j.info("----- 发送年资祝福结束----------");
             for (SystemUser s : list) {
                 //计算时间
                 Integer now = Integer.valueOf(BaseLib.formatDate("yyyy", new Date()));
                 Integer workYear = Integer.valueOf(BaseLib.formatDate("yyyy", s.getWorkingAgeBeginDate()));
                 if ("V".equals(s.getSyncWeChatStatus()) && (now - workYear) >= 1) {
-                    //发送消息
-//                    StringBuffer data = new StringBuffer("{");
-//                    data.append("'title':'").append(s.getUsername() + (now-workYear) + "周年快乐").append("',");
-//                    data.append("'description':'").append("每一天，距离着梦想更近一些，感谢你的付出的努力！").append("',");
-//                    data.append("'url':'").append("").append("',");
-//                    data.append("'picurl':'").append("http://i2.hanbell.com.cn:8480/workingAgeBeginDate.png").append("'}");
-//                    wechatCorpBean.sendMsgToUser(s.getUserid(), "news", data.toString());
-                    user.append(s.getUserid()).append("|");
+                      //发送消息
+                    StringBuffer data = new StringBuffer("{");
+                    data.append("'title':'").append(s.getUsername()).append(",感谢您").append(now - workYear).append( "年来在汉钟坚守初心，筑梦前行！").append("',");
+                    data.append("'description':'").append("',");
+                    data.append("'url':'").append("").append("',");
+                    data.append("'picurl':'").append(agent1000016Bean.getWorkingAgePicteureUrl(s.getDeptno())).append("'}");
+                    agent1000016Bean.sendMsgToUser("C2082", "news", data.toString());
+                    log4j.info(data.toString());
                 }
             }
-            log4j.info("-----" + user.toString() + "----------");
+             log4j.info("----- 发送年资祝福结束----------");
         }
     }
 }
