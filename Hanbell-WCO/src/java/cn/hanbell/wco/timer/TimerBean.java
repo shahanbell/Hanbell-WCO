@@ -361,11 +361,11 @@ public class TimerBean {
                 if ("V".equals(s.getSyncWeChatStatus())) {
                     //发送消息
                     StringBuffer data = new StringBuffer("{");
-                    data.append("'title':'").append(s.getUsername() + ",祝您生日快乐").append("',");
+                    data.append("'title':'").append(s.getUsername() + ",祝您生日快乐!").append("',");
                     data.append("'description':'").append("愿您平安健康，事事舒心。也希望未来的日子里，您能实现心中所想，自由地追逐梦想！").append("',");
                     data.append("'url':'").append("").append("',");
                     data.append("'picurl':'").append(agent1000016Bean.getBirthdatPicteureUrl(s.getDeptno())).append("'}");
-                    agent1000016Bean.sendMsgToUser("C2082", "news", data.toString());
+                    agent1000016Bean.sendMsgToUser(s.getUserid(), "news", data.toString());
                      log4j.info(data.toString());
                 }
             }
@@ -394,7 +394,7 @@ public class TimerBean {
                     data.append("'description':'").append("',");
                     data.append("'url':'").append("").append("',");
                     data.append("'picurl':'").append(agent1000016Bean.getWorkingAgePicteureUrl(s.getDeptno())).append("'}");
-                    agent1000016Bean.sendMsgToUser("C2082", "news", data.toString());
+                    agent1000016Bean.sendMsgToUser(s.getUserid(), "news", data.toString());
                     log4j.info(data.toString());
                 }
             }
