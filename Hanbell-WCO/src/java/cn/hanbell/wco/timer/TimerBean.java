@@ -11,12 +11,15 @@ import cn.hanbell.eap.ejb.WeChatTagUserBean;
 import cn.hanbell.eap.entity.Department;
 import cn.hanbell.eap.entity.SystemUser;
 import cn.hanbell.eap.entity.WeChatTagUser;
+import cn.hanbell.oa.ejb.ProcessInstanceBean;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
 import cn.hanbell.wco.ejb.Agent1000016Bean;
+import cn.hanbell.wco.ejb.Agent1000022Bean;
 import cn.hanbell.wco.ejb.Agent3010011Bean;
 import com.lightshell.comm.BaseLib;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
@@ -54,6 +57,10 @@ public class TimerBean {
     private Agent1000002Bean wechatCorpBean;
     @EJB
     private Agent1000016Bean agent1000016Bean;
+    @EJB
+    private Agent1000022Bean agent1000022Bean;
+    @EJB
+    private ProcessInstanceBean processInstanceBean;
     private List<Department> deptList;
     private List<Department> childDepts;
     private List<SystemUser> userList;
@@ -235,7 +242,7 @@ public class TimerBean {
                         user.setOptdate(user.getSyncWeChatDate());
                         systemUserBean.update(user);
                     } else {
-                        log4j.error(user.getUserid()+"同步失败："+msg);
+                        log4j.error(user.getUserid() + "同步失败：" + msg);
                     }
                 } else {
                     if (user.getStatus().equals("X")) {
@@ -280,7 +287,7 @@ public class TimerBean {
                                 user.setOptdate(user.getSyncWeChatDate());
                                 systemUserBean.update(user);
                             } else {
-                                log4j.error(user.getUserid()+"同步失败："+msg);
+                                log4j.error(user.getUserid() + "同步失败：" + msg);
                             }
                         }
                     }
@@ -356,7 +363,7 @@ public class TimerBean {
         String selectDate = BaseLib.formatDate("____-MM-dd%", new Date());
         List<SystemUser> list = systemUserBean.findByLikeBirthdayDateAndDeptno(selectDate);
         if (list != null && !list.isEmpty()) {
-             log4j.info("----- 发送生日祝福开始----------");
+            log4j.info("----- 发送生日祝福开始----------");
             for (SystemUser s : list) {
                 if ("V".equals(s.getSyncWeChatStatus())) {
                     //发送消息
@@ -366,7 +373,7 @@ public class TimerBean {
                     data.append("'url':'").append("").append("',");
                     data.append("'picurl':'").append(agent1000016Bean.getBirthdatPicteureUrl(s.getDeptno())).append("'}");
                     agent1000016Bean.sendMsgToUser(s.getUserid(), "news", data.toString());
-                     log4j.info(data.toString());
+                    log4j.info(data.toString());
                 }
             }
             log4j.info("----- 发送生日祝福结束----------");
@@ -382,15 +389,15 @@ public class TimerBean {
         String selectDate = BaseLib.formatDate("____-MM-dd%", new Date());
         List<SystemUser> list = systemUserBean.findByLikeWorkingAgeBeginDateAndDeptno(selectDate);
         if (list != null && !list.isEmpty()) {
-             log4j.info("----- 发送年资祝福结束----------");
+            log4j.info("----- 发送年资祝福结束----------");
             for (SystemUser s : list) {
                 //计算时间
                 Integer now = Integer.valueOf(BaseLib.formatDate("yyyy", new Date()));
                 Integer workYear = Integer.valueOf(BaseLib.formatDate("yyyy", s.getWorkingAgeBeginDate()));
                 if ("V".equals(s.getSyncWeChatStatus()) && (now - workYear) >= 1) {
-                      //发送消息
+                    //发送消息
                     StringBuffer data = new StringBuffer("{");
-                    data.append("'title':'").append(s.getUsername()).append(",感谢您").append(now - workYear).append( "年来在汉钟坚守初心，筑梦前行！").append("',");
+                    data.append("'title':'").append(s.getUsername()).append(",感谢您").append(now - workYear).append("年来在汉钟坚守初心，筑梦前行！").append("',");
                     data.append("'description':'").append("',");
                     data.append("'url':'").append("").append("',");
                     data.append("'picurl':'").append(agent1000016Bean.getWorkingAgePicteureUrl(s.getDeptno())).append("'}");
@@ -398,7 +405,44 @@ public class TimerBean {
                     log4j.info(data.toString());
                 }
             }
-             log4j.info("----- 发送年资祝福结束----------");
+            log4j.info("----- 发送年资祝福结束----------");
+        }
+    }
+
+    @Schedule(minute = "00,30", hour = "8-18", persistent = false)
+    public void sendOAUnsignedFormCount() throws ParseException {
+        Date d = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(d);
+        cal.add(Calendar.MINUTE, -30);
+        String dateBegin = BaseLib.formatDate("yyyy-MM-dd HH:mm:00.000", cal.getTime());
+        String dateEnd = BaseLib.formatDate("yyyy-MM-dd HH:mm:00.000", d);
+         if ("08:00:00.000".equals(dateEnd.split(" ")[1])|| "18:30:00.000".equals(dateEnd.split(" ")[1]) ) {
+            return;
+        }
+        agent1000022Bean.initConfiguration();
+        List<Object[]> res = processInstanceBean.getWorkAssignmentGroupByUserid(dateBegin, dateEnd);
+        for (Object[] obj : res) {
+            StringBuffer text = new StringBuffer("[上海汉钟] ");
+            text.append((String) obj[1]).append(",您有").append(obj[2]).append("件新待办事项<br>登入电子签核http://oa.hanbell.com.cn:8086/NaNaWeb/");
+            agent1000022Bean.sendMsgToUser((String)obj[0], "text", text.toString());
+        }
+    }
+
+    @Schedule(minute = "00", hour = "20,22", persistent = false)
+    public void sendOAUnsignedFormCount1() {
+        Date d = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(d);
+        cal.add(Calendar.HOUR, -2);
+        String dateBegin = BaseLib.formatDate("yyyy-MM-dd hh:mm:00.000",  cal.getTime());
+        String dateEnd = BaseLib.formatDate("yyyy-MM-dd hh:mm:00.000",d);
+        agent1000022Bean.initConfiguration();
+        List<Object[]> res = processInstanceBean.getWorkAssignmentGroupByUserid(dateBegin, dateEnd);
+        for (Object[] obj : res) {
+            StringBuffer text = new StringBuffer("[上海汉钟] ");
+            text.append((String) obj[1]).append(",您有").append(obj[2]).append("件新待办事项<br>登入电子签核http://oa.hanbell.com.cn:8086/NaNaWeb/");
+             agent1000022Bean.sendMsgToUser((String)obj[0], "text", text.toString());
         }
     }
 }
