@@ -424,7 +424,7 @@ public class TimerBean {
         List<Object[]> res = processInstanceBean.getWorkAssignmentGroupByUserid(dateBegin, dateEnd);
         for (Object[] obj : res) {
             StringBuffer text = new StringBuffer("[上海汉钟] ");
-            text.append((String) obj[1]).append(",您有").append(obj[2]).append("件新待办事项<br>登入电子签核http://oa.hanbell.com.cn:8086/NaNaWeb/");
+            text.append((String) obj[1]).append("：<br>您有").append(obj[2]).append("件新待办事项,请尽速签核<br>http://oa.hanbell.com.cn:8086/NaNaWeb/");
             agent1000022Bean.sendMsgToUser((String)obj[0], "text", text.toString());
         }
     }
@@ -441,7 +441,7 @@ public class TimerBean {
         List<Object[]> res = processInstanceBean.getWorkAssignmentGroupByUserid(dateBegin, dateEnd);
         for (Object[] obj : res) {
             StringBuffer text = new StringBuffer("[上海汉钟] ");
-            text.append((String) obj[1]).append(",您有").append(obj[2]).append("件新待办事项<br>登入电子签核http://oa.hanbell.com.cn:8086/NaNaWeb/");
+            text.append((String) obj[1]).append("：<br>您有").append(obj[2]).append("件新待办事项,请尽速签核<br>http://oa.hanbell.com.cn:8086/NaNaWeb/");
              agent1000022Bean.sendMsgToUser((String)obj[0], "text", text.toString());
         }
     }
