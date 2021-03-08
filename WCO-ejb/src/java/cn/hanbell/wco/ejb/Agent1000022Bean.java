@@ -54,4 +54,13 @@ public class Agent1000022Bean extends WeChatCorpBean {
     protected String getAppToken() {
         return this.appToken;
     }
+    public String getWeChatTitle(String userid) {
+        if (userid.startsWith("H")) {
+            return "[浙江汉声]";
+        } else if (userid.startsWith("V")) {
+            return "[安徽汉扬]";
+        } else {
+            return "[上海汉钟]";
+        }
+    }
 }
