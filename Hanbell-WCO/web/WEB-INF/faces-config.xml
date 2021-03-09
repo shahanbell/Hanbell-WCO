@@ -99,9 +99,14 @@
             <to-view-id>/app/corp/salarySendReport.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
-              <navigation-case>
+        <navigation-case>
             <from-outcome>personnelChange</from-outcome>
             <to-view-id>/app/corp/personnelChange.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>
+          <navigation-case>
+            <from-outcome>rewardsPunishment</from-outcome>
+            <to-view-id>/app/corp/rewardsPunishment.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
     </navigation-rule>
@@ -128,6 +133,11 @@
             <from-outcome>sysuserSelectByDept</from-outcome>
             <to-view-id>/app/df/sysuserSelectBydept.xhtml</to-view-id>
             <redirect/>
-        </navigation-case>   
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>rewardspunishmentAdd</from-outcome>
+            <to-view-id>/app/df/rewardspunishmentAdd.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>  
     </navigation-rule>
 </faces-config>
