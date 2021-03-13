@@ -411,38 +411,46 @@ public class TimerBean {
 
     @Schedule(minute = "00,30", hour = "8-18", persistent = false)
     public void sendOAUnsignedFormCount() throws ParseException {
-        Date d = new Date();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(d);
-        cal.add(Calendar.MINUTE, -30);
-        String dateBegin = BaseLib.formatDate("yyyy-MM-dd HH:mm:00.000", cal.getTime());
-        String dateEnd = BaseLib.formatDate("yyyy-MM-dd HH:mm:00.000", d);
-        if ("08:00:00.000".equals(dateEnd.split(" ")[1]) || "18:30:00.000".equals(dateEnd.split(" ")[1])) {
-            return;
-        }
-        agent1000022Bean.initConfiguration();
-        List<Object[]> res = processInstanceBean.getWorkAssignmentGroupByUserid(dateBegin, dateEnd);
-        for (Object[] obj : res) {
-            StringBuffer text = new StringBuffer(agent1000022Bean.getWeChatTitle((String) obj[0]));
-            text.append((String) obj[1]).append("：<br>您有").append(obj[2]).append("件新待办事项,请尽速签核<br>http://oa.hanbell.com.cn:8086/NaNaWeb/");
-            agent1000022Bean.sendMsgToUser((String) obj[0], "text", text.toString());
+        try {
+            Date d = new Date();
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(d);
+            cal.add(Calendar.MINUTE, -30);
+            String dateBegin = BaseLib.formatDate("yyyy-MM-dd HH:mm:00.000", cal.getTime());
+            String dateEnd = BaseLib.formatDate("yyyy-MM-dd HH:mm:00.000", d);
+            if ("08:00:00.000".equals(dateEnd.split(" ")[1]) || "18:30:00.000".equals(dateEnd.split(" ")[1])) {
+                return;
+            }
+            agent1000022Bean.initConfiguration();
+            List<Object[]> res = processInstanceBean.getWorkAssignmentGroupByUserid(dateBegin, dateEnd);
+            for (Object[] obj : res) {
+                StringBuffer text = new StringBuffer(agent1000022Bean.getWeChatTitle((String) obj[0]));
+                text.append((String) obj[1]).append("：<br>您有").append(obj[2]).append("件新待办事项,请尽速签核<br>http://oa.hanbell.com.cn:8086/NaNaWeb/");
+                agent1000022Bean.sendMsgToUser((String) obj[0], "text", text.toString());
+            }
+        } catch (Exception e) {
+            log4j.error(e);
         }
     }
 
     @Schedule(minute = "00", hour = "20,22", persistent = false)
     public void sendOAUnsignedFormCount1() {
-        Date d = new Date();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(d);
-        cal.add(Calendar.HOUR, -2);
-        String dateBegin = BaseLib.formatDate("yyyy-MM-dd hh:mm:00.000", cal.getTime());
-        String dateEnd = BaseLib.formatDate("yyyy-MM-dd hh:mm:00.000", d);
-        agent1000022Bean.initConfiguration();
-        List<Object[]> res = processInstanceBean.getWorkAssignmentGroupByUserid(dateBegin, dateEnd);
-        for (Object[] obj : res) {
-            StringBuffer text = new StringBuffer(agent1000022Bean.getWeChatTitle((String) obj[0]));
-            text.append((String) obj[1]).append("：<br>您有").append(obj[2]).append("件新待办事项,请尽速签核<br>http://oa.hanbell.com.cn:8086/NaNaWeb/");
-             agent1000022Bean.sendMsgToUser((String) obj[0], "text", text.toString());
+        try {
+            Date d = new Date();
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(d);
+            cal.add(Calendar.HOUR, -2);
+            String dateBegin = BaseLib.formatDate("yyyy-MM-dd hh:mm:00.000", cal.getTime());
+            String dateEnd = BaseLib.formatDate("yyyy-MM-dd hh:mm:00.000", d);
+            agent1000022Bean.initConfiguration();
+            List<Object[]> res = processInstanceBean.getWorkAssignmentGroupByUserid(dateBegin, dateEnd);
+            for (Object[] obj : res) {
+                StringBuffer text = new StringBuffer(agent1000022Bean.getWeChatTitle((String) obj[0]));
+                text.append((String) obj[1]).append("：<br>您有").append(obj[2]).append("件新待办事项,请尽速签核<br>http://oa.hanbell.com.cn:8086/NaNaWeb/");
+                agent1000022Bean.sendMsgToUser((String) obj[0], "text", text.toString());
+            }
+        } catch (Exception e) {
+            log4j.error(e);
         }
     }
 }

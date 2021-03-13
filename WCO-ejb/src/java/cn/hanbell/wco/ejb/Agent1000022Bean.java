@@ -59,7 +59,11 @@ public class Agent1000022Bean extends WeChatCorpBean {
             return "[浙江汉声]";
         } else if (userid.startsWith("Y")) {
             return "[安徽汉扬]";
-        } else {
+        } else if(userid.startsWith("E")){
+            return "[浙江柯茂]";
+        } else if(userid.startsWith("K")){
+            return "[上海柯茂]";
+        }else{
             return "[上海汉钟]";
         }
     }
