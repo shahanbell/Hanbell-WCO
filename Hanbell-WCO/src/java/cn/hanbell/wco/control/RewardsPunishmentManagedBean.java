@@ -81,7 +81,7 @@ public class RewardsPunishmentManagedBean extends SuperQueryBean<RewardsPunishme
         for (RewardsPunishment p : selectData) {
             if ("X".equals(p.getStatus())) {
                 StringBuffer msg = new StringBuffer("【上海汉钟】");
-                msg.append(p.getTaskname()).append("已与").append(BaseLib.formatDate("yyyyMMdd", p.getSendtime()));
+                msg.append(p.getTaskname()).append("已于").append(BaseLib.formatDate("yyyyMMdd", p.getSendtime()));
                 msg.append("发出，您还未确认，请进入企业微信 系统消息 及时签收！谢谢！");
                 String errmsg = agent1000002Bean.sendMsgToUser(p.getEmployeeid(), "text", msg.toString());
                 if ("ok".equals(errmsg)) {
