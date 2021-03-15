@@ -61,7 +61,7 @@ public class RewardsPunishmentAddManagedBean implements Serializable {
                 String[] user = person[i].split("-");
                 RewardsPunishment p = new RewardsPunishment();
                 p.setTaskid(taskid);
-                String taskname = BaseLib.formatDate("yyyyMM", new Date()) + "个人奖/惩单";
+                String taskname =  serialNumber+ "个人奖/惩单";
                 p.setTaskname(taskname);
                 p.setSendtime(new Date());
                 p.setEmployeeid(user[0]);
@@ -74,7 +74,7 @@ public class RewardsPunishmentAddManagedBean implements Serializable {
                 data.append("'taskcard':{");
                 data.append("'title':'").append(companyName).append("'");
                 data.append(",'description':'").append("本人同意").append(BaseLib.formatDate("yyyy年", contentTime)).append(serialNumber);
-                data.append("号文之奖/惩决定。").append("<br>并予以确认。'");
+                data.append("号文之奖/惩决定,").append("<br>并予以确认。'");
                 data.append(",'url':'").append("'");
                 data.append(",'task_id':'").append(taskid).append("'");
                 data.append(",'btn':[{");
