@@ -59,7 +59,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
                     if (errcode == 0) {
                         return "success";
@@ -94,9 +94,9 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
-                    
+
                     if (errcode == 0) {
                         return "success";
                     } else {
@@ -130,7 +130,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
                     if (errcode == 0) {
                         return "success";
@@ -165,7 +165,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
                     if (errcode == 0) {
                         return "success";
@@ -194,13 +194,14 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         this.setAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
         String access_token = getAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
-            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/department/delete?access_token=" + access_token + "&id=" + id;
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/department/delete?access_token=" + access_token
+                    + "&id=" + id;
             CloseableHttpResponse response = get(urlString, null, null);
             if (response != null) {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
                     if (errcode == 0) {
                         return "success";
@@ -229,13 +230,14 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         this.setAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
         String access_token = getAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
-            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/user/delete?access_token=" + access_token + "&userid=" + userid;
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/user/delete?access_token=" + access_token
+                    + "&userid=" + userid;
             CloseableHttpResponse response = get(urlString, null, null);
             if (response != null) {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
                     if (errcode == 0) {
                         return "success";
@@ -264,13 +266,14 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         this.setAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
         String access_token = getAccessToken(currentToken.getAppId(), currentToken.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
-            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/tag/delete?access_token=" + access_token + "&tagid=" + tagid;
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/tag/delete?access_token=" + access_token + "&tagid="
+                    + tagid;
             CloseableHttpResponse response = get(urlString, null, null);
             if (response != null) {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
                     if (errcode == 0) {
                         return "success";
@@ -305,7 +308,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
                     if (errcode == 0) {
                         return "success";
@@ -358,7 +361,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 expiresDate.add(Calendar.SECOND, expiresIn);
                 response.close();
                 addAccessToken(corpid, corpsecret, accessToken, expiresIn, expiresDate);
-                //log4j.info("CorpAccessToken:" + accessToken);
+                // log4j.info("CorpAccessToken:" + accessToken);
             } catch (IOException | ParseException | JSONException ex) {
                 log4j.error(ex);
             }
@@ -370,34 +373,40 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         String access_token = getAccessToken(this.getAppID(), this.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
             String urlString = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=" + access_token;
-            //构建消息
+            // 构建消息
             StringBuilder jsonString = new StringBuilder();
             switch (msgType) {
                 case "text":
-                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'text','agentid':").append(this.agentId).append(",'text':{'content':'").append(data).append("'},'safe':0}");
+                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'text','agentid':")
+                            .append(this.agentId).append(",'text':{'content':'").append(data).append("'},'safe':0}");
                     break;
                 case "image":
-                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'image','image':{'media_id':'").append(data).append("'}}");
+                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'image','image':{'media_id':'")
+                            .append(data).append("'}}");
                     break;
                 case "voice":
-                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'voice','voice':{'media_id':'").append(data).append("'}}");
+                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'voice','voice':{'media_id':'")
+                            .append(data).append("'}}");
                     break;
-                  case "news":
-                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'news','agentid':").append(this.agentId).append(",'news':{'articles':[").append(data).append("]}}");
+                case "news":
+                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'news','agentid':")
+                            .append(this.agentId).append(",'news':{'articles':[").append(data).append("]}}");
                     break;
                 case "mpnews":
-                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'mpnews','mpnews':{'media_id':'").append(data).append("'}}");
+                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'mpnews','mpnews':{'media_id':'")
+                            .append(data).append("'}}");
                     break;
                 case "wxcard":
-                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'wxcard','wxcard':{'card_id':'").append(data).append("'}}");
+                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'wxcard','wxcard':{'card_id':'")
+                            .append(data).append("'}}");
                     break;
                 case "taskcard":
-                    //截取data中的数据查看taskid的前缀,判断发送的是哪个回执
+                    // 截取data中的数据查看taskid的前缀,判断发送的是哪个回执
                     String taskid = data.substring(data.indexOf("'task_id':'") + 11, data.indexOf("'task_id':'") + 15);
                     switch (taskid) {
-                        //薪资回执
+                        // 薪资回执
                         case "XZHZ":
-                            //传过来的是userid在薪资回执中为部门ID，通过部门去发放
+                            // 传过来的是userid在薪资回执中为部门ID，通过部门去发放
                             jsonString.append("{'touser':'").append(userid);
                             jsonString.append("','toparty':'");
                             jsonString.append("','totag':'").append("");
@@ -409,7 +418,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                             jsonString.append(",'duplicate_check_interval':").append(1800);
                             jsonString.append("}");
                             break;
-                            //人事异动单
+                        // 人事异动单
                         case "RSYD":
                             jsonString.append("{'touser':'").append(userid);
                             jsonString.append("','toparty':'");
@@ -425,7 +434,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                     }
                     break;
             }
-            //log4j.info(jsonString.toString());
+            // log4j.info(jsonString.toString());
             JSONObject jop = new JSONObject(jsonString.toString());
             CloseableHttpResponse response = post(urlString, initStringEntity(jop.toString()));
             if (response != null) {
@@ -515,7 +524,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
                     if (errcode == 0) {
                         return "success";
@@ -550,7 +559,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
                     if (errcode == 0) {
                         return "success";
@@ -585,7 +594,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
                     if (errcode == 0) {
                         return "success";
@@ -608,11 +617,12 @@ public abstract class WeChatCorpBean extends WeChatUtil {
 
     /**
      * 获取部门下的人员（非详细数据）
+     *
      * @param department_id 部门ID
-     * @param fetch_child   是否递归部门人员，0：否   1：是
-     * @return 
+     * @param fetch_child 是否递归部门人员，0：否 1：是
+     * @return
      */
-    public JSONObject getWeChatUser(String department_id,String fetch_child){
+    public JSONObject getWeChatUser(String department_id, String fetch_child) {
         WeChatToken t = this.getWeChatToken("org");
         if (t == null) {
             return null;
@@ -623,12 +633,12 @@ public abstract class WeChatCorpBean extends WeChatUtil {
             StringBuffer url = new StringBuffer("https://qyapi.weixin.qq.com/cgi-bin/user/simplelist?access_token=");
             url.append(access_token).append("&department_id=");
             url.append(department_id).append("&fetch_child=").append(fetch_child);
-            CloseableHttpResponse response = get(url.toString(), null,null);
+            CloseableHttpResponse response = get(url.toString(), null, null);
             if (response != null) {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
                     if (errcode == 0) {
                         return jor;
@@ -637,7 +647,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                     }
                 } catch (IOException | ParseException | JSONException ex) {
                     log4j.error(ex);
-                    return  null;
+                    return null;
                 } finally {
                     try {
                         response.close();
@@ -653,15 +663,16 @@ public abstract class WeChatCorpBean extends WeChatUtil {
             return null;
         }
     }
-   
-    
+
     public String updateApplication() {
         setAccessToken(this.getAppID(), this.getAppSecret());
         String access_token = getAccessToken(this.getAppID(), this.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
-            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/agent/set_workbench_template?access_token=" + access_token;
-            //构建消息
-            StringBuilder jsonString = new StringBuilder("{'agentid':1000003,'type':'keydata','keydata':{ 'items':[{ 'key':'公司制度','data':'2','jump_url':'','pagepath':'pages/index'},{ 'key':'疫情规定','data':'4','jump_url':'http://www.qq.com','pagepath':'pages/index'},{'key':'祝福消息','data':'45','jump_url':'http://www.qq.com','pagepath':'pages/index'},{'key':'培训消息','data':'98','jump_url':'http://www.qq.com','pagepath':'pages/index'}]},'replace_user_data':true}");
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/agent/set_workbench_template?access_token="
+                    + access_token;
+            // 构建消息
+            StringBuilder jsonString = new StringBuilder(
+                    "{'agentid':1000003,'type':'keydata','keydata':{ 'items':[{ 'key':'公司制度','data':'2','jump_url':'','pagepath':'pages/index'},{ 'key':'疫情规定','data':'4','jump_url':'http://www.qq.com','pagepath':'pages/index'},{'key':'祝福消息','data':'45','jump_url':'http://www.qq.com','pagepath':'pages/index'},{'key':'培训消息','data':'98','jump_url':'http://www.qq.com','pagepath':'pages/index'}]},'replace_user_data':true}");
 
             JSONObject jop = new JSONObject(jsonString.toString());
             CloseableHttpResponse response = post(urlString, initStringEntity(jop.toString()));
@@ -686,18 +697,19 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         }
         return "系统异常操作失败";
     }
-    
-     public String getUserIdByCode(String code) {
+
+    public String getUserIdByCode(String code) {
         setAccessToken(this.getAppID(), this.getAppSecret());
         String access_token = getAccessToken(this.getAppID(), this.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
-            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=" + access_token + "&code=" + code;
+            String urlString = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=" + access_token
+                    + "&code=" + code;
             CloseableHttpResponse response = get(urlString, null, null);
             if (response != null) {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
-                    //log4j.info(jor.getString("errmsg"));
+                    // log4j.info(jor.getString("errmsg"));
                     int errcode = jor.getInt("errcode");
                     if (errcode == 0) {
                         return jor.getString("UserId");
@@ -717,7 +729,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         }
         return "系统异常操作失败";
     }
-    
+
     /**
      * @return the dataPath
      */
