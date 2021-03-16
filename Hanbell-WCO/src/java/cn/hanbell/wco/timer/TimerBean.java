@@ -207,90 +207,94 @@ public class TimerBean {
         if (userList != null && !userList.isEmpty()) {
             String msg = "";
             for (SystemUser user : userList) {
-                if (user.getSyncWeChatStatus() != null && "X".equals(user.getSyncWeChatStatus())) {
-                    continue;
-                }
-                if (user.getSyncWeChatStatus() == null && "X".equals(user.getStatus())) {
-                    user.setSyncWeChatStatus(user.getStatus());
-                    systemUserBean.update(user);
-                    continue;
-                }
-                if (((user.getPhone() == null || "".equals(user.getPhone()))
-                        && (user.getEmail() == null || "".equals(user.getEmail()))) || user.getDeptno() == null
-                        || "".equals(user.getDeptno())) {
-                    // 离职人员没有手机号码也要更新微信同步状态
-                    if ("X".equals(user.getStatus())) {
+                try {
+                    if (user.getSyncWeChatStatus() != null && "X".equals(user.getSyncWeChatStatus())) {
+                        continue;
+                    }
+                    if (user.getSyncWeChatStatus() == null && "X".equals(user.getStatus())) {
                         user.setSyncWeChatStatus(user.getStatus());
                         systemUserBean.update(user);
+                        continue;
                     }
-                    continue;
-                }
-                JsonObject jo;
-                if (user.getSyncWeChatStatus() == null || user.getSyncWeChatDate() == null) {
-                    jo = systemUserBean.createJsonObjectBuilder(user).build();
-                    if (user.getPhone() != null && !"".equals(user.getPhone())) {
-                        msg = wechatCorpBean.createEmployee(jo);
-                    } else {
-                        user.setSyncWeChatDate(BaseLib.getDate());
-                        user.setSyncWeChatStatus("X");
-                        user.setOptdate(user.getSyncWeChatDate());
-                        systemUserBean.update(user);
-                    }
-                    if (msg.equals("success")) {
-                        user.setSyncWeChatDate(BaseLib.getDate());
-                        user.setSyncWeChatStatus("V");
-                        user.setOptdate(user.getSyncWeChatDate());
-                        systemUserBean.update(user);
-                    } else {
-                        log4j.error(user.getUserid() + "同步失败：" + msg);
-                    }
-                } else {
-                    if (user.getStatus().equals("X")) {
-                        // 企业微信人员删除后删除标签组人员
-                        List<WeChatTagUser> list = wechatTagUserBean.findByUserid(user.getUserid());
-                        if (list != null && !list.isEmpty()) {
-                            List<WeChatTagUser> tagUserList = new ArrayList<>();
-                            for (WeChatTagUser tagUser : list) {
-                                // 单一用户多个标签处理逻辑
-                                tagUserList.clear();
-                                tagUserList.add(tagUser);
-                                jo = wechatTagUserBean.createJsonObjectBuilder(tagUserList, tagUser.getTagid()).build();
-                                msg = wechatCorpBean.deleteWeChatTagUser(jo);
-                                if (msg.equals("success")) {
-                                    wechatTagUserBean.delete(tagUser);
-                                } else {
-                                    log4j.error(msg);
-                                }
-                            }
-                            tagUserList.clear();
-                            tagUserList = null;
+                    if (((user.getPhone() == null || "".equals(user.getPhone()))
+                            && (user.getEmail() == null || "".equals(user.getEmail()))) || user.getDeptno() == null
+                            || "".equals(user.getDeptno())) {
+                        // 离职人员没有手机号码也要更新微信同步状态
+                        if ("X".equals(user.getStatus())) {
+                            user.setSyncWeChatStatus(user.getStatus());
+                            systemUserBean.update(user);
                         }
-                        msg = wechatCorpBean.deleteEmployee(user.getUserid());
-                        if (msg.equals("success")) {
+                        continue;
+                    }
+                    JsonObject jo;
+                    if (user.getSyncWeChatStatus() == null || user.getSyncWeChatDate() == null) {
+                        jo = systemUserBean.createJsonObjectBuilder(user).build();
+                        if (user.getPhone() != null && !"".equals(user.getPhone())) {
+                            msg = wechatCorpBean.createEmployee(jo);
+                        } else {
                             user.setSyncWeChatDate(BaseLib.getDate());
                             user.setSyncWeChatStatus("X");
-                            user.setBirthdayDate(null);
-                            user.setWorkingAgeBeginDate(null);
+                            user.setOptdate(user.getSyncWeChatDate());
+                            systemUserBean.update(user);
+                        }
+                        if (msg.equals("success")) {
+                            user.setSyncWeChatDate(BaseLib.getDate());
+                            user.setSyncWeChatStatus("V");
                             user.setOptdate(user.getSyncWeChatDate());
                             systemUserBean.update(user);
                         } else {
-                            log4j.error(msg);
+                            log4j.error(user.getUserid() + "同步失败：" + msg);
                         }
                     } else {
-                        if (("N".equals(user.getSyncWeChatStatus())
-                                || user.getSyncWeChatDate().before(user.getOptdate()))) {
-                            jo = systemUserBean.createJsonObjectBuilder(user).build();
-                            msg = wechatCorpBean.updateEmployee(jo);
+                        if (user.getStatus().equals("X")) {
+                            // 企业微信人员删除后删除标签组人员
+                            List<WeChatTagUser> list = wechatTagUserBean.findByUserid(user.getUserid());
+                            if (list != null && !list.isEmpty()) {
+                                List<WeChatTagUser> tagUserList = new ArrayList<>();
+                                for (WeChatTagUser tagUser : list) {
+                                    // 单一用户多个标签处理逻辑
+                                    tagUserList.clear();
+                                    tagUserList.add(tagUser);
+                                    jo = wechatTagUserBean.createJsonObjectBuilder(tagUserList, tagUser.getTagid()).build();
+                                    msg = wechatCorpBean.deleteWeChatTagUser(jo);
+                                    if (msg.equals("success")) {
+                                        wechatTagUserBean.delete(tagUser);
+                                    } else {
+                                        log4j.error(msg);
+                                    }
+                                }
+                                tagUserList.clear();
+                                tagUserList = null;
+                            }
+                            msg = wechatCorpBean.deleteEmployee(user.getUserid());
                             if (msg.equals("success")) {
                                 user.setSyncWeChatDate(BaseLib.getDate());
-                                user.setSyncWeChatStatus("V");
+                                user.setSyncWeChatStatus("X");
+                                user.setBirthdayDate(null);
+                                user.setWorkingAgeBeginDate(null);
                                 user.setOptdate(user.getSyncWeChatDate());
                                 systemUserBean.update(user);
                             } else {
-                                log4j.error(user.getUserid() + "同步失败：" + msg);
+                                log4j.error(msg);
+                            }
+                        } else {
+                            if (("N".equals(user.getSyncWeChatStatus())
+                                    || user.getSyncWeChatDate().before(user.getOptdate()))) {
+                                jo = systemUserBean.createJsonObjectBuilder(user).build();
+                                msg = wechatCorpBean.updateEmployee(jo);
+                                if (msg.equals("success")) {
+                                    user.setSyncWeChatDate(BaseLib.getDate());
+                                    user.setSyncWeChatStatus("V");
+                                    user.setOptdate(user.getSyncWeChatDate());
+                                    systemUserBean.update(user);
+                                } else {
+                                    log4j.error(user.getUserid() + "同步失败：" + msg);
+                                }
                             }
                         }
                     }
+                } catch (Exception e) {
+                    log4j.error(user.getUserid() + "同步异常：" + e);
                 }
             }
         }
