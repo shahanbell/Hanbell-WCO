@@ -6,8 +6,10 @@
 package cn.hanbell.wco.servlet;
 
 import cn.hanbell.eap.ejb.PersonnelChangeBean;
+import cn.hanbell.eap.ejb.RewardsPunishmentBean;
 import cn.hanbell.eap.ejb.SalarySendBean;
 import cn.hanbell.eap.entity.PersonnelChange;
+import cn.hanbell.eap.entity.RewardsPunishment;
 import cn.hanbell.eap.entity.SalarySend;
 import cn.hanbell.wco.corp.ReqEncryptMessage;
 import cn.hanbell.wco.corp.ReqMessage;
@@ -47,6 +49,9 @@ public class Agent1000002 extends HttpServlet {
     private SalarySendBean salarySendBean;
     @EJB
     private PersonnelChangeBean personnelChangeBean;
+
+    @EJB
+    private RewardsPunishmentBean rewardspunishmentBean;
     private final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
 
     protected String corpID = "";
@@ -204,6 +209,21 @@ public class Agent1000002 extends HttpServlet {
                                                 personnelChangeBean.update(p);
                                                 break;
                                         }
+                                    } else if (taskId.startsWith("GRJC")) {
+                                        //个人奖惩的确认
+                                        eventKey = inputMsg.getEventKey();
+                                        String userid = inputMsg.getFromUserName();
+                                        String taskMsg;
+                                        switch (eventKey) {
+                                            // 确认
+                                            case "confirm":
+                                                RewardsPunishment rp = rewardspunishmentBean.findByEmployeeIdAndTaskId(taskId, userid);
+                                                rp.setStatus("V");
+                                                rp.setConfirmtime(new Date());
+                                                rewardspunishmentBean.update(rp);
+                                                break;
+                                        }
+
                                     }
                                     break;
                                 default:

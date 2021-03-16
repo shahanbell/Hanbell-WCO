@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./../../WEB-INF/df.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+    
+    <ui:define name="content">
+        <h:form id="formList"  style="height:500px;width:100%">
+            <p:growl id="growl" showSummary="false" showDetail="true"/>
+            <p:panelGrid id="plgQuery" styleClass="plgQuery Wid100">
+                <f:facet name="header">
+                    <p:row>
+                        <p:column colspan="4">发送个人奖惩单</p:column>
+                    </p:row>
+                </f:facet>
+                <p:row>
+                    <p:column> <h:outputText value="公司名称（标题）"/></p:column>
+                    <p:column>
+                        <p:selectOneMenu id="facno" value="#{addPersonnelChangeAddManagedBean.companyName}" style="width:100%;"  >
+                            <f:selectItem itemLabel="上海汉钟精机股份有限公司" itemValue="上海汉钟精机股份有限公司"/>
+                            <f:selectItem itemLabel="上海柯茂机械有限公司" itemValue="上海柯茂机械有限公司"/>
+                            <f:selectItem itemLabel="浙江柯茂节能环保工程设备有限公司" itemValue="浙江柯茂节能环保工程设备有限公司"/>
+                        </p:selectOneMenu>
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column > <h:outputLabel value="奖惩/日期" for="contentTime"/></p:column>         
+                    <p:column >
+                        <p:calendar id="contentTime" value="#{addPersonnelChangeAddManagedBean.contentTime}" title="" pattern="yyyy-MM-dd" />
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column><h:outputLabel value="公告号文" for="serialNumber" /></p:column>
+                    <p:column>
+                          <p:inputText id="serialNumber"  value="#{addPersonnelChangeAddManagedBean.serialNumber}" title="" />
+                    </p:column>
+                </p:row>
+                <p:row>
+                    <p:column> <h:outputLabel value="接收人员" for="acceptPerson" /></p:column>
+                    <p:column>
+                        <p:inputTextarea styleClass="inputWithButton" id="acceptPerson"  title="录入查询报价单号" value="#{addPersonnelChangeAddManagedBean.acceptPerson}" readonly="true"/>
+                        <p:commandButton id="acceptPersonButton" actionListener="#{addPersonnelChangeAddManagedBean.openDialog('sysuserSelect')}" icon="ui-icon-extlink"
+                                         process="@this" >
+                            <p:ajax event="dialogReturn" listener="#{addPersonnelChangeAddManagedBean.handleDialogReturnWhenDetailAllNew}" update="acceptPerson" />
+                        </p:commandButton>
+                        <p:commandButton id="acceptPersonButton1" actionListener="#{addPersonnelChangeAddManagedBean.openDialog('sysuserSelectByDept')}" icon="ui-icon-extlink"
+                                         process="@this" >
+                            <p:ajax event="dialogReturn" listener="#{addPersonnelChangeAddManagedBean.handleDialogReturnSysuserByDeptno}" update="acceptPerson" />
+                        </p:commandButton>
+                    </p:column>
+                </p:row>
+            </p:panelGrid>
+            <p:row>
+                <p:commandButton value="提交" actionListener="#{addPersonnelChangeAddManagedBean.save()}"/>
+                <p:commandButton value="重置"  actionListener="#{addPersonnelChangeAddManagedBean.reset()}" update=":formList"/>
+            </p:row>
+        </h:form>
+    </ui:define>
+</ui:composition>
+
