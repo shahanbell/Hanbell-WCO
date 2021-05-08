@@ -43,15 +43,14 @@ import org.json.JSONObject;
 public class Agent1000002 extends HttpServlet {
 
     @EJB
-    private Agent1000002Bean wechatCorpBean;
-
+    private Agent1000002Bean agent1000002Bean;
     @EJB
     private SalarySendBean salarySendBean;
     @EJB
     private PersonnelChangeBean personnelChangeBean;
-
     @EJB
     private RewardsPunishmentBean rewardspunishmentBean;
+
     private final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
 
     protected String corpID = "";
@@ -94,12 +93,12 @@ public class Agent1000002 extends HttpServlet {
                 int agentID = reqEncryptMsg.getAgentID();
                 String encrypt = reqEncryptMsg.getEncrypt();
                 // 签名验证
-                String checking = wechatCorpBean.getSignature(token, timestamp, nonce, encrypt);
+                String checking = agent1000002Bean.getSignature(token, timestamp, nonce, encrypt);
                 if (!signature.equals(checking)) {
                     throw new Exception("ValidateSignatureError");
                 }
                 // 得到明文消息
-                String content = wechatCorpBean.decrypt(encrypt);
+                String content = agent1000002Bean.decrypt(encrypt);
                 log4j.info(content);
                 // 明文XML转成对象
                 is = new ByteArrayInputStream(content.getBytes("UTF-8"));
@@ -120,7 +119,7 @@ public class Agent1000002 extends HttpServlet {
                             log4j.info(toUser);
                             log4j.info(timestamp);
                             log4j.info(nonce);
-                            resp = wechatCorpBean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
+                            resp = agent1000002Bean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
                             break;
                         case "event":
                             String fromUser = inputMsg.getFromUserName();
@@ -129,39 +128,6 @@ public class Agent1000002 extends HttpServlet {
                             switch (eventType) {
                                 case "click":
                                     switch (eventKey) {
-                                        case "MN_DMD":
-                                        case "MN_DFJ":
-                                        case "MN_XFJ":
-                                        case "MN_WSX":
-                                            textMsg = new OutputTextMessage();
-                                            textMsg.setToUserName(inputMsg.getFromUserName());
-                                            textMsg.setFromUserName(inputMsg.getToUserName());
-                                            textMsg.setCreateTime(BaseLib.getDate().getTime());
-                                            textMsg.setMsgType("text");
-                                            textMsg.setContent("功能调试中");
-                                            BaseLib.convertObjectToXML(OutputTextMessage.class, textMsg, os);
-                                            resp = wechatCorpBean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
-                                            break;
-                                        case "MN_GETCONTAINER":
-                                            textMsg = new OutputTextMessage();
-                                            textMsg.setToUserName(fromUser);
-                                            textMsg.setFromUserName(inputMsg.getToUserName());
-                                            textMsg.setCreateTime(BaseLib.getDate().getTime());
-                                            textMsg.setMsgType("text");
-                                            textMsg.setContent("功能调试中");
-                                            BaseLib.convertObjectToXML(OutputTextMessage.class, textMsg, os);
-                                            resp = wechatCorpBean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
-                                            break;
-                                        case "MN_RESETCONTEXT":
-                                            textMsg = new OutputTextMessage();
-                                            textMsg.setToUserName(fromUser);
-                                            textMsg.setFromUserName(inputMsg.getToUserName());
-                                            textMsg.setCreateTime(BaseLib.getDate().getTime());
-                                            textMsg.setMsgType("text");
-                                            textMsg.setContent("功能调试中");
-                                            BaseLib.convertObjectToXML(OutputTextMessage.class, textMsg, os);
-                                            resp = wechatCorpBean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
-                                            break;
                                         default:
                                             textMsg = new OutputTextMessage();
                                             textMsg.setToUserName(fromUser);
@@ -170,7 +136,7 @@ public class Agent1000002 extends HttpServlet {
                                             textMsg.setMsgType("text");
                                             textMsg.setContent("点击事件：" + eventKey);
                                             BaseLib.convertObjectToXML(OutputTextMessage.class, textMsg, os);
-                                            resp = wechatCorpBean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
+                                            resp = agent1000002Bean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
                                             break;
                                     }
                                     break;
@@ -180,11 +146,9 @@ public class Agent1000002 extends HttpServlet {
                                     }
                                     break;
                                 case "taskcard_click":
-                                    log4j.info("==== " + "inputMsg=" + inputMsg.toString() + " ====");
                                     String taskId = inputMsg.getTaskId();
+                                    String userid = inputMsg.getFromUserName();
                                     if (taskId.startsWith("XZHZ")) {
-                                        eventKey = inputMsg.getEventKey();
-                                        String userid = inputMsg.getFromUserName();
                                         String taskMsg;
                                         switch (eventKey) {
                                             // 确认
@@ -197,8 +161,6 @@ public class Agent1000002 extends HttpServlet {
                                         }
                                     } else if (taskId.startsWith("RSYD")) {
                                         //人事异动的确认回调
-                                        eventKey = inputMsg.getEventKey();
-                                        String userid = inputMsg.getFromUserName();
                                         String taskMsg;
                                         switch (eventKey) {
                                             // 确认
@@ -211,8 +173,6 @@ public class Agent1000002 extends HttpServlet {
                                         }
                                     } else if (taskId.startsWith("GRJC")) {
                                         //个人奖惩的确认
-                                        eventKey = inputMsg.getEventKey();
-                                        String userid = inputMsg.getFromUserName();
                                         String taskMsg;
                                         switch (eventKey) {
                                             // 确认
@@ -233,7 +193,7 @@ public class Agent1000002 extends HttpServlet {
                         case "image":
                             String picurl = inputMsg.getPicUrl();
                             String mediaId = inputMsg.getMediaId();
-                            CloseableHttpResponse c = wechatCorpBean.get(picurl, null, null);
+                            CloseableHttpResponse c = agent1000002Bean.get(picurl, null, null);
                             if (c != null) {
                                 HttpEntity httpEntity = c.getEntity();
                                 if (httpEntity != null) {
@@ -269,20 +229,16 @@ public class Agent1000002 extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        String path = request.getServletPath();
         // 消息接入验证
         String signature = request.getParameter("msg_signature"); // 微信加密签名
         String timestamp = request.getParameter("timestamp"); // 时间戳
         String nonce = request.getParameter("nonce"); // 随机数
         String echostr = request.getParameter("echostr"); // 随机字符串
         // 确认此次GET请求来自微信服务器，原样返回echostr参数中的msg，则接入生效
-        String key = wechatCorpBean.getSignature(token, timestamp, nonce, echostr);
-
+        String key = agent1000002Bean.getSignature(token, timestamp, nonce, echostr);
         if (signature.equals(key)) {
             try {
-                String ret = wechatCorpBean.decrypt(echostr);
-                log4j.info("WeChatCorp接入验证回传" + ret);
+                String ret = agent1000002Bean.decrypt(echostr);
                 response.getWriter().write(ret);
             } catch (Exception ex) {
                 log4j.error(ex);
@@ -291,7 +247,6 @@ public class Agent1000002 extends HttpServlet {
         } else {
             response.getWriter().write("error");
         }
-
     }
 
     /**
@@ -323,9 +278,9 @@ public class Agent1000002 extends HttpServlet {
         super.init(config);
         this.dataPath = config.getServletContext().getRealPath("/") + config.getInitParameter("DataPath");
         this.resPath = config.getServletContext().getRealPath("/") + config.getInitParameter("ResPath");
-        wechatCorpBean.setDataPath(dataPath);
-        wechatCorpBean.setResPath(resPath);
-        wechatCorpBean.initConfiguration();
+        agent1000002Bean.setDataPath(dataPath);
+        agent1000002Bean.setResPath(resPath);
+        agent1000002Bean.initConfiguration();
     }
 
 }
