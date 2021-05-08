@@ -55,4 +55,12 @@ public class Agent1000002Bean extends WeChatCorpBean {
         return this.appToken;
     }
 
+    public String getConfiguration(String name) {
+        try {
+            return configPropertiesBean.findByKey(name).getConfigvalue();
+        } catch (Exception ex) {
+            return "";
+        }
+    }
+
 }

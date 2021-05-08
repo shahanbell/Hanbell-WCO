@@ -53,6 +53,11 @@ public class Agent1000002 extends HttpServlet {
 
     private final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
 
+    private final String CHARSET = "UTF-8";
+
+    private final String JRS_APPID = "1505912014724";
+    private final String JRS_TOKEN = "0ec858293fccfad55575e26b0ce31177";
+
     protected String corpID = "";
     protected String corpSecret = "";
     protected String token = "shgxxx";
@@ -73,8 +78,8 @@ public class Agent1000002 extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
+        request.setCharacterEncoding(CHARSET);
+        response.setCharacterEncoding(CHARSET);
         // 微信加密签名
         String signature = request.getParameter("msg_signature");
         // 时间戳
@@ -101,7 +106,7 @@ public class Agent1000002 extends HttpServlet {
                 String content = agent1000002Bean.decrypt(encrypt);
                 log4j.info(content);
                 // 明文XML转成对象
-                is = new ByteArrayInputStream(content.getBytes("UTF-8"));
+                is = new ByteArrayInputStream(content.getBytes(CHARSET));
                 ReqMessage inputMsg = BaseLib.convertXMLToObject(ReqMessage.class, is);
                 if (inputMsg != null) {
                     String msgType = inputMsg.getMsgType();
@@ -115,11 +120,7 @@ public class Agent1000002 extends HttpServlet {
                             textMsg.setMsgType("text");
                             textMsg.setContent("感谢你发消息过来");
                             BaseLib.convertObjectToXML(OutputTextMessage.class, textMsg, os);
-                            log4j.info(os.toString("UTF-8"));
-                            log4j.info(toUser);
-                            log4j.info(timestamp);
-                            log4j.info(nonce);
-                            resp = agent1000002Bean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
+                            resp = agent1000002Bean.encrypt(os.toString(CHARSET), toUser, timestamp, nonce);
                             break;
                         case "event":
                             String fromUser = inputMsg.getFromUserName();
@@ -136,7 +137,7 @@ public class Agent1000002 extends HttpServlet {
                                             textMsg.setMsgType("text");
                                             textMsg.setContent("点击事件：" + eventKey);
                                             BaseLib.convertObjectToXML(OutputTextMessage.class, textMsg, os);
-                                            resp = agent1000002Bean.encrypt(os.toString("UTF-8"), toUser, timestamp, nonce);
+                                            resp = agent1000002Bean.encrypt(os.toString(CHARSET), toUser, timestamp, nonce);
                                             break;
                                     }
                                     break;
@@ -183,7 +184,13 @@ public class Agent1000002 extends HttpServlet {
                                                 rewardspunishmentBean.update(rp);
                                                 break;
                                         }
-
+                                    } else if (taskId.startsWith("PKG_HS_PB015")) {
+                                        String[] arr = taskId.split("$");
+                                        if (eventKey.equals("approve") && arr.length == 2) {
+                                            String url = agent1000002Bean.getConfiguration("Hanbell-JRS");
+                                            url = url + "efgp/hspb015/approve/" + arr[1] + "/" + userid + "?appid=" + JRS_APPID + "&token=" + JRS_TOKEN;
+                                            agent1000002Bean.post(url, null);
+                                        }
                                     }
                                     break;
                                 default:
@@ -208,7 +215,7 @@ public class Agent1000002 extends HttpServlet {
                             resp = "";
                     }
                 }
-                log4j.info(os.toString("UTF-8"));
+                log4j.info(os.toString(CHARSET));
                 response.getWriter().write(resp);
             }
             response.getWriter().write("");
