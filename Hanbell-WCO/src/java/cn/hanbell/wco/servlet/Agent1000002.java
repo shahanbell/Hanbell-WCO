@@ -185,10 +185,10 @@ public class Agent1000002 extends HttpServlet {
                                                 break;
                                         }
                                     } else if (taskId.startsWith("PKG_HS_PB015")) {
-                                        String[] arr = taskId.split("$");
+                                        String[] arr = taskId.split("@");
                                         if (eventKey.equals("approve") && arr.length == 2) {
                                             String url = agent1000002Bean.getConfiguration("Hanbell-JRS");
-                                            url = url + "efgp/hspb015/approve/" + arr[1] + "/" + userid + "?appid=" + JRS_APPID + "&token=" + JRS_TOKEN;
+                                            url = url + "/efgp/hspb015/approve/" + arr[1] + "/" + userid + "?appid=" + JRS_APPID + "&token=" + JRS_TOKEN;
                                             agent1000002Bean.post(url, null);
                                         }
                                     }
