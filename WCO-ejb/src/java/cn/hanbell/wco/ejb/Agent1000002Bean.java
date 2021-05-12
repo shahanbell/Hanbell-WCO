@@ -15,21 +15,20 @@ import javax.ejb.Startup;
  *
  * @author kevindong
  */
-
 @Startup
 @Singleton
 public class Agent1000002Bean extends WeChatCorpBean {
 
     @EJB
     private ConfigPropertiesBean configPropertiesBean;
-    
+
     public Agent1000002Bean() {
-            agentId=100002;
+        agentId = 100002;
     }
 
     @Override
     public void initConfiguration() {
-         this.agentId=Integer.valueOf(configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000002Bean.agentId").getConfigvalue());
+        this.agentId = Integer.valueOf(configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000002Bean.agentId").getConfigvalue());
         WeChatToken token = getWeChatToken(String.valueOf(getAgentId()));
         if (token != null && !isConfigured) {
             // 单例只需初始化一次
@@ -54,6 +53,14 @@ public class Agent1000002Bean extends WeChatCorpBean {
     @Override
     protected String getAppToken() {
         return this.appToken;
+    }
+
+    public String getConfiguration(String name) {
+        try {
+            return configPropertiesBean.findByKey(name).getConfigvalue();
+        } catch (Exception ex) {
+            return "";
+        }
     }
 
 }
