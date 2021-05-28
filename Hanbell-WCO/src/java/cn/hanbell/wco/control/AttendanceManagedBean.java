@@ -36,6 +36,7 @@ import org.primefaces.model.UploadedFile;
 @ManagedBean(name = "attendanceManagedBean")
 @SessionScoped
 public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
+
     @EJB
     private Agent1000002Bean agent1000002Bean;
     private String employeeName;
@@ -44,7 +45,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     private String status;
     @EJB
     private AttendanceBean attendanceBean;
-    
+
     @EJB
     private ConfigPropertiesBean configPropertiesBean;
 
@@ -69,7 +70,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
             if (date != null) {
                 this.model.getFilterFields().put("attendanceDate", BaseLib.formatDate("YYYYMM", date));
             }
-              if (status != null&&!"All".equals(status)) {
+            if (status != null && !"All".equals(status)) {
                 this.model.getFilterFields().put("status", status);
             }
         }
@@ -84,8 +85,8 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     public void reset() {
         this.setSuperEJB(this.attendanceBean);
         this.model = new AttendanceModel(this.attendanceBean);
-        employeeName="";
-        date=null;
+        employeeName = "";
+        date = null;
         super.reset();
     }
 
@@ -100,9 +101,9 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                 Workbook excel = WorkbookFactory.create(inputStream);
                 Sheet sheet = excel.getSheetAt(0);
                 String fileName = file1.getFileName();
-                this.uploadDate=fileName;
+                this.uploadDate = fileName;
                 for (int i = 2; i <= sheet.getLastRowNum(); i++) {
-                    a=i;
+                    a = i;
                     Row row = sheet.getRow(i);
                     Attendance attendance = new Attendance();
                     attendance.setEmployeeId(cellToVlaue(row.getCell(0)));
@@ -136,23 +137,26 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                     attendance.setOweClass(cellToVlaue(row.getCell(30)));
                     attendance.setStatus("X");
                     attendance.setCheckcode(getCheckCode());
-                     List<Attendance> list = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(attendance.getEmployeeId(), attendance.getAttendanceDate(), null);
-                    if (list == null || list.isEmpty()) {
-                    attendanceBean.persist(attendance);
-                }
+                    List<Attendance> list = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(attendance.getEmployeeId(), attendance.getAttendanceDate(), null);
+                    if (list != null && list.size() > 0) {
+                        attendanceBean.delete(list);
+                        attendanceBean.persist(attendance);
+                    } else {
+                        attendanceBean.persist(attendance);
+                    }
                 }
             } catch (Exception ex) {
-                 FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "上传失败"));
+                FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "上传失败"));
                 ex.printStackTrace();
                 showErrorMsg("Error", "导入失败,找不到文件或格式错误--第" + a + "行附近栏位发生错误" + ex.toString());
             }
-            int cha=a-1;
-             FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "上传成功，共"+cha+"条数据！"));
+            int cha = a - 1;
+            FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "上传成功，共" + cha + "条数据！"));
         }
     }
 
     public String cellToVlaue(Cell cell) {
-        if (cell == null) {     
+        if (cell == null) {
             return "";
         }
         int type = cell.getCellType();
@@ -180,29 +184,29 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
 
     //发送消息
     public void upload() {
-         List<Attendance> attendacnes=attendanceBean.findByAttendanceAndEmployeeIdAndStatus(employeeName, BaseLib.formatDate("YYYYMM", date),status);
-         for(Attendance a:attendacnes){
-             if("X".equals(a.getStatus())){
-                     agent1000002Bean.initConfiguration();
-         StringBuffer msg=new StringBuffer("【上海汉钟】");
-         msg.append("您的").append(a.getAttendanceDate()).append("考勤记录已生成，<br>");
-          msg.append("<a href=\"");
-          StringBuffer url=new StringBuffer( configPropertiesBean.findByKey("cn.hanbell.wco.control.AttendanceManagedBean.attendanceUrl").getConfigvalue());
-          
-          url.append(a.getEmployeeId()).append("&attendanceDate=").append(a.getAttendanceDate()).append("&checkcode=").append(a.getCheckcode());
+        List<Attendance> attendacnes = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(employeeName, BaseLib.formatDate("YYYYMM", date), status);
+        for (Attendance a : attendacnes) {
+            if ("X".equals(a.getStatus())) {
+                agent1000002Bean.initConfiguration();
+                StringBuffer msg = new StringBuffer("【上海汉钟】");
+                msg.append("您的").append(a.getAttendanceDate()).append("考勤记录已生成，<br>");
+                msg.append("<a href=\"");
+                StringBuffer url = new StringBuffer(configPropertiesBean.findByKey("cn.hanbell.wco.control.AttendanceManagedBean.attendanceUrl").getConfigvalue());
+
+                url.append(a.getEmployeeId()).append("&attendanceDate=").append(a.getAttendanceDate()).append("&checkcode=").append(a.getCheckcode());
                 msg.append(url).append("\">请点击此处").append("</a>   ");
                 msg.append("查看");
                 String errmsg = agent1000002Bean.sendMsgToUser(a.getEmployeeId(), "text", msg.toString());
-                if(errmsg.equals("ok")){
+                if (errmsg.equals("ok")) {
                     a.setStatus("V");
                     attendanceBean.update(a);
-                }    
-             }
-         }
-     
+                }
+            }
+        }
+
     }
-    
-     public String getCheckCode() {
+
+    public String getCheckCode() {
         String base = "0123456789qwertyuiopasdfghjklzxcvbnm";
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
@@ -237,5 +241,4 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
         this.status = status;
     }
 
-    
 }
