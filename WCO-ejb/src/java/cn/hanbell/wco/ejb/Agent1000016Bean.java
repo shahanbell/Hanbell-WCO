@@ -6,11 +6,12 @@
 package cn.hanbell.wco.ejb;
 
 import cn.hanbell.wco.entity.ConfigProperties;
+import cn.hanbell.wco.entity.Temporarymaterial;
 import cn.hanbell.wco.entity.WeChatToken;
+import com.lightshell.comm.BaseLib;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
@@ -25,20 +26,22 @@ import org.json.JSONObject;
  *
  * @author C2082
  */
-
 @Startup
 @Singleton
-public class Agent1000016Bean extends WeChatCorpBean{
-      @EJB
+public class Agent1000016Bean extends WeChatCorpBean {
+
+    @EJB
     private ConfigPropertiesBean configPropertiesBean;
-    
+    @EJB
+    private TemporarymaterialBean temporarymaterialBean;
+
     public Agent1000016Bean() {
-            agentId=100002;
+        agentId = 100002;
     }
 
     @Override
     public void initConfiguration() {
-         this.agentId=Integer.valueOf(configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000016Bean.agentId").getConfigvalue());
+        this.agentId = Integer.valueOf(configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000016Bean.agentId").getConfigvalue());
         WeChatToken token = getWeChatToken(String.valueOf(getAgentId()));
         if (token != null && !isConfigured) {
             // 单例只需初始化一次
@@ -64,42 +67,44 @@ public class Agent1000016Bean extends WeChatCorpBean{
     protected String getAppToken() {
         return this.appToken;
     }
-    
-    public String getBirthdatPicteureUrl(String deptno){
-        String sub=deptno.substring(0,1);
-        if("1".equals(sub)||"3".equals(sub)||"6".equals(sub)){
+
+    public String getBirthdatPicteureUrl(String deptno) {
+        String sub = deptno.substring(0, 1);
+        if ("1".equals(sub) || "3".equals(sub) || "6".equals(sub)) {
             return configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000016Bean.hanbellBirthdayPictureUrl").getConfigvalue();
-        }else if("2".equals(sub)){
+        } else if ("2".equals(sub)) {
             return configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000016Bean.hansonBirthdayPictureUrl").getConfigvalue();
-        }else if("5".equals(sub)||"8".equals(sub)){
+        } else if ("5".equals(sub) || "8".equals(sub)) {
             return configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000016Bean.comerBirthdayPictureUrl").getConfigvalue();
-        }else if("7".equals(sub)){
+        } else if ("7".equals(sub)) {
             return configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000016Bean.hanyoungBirthdayPictureUrl").getConfigvalue();
         }
         return null;
     }
-     public String getWorkingAgePicteureUrl(String deptno){
-        String sub=deptno.substring(0,1);
-        if("1".equals(sub)||"3".equals(sub)||"6".equals(sub)){
+
+    public String getWorkingAgePicteureUrl(String deptno) {
+        String sub = deptno.substring(0, 1);
+        if ("1".equals(sub) || "3".equals(sub) || "6".equals(sub)) {
             return configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000016Bean.hanbellWorkPictureUrl").getConfigvalue();
-        }else if("2".equals(sub)){
+        } else if ("2".equals(sub)) {
             return configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000016Bean.hansonWorkPictureUrl").getConfigvalue();
-        }else if("5".equals(sub)||"8".equals(sub)){
+        } else if ("5".equals(sub) || "8".equals(sub)) {
             return configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000016Bean.comerWorkPictureUrl").getConfigvalue();
-        }else if("7".equals(sub)){
+        } else if ("7".equals(sub)) {
             return configPropertiesBean.findByKey("cn.hanbell.wco.ejb.Agent1000016Bean.hanyoungWorkPictureUrl").getConfigvalue();
         }
         return null;
     }
-     @Override
-     public String sendMsgToUser(String userid, String msgType, String data) {
-        
-          try {
-              initAccessToken(this.getAppID(),this.getAppSecret());
-          } catch (IOException ex) {
-              Logger.getLogger(Agent1000016Bean.class.getName()).log(Level.SEVERE, null, ex);
-          }
-          setAccessToken(this.getAppID(), this.getAppSecret());
+
+    @Override
+    public String sendMsgToUser(String userid, String msgType, String data) {
+
+        try {
+            initAccessToken(this.getAppID(), this.getAppSecret());
+        } catch (IOException ex) {
+            Logger.getLogger(Agent1000016Bean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        setAccessToken(this.getAppID(), this.getAppSecret());
         String access_token = getAccessToken(this.getAppID(), this.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {
             String urlString = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=" + access_token;
@@ -115,11 +120,11 @@ public class Agent1000016Bean extends WeChatCorpBean{
                 case "voice":
                     jsonString.append("{'touser':'").append(userid).append("','msgtype':'voice','voice':{'media_id':'").append(data).append("'}}");
                     break;
-                  case "news":
+                case "news":
                     jsonString.append("{'touser':'").append(userid).append("','msgtype':'news','agentid':").append(this.agentId).append(",'news':{'articles':[").append(data).append("]}}");
                     break;
                 case "mpnews":
-                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'mpnews','mpnews':{'media_id':'").append(data).append("'}}");
+                    jsonString.append("{'touser':'").append(userid).append("','msgtype':'mpnews','agentid':").append(this.agentId).append(",'mpnews':{'articles':[").append(data).append("]}}");
                     break;
                 case "wxcard":
                     jsonString.append("{'touser':'").append(userid).append("','msgtype':'wxcard','wxcard':{'card_id':'").append(data).append("'}}");
@@ -142,7 +147,7 @@ public class Agent1000016Bean extends WeChatCorpBean{
                             jsonString.append(",'duplicate_check_interval':").append(1800);
                             jsonString.append("}");
                             break;
-                            //人事异动单
+                        //人事异动单
                         case "RSYD":
                             jsonString.append("{'touser':'").append(userid);
                             jsonString.append("','toparty':'");
@@ -181,5 +186,36 @@ public class Agent1000016Bean extends WeChatCorpBean{
             }
         }
         return "系统异常操作失败";
+    }
+
+    public String getMaterialId(String type, String url) throws IOException {
+        Temporarymaterial material = temporarymaterialBean.findByUrl(url);
+        //如果超时或者为空的情况下，需要请求materialID
+        if (material == null) {
+            JSONObject jsob = uploadTempMaterial(type, url);
+            if (jsob.getInt("errcode") == 0) {
+                material = new Temporarymaterial();
+                material.setMediaId(jsob.getString("media_id"));
+                material.setUrl(url);
+                material.setStatus("V");
+                material.setCreator("mis");
+                material.setCredate(BaseLib.getDate());
+                material.setCfmdate(BaseLib.getDate());
+                temporarymaterialBean.persist(material);
+                return material.getMediaId();
+            }
+        }
+
+        if (material != null && BaseLib.getDate().getTime() - material.getCfmdate().getTime() > 1000 * 60 * 60 * 24 * 2.5) {
+            JSONObject jsob = uploadTempMaterial(type, url);
+            if (jsob.getInt("errcode") == 0) {
+                material.setMediaId(jsob.getString("media_id"));
+                material.setCfmuser("mis");
+                material.setCfmdate(BaseLib.getDate());
+                temporarymaterialBean.update(material);
+                return material.getMediaId();
+            }
+        }
+        return material.getMediaId();
     }
 }
