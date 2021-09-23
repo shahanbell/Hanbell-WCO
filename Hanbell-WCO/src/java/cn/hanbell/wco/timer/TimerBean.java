@@ -17,6 +17,7 @@ import cn.hanbell.wco.ejb.Agent1000016Bean;
 import cn.hanbell.wco.ejb.Agent1000022Bean;
 import cn.hanbell.wco.ejb.Agent3010011Bean;
 import com.lightshell.comm.BaseLib;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -131,7 +132,7 @@ public class TimerBean {
         }
     }
 
-    private boolean syncDept(Department dept) {
+    private boolean syncDept(Department dept){
         String msg;
         boolean ret = true;
         if (dept.getSyncWeChatStatus() != null && "X".equals(dept.getSyncWeChatStatus())) {
@@ -364,20 +365,31 @@ public class TimerBean {
     @Schedule(minute = "30", hour = "9", persistent = false)
     public void sendBirthdayBless() {
         agent1000016Bean.initConfiguration();
+        String finalFilePath = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        int index = finalFilePath.indexOf("WEB-INF");
+        String filePath = new String(finalFilePath.substring(1, index));
+        String pathString = new String(filePath.concat("rpt/"));
+
         String selectDate = BaseLib.formatDate("____-MM-dd%", new Date());
         List<SystemUser> list = systemUserBean.findByLikeBirthdayDateAndDeptno(selectDate);
         if (list != null && !list.isEmpty()) {
             log4j.info("----- 发送生日祝福开始----------");
             for (SystemUser s : list) {
                 if ("V".equals(s.getSyncWeChatStatus())) {
-                    //发送消息
-                    StringBuffer data = new StringBuffer("{");
-                    data.append("'title':'").append(s.getUsername() + ",祝您生日快乐!").append("',");
-                    data.append("'description':'").append("愿您平安健康，事事舒心。也希望未来的日子里，您能实现心中所想，自由地追逐梦想！").append("',");
-                    data.append("'url':'").append("").append("',");
-                    data.append("'picurl':'").append(agent1000016Bean.getBirthdatPicteureUrl(s.getDeptno())).append("'}");
-                    agent1000016Bean.sendMsgToUser(s.getUserid(), "news", data.toString());
-                    log4j.info(data.toString());
+                    try {
+                        String materialId = agent1000016Bean.getMaterialId(agent1000016Bean.MEDIA_IMG, pathString.concat(agent1000016Bean.getBirthdatPicteureUrl(s.getDeptno())));
+                        //发送消息
+                        StringBuffer data = new StringBuffer("{");
+                        data.append("'title':'").append(s.getUsername()).append(",生日快乐!").append("',");
+                        data.append("'thumb_media_id':'").append(materialId).append("',");
+                        data.append("'content':'").append("<img src=\"http://i2.hanbell.com.cn:8480/birthday.png\"></img>").append("',");
+                        data.append("'safe':").append(2).append("}");
+                        agent1000016Bean.sendMsgToUser("C2082", "mpnews", data.toString());
+                        log4j.info(data.toString());
+                    } catch (Exception e) {
+                        
+                        log4j.info(s.getUserid() + "发送失败：" + e.toString());
+                    }
                 }
             }
             log4j.info("----- 发送生日祝福结束----------");
@@ -390,23 +402,32 @@ public class TimerBean {
     @Schedule(minute = "31", hour = "9", persistent = false)
     public void sendWorkAgeBless() {
         agent1000016Bean.initConfiguration();
+        String finalFilePath = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        int index = finalFilePath.indexOf("WEB-INF");
+        String filePath = new String(finalFilePath.substring(1, index));
+        String pathString = new String(filePath.concat("rpt/"));
         String selectDate = BaseLib.formatDate("____-MM-dd%", new Date());
         List<SystemUser> list = systemUserBean.findByLikeWorkingAgeBeginDateAndDeptno(selectDate);
         if (list != null && !list.isEmpty()) {
-            log4j.info("----- 发送年资祝福结束----------");
+            log4j.info("----- 发送年资祝福开始----------");
             for (SystemUser s : list) {
-                //计算时间
-                Integer now = Integer.valueOf(BaseLib.formatDate("yyyy", new Date()));
-                Integer workYear = Integer.valueOf(BaseLib.formatDate("yyyy", s.getWorkingAgeBeginDate()));
-                if ("V".equals(s.getSyncWeChatStatus()) && (now - workYear) >= 1) {
-                    //发送消息
-                    StringBuffer data = new StringBuffer("{");
-                    data.append("'title':'").append(s.getUsername()).append(",感谢您").append(now - workYear).append("年来在汉钟坚守初心，筑梦前行！").append("',");
-                    data.append("'description':'").append("',");
-                    data.append("'url':'").append("").append("',");
-                    data.append("'picurl':'").append(agent1000016Bean.getWorkingAgePicteureUrl(s.getDeptno())).append("'}");
-                    agent1000016Bean.sendMsgToUser(s.getUserid(), "news", data.toString());
-                    log4j.info(data.toString());
+                if ("V".equals(s.getSyncWeChatStatus())) {
+                    try {
+                        String materialId = agent1000016Bean.getMaterialId(agent1000016Bean.MEDIA_IMG, pathString.concat(agent1000016Bean.getWorkingAgePicteureUrl(s.getDeptno())));
+                        //计算时间
+                        Integer now = Integer.valueOf(BaseLib.formatDate("yyyy", new Date()));
+                        Integer workYear = Integer.valueOf(BaseLib.formatDate("yyyy", s.getWorkingAgeBeginDate()));
+                        //发送消息
+                        StringBuffer data = new StringBuffer("{");
+                        data.append("'title':'").append(s.getUsername()).append(",感谢您").append(now - workYear).append("年来在汉钟坚守初心，筑梦前行！").append("',");
+                        data.append("'thumb_media_id':'").append(materialId).append("',");
+                        data.append("'content':'").append("<img src=\"http://i2.hanbell.com.cn:8480/working.png\"></img>").append("',");
+                        data.append("'safe':").append(2).append("}");
+                        agent1000016Bean.sendMsgToUser("C2082", "mpnews", data.toString());
+                        log4j.info(data.toString());
+                    } catch (Exception e) {
+                        log4j.info(s.getUserid() + "发送失败：" + e.toString());
+                    }
                 }
             }
             log4j.info("----- 发送年资祝福结束----------");

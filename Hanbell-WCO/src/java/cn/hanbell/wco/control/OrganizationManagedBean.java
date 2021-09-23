@@ -15,6 +15,7 @@ import cn.hanbell.wco.ejb.Agent1000002Bean;
 import cn.hanbell.wco.lazy.DepartmentModel;
 import cn.hanbell.wco.web.SuperSingleBean;
 import com.lightshell.comm.BaseLib;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -154,7 +155,7 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
         }
     }
 
-    public void syncDept() {
+    public void syncDept() throws IOException {
         if (currentEntity != null) {
             if (syncDept(currentEntity)) {
                 showInfoMsg("Info", "同步成功");
@@ -162,7 +163,7 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
         }
     }
 
-    private boolean syncDept(Department dept) {
+    private boolean syncDept(Department dept) throws IOException {
         String msg;
         boolean ret = true;
         if (dept.getSyncWeChatStatus() != null && "X".equals(dept.getSyncWeChatStatus())) {
@@ -479,6 +480,13 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                 eu.setOptuserToSystem();
                                 eu.setOptdate(e.getLastModifiedDate());
                                 flag = true;
+                                //复职的情况下需要把eap数据库中人员状态从X变成N,为了后续企业微信的年资和生日同步，还需要更新生日和工作年数
+                                if (eu.getStatus().equals("X") && e.getLastModifiedDate().before(e.getLastWorkDate())) {
+                                    eu.setStatus("N");
+                                    eu.setOptuserToSystem();
+                                    eu.setBirthdayDate(e.getBirthDate());
+                                    eu.setWorkingAgeBeginDate(e.getWorkingAgeBeginDate());
+                                }
                             }
                             if (!eu.getStatus().equals("X") && e.getLastModifiedDate().compareTo(e.getLastWorkDate()) != -1) {
                                 eu.setStatus("X");
