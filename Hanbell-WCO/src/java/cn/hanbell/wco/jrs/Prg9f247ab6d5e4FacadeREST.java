@@ -153,7 +153,13 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                 wechatUserBean.persist(entity);
                 return new ResponseMessage("201", "授权成功");
             } else {
-                return new ResponseMessage("200", "授权成功");
+                WeChatUser wechatuser = wechatUserBean.findByOpenId(entity.getOpenId());
+                //有时无法及时获取用户信息，或者用户手动获取微信信息，则判断当前openId是否存在当前在职员工。返回202用户前端判断。是否返回主页面。
+                if ("V".equals(wechatuser.getStatus())) {
+                    return new ResponseMessage("202", "授权成功");
+                } else {
+                    return new ResponseMessage("200", "授权成功");
+                }
             }
         } catch (Exception ex) {
             log4j.error(ex);
