@@ -39,6 +39,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
 
     @EJB
     private Agent1000002Bean agent1000002Bean;
+    private String facno;
     private String employeeName;
     private String employeeId;
     private Date date;
@@ -58,6 +59,16 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     public void init() {
         this.setSuperEJB(this.attendanceBean);
         this.model = new AttendanceModel(this.attendanceBean);
+         //根据工号判断当前的登录人员
+        String userid = userManagedBean.getCurrentUser().getUserid();
+        //上海汉钟
+        if (userid.startsWith("C")) {
+            this.facno = "C";
+        } else if (userid.startsWith("H")) {
+            this.facno = "H";
+        } else if (userid.startsWith("Y")) {
+            this.facno = "Y";
+        }
         super.init();
     }
 
@@ -65,6 +76,9 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     public void query() {
         this.model = new AttendanceModel(this.attendanceBean);
         if (this.model != null && this.model.getFilterFields() != null) {
+            if (facno != null && !"".equals(facno)) {
+                this.model.getFilterFields().put("facno", facno);
+            }
             if (employeeId != null && !"".equals(employeeId)) {
                 this.model.getFilterFields().put("employeeId", employeeId);
             }
@@ -84,6 +98,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
 
     @Override
     public void reset() {
+        init();
         this.setSuperEJB(this.attendanceBean);
         this.model = new AttendanceModel(this.attendanceBean);
         employeeId = "";
@@ -109,6 +124,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                     Attendance attendance = new Attendance();
                     attendance.setEmployeeId(cellToVlaue(row.getCell(0)));
                     attendance.setEmployeeName(cellToVlaue(row.getCell(1)));
+                    attendance.setFacno(facno);
                     attendance.setAttendanceDate(fileName.substring(0, 6));
                     attendance.setDept(cellToVlaue(row.getCell(2)));
                     attendance.setPacificOvertime(cellToVlaue(row.getCell(6)));
@@ -127,18 +143,19 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                     attendance.setPublicLeave(cellToVlaue(row.getCell(19)));
                     attendance.setBreastfeedingLeave(cellToVlaue(row.getCell(20)));
                     attendance.setHomeLeave(cellToVlaue(row.getCell(21)));
-                    attendance.setForgetClock(cellToVlaue(row.getCell(22)));
-                    attendance.setLate(cellToVlaue(row.getCell(23)));
-                    attendance.setLeaveEarly(cellToVlaue(row.getCell(24)));
-                    attendance.setAbsent(cellToVlaue(row.getCell(25)));
-                    attendance.setMeal(cellToVlaue(row.getCell(26)));
-                    attendance.setBreakfast(cellToVlaue(row.getCell(27)));
-                    attendance.setLunch(cellToVlaue(row.getCell(28)));
-                    attendance.setDinner(cellToVlaue(row.getCell(29)));
-                    attendance.setOweClass(cellToVlaue(row.getCell(30)));
+                    attendance.setChild(cellToVlaue(row.getCell(22)));
+                    attendance.setForgetClock(cellToVlaue(row.getCell(23)));
+                    attendance.setLate(cellToVlaue(row.getCell(24)));
+                    attendance.setLeaveEarly(cellToVlaue(row.getCell(25)));
+                    attendance.setAbsent(cellToVlaue(row.getCell(6)));
+                    attendance.setMeal(cellToVlaue(row.getCell(27)));
+                    attendance.setBreakfast(cellToVlaue(row.getCell(28)));
+                    attendance.setLunch(cellToVlaue(row.getCell(29)));
+                    attendance.setDinner(cellToVlaue(row.getCell(30)));
+                    attendance.setOweClass(cellToVlaue(row.getCell(310)));
                     attendance.setStatus("X");
                     attendance.setCheckcode(getCheckCode());
-                    List<Attendance> list = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(attendance.getEmployeeId(), attendance.getAttendanceDate(), null);
+                    List<Attendance> list = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(attendance.getEmployeeId(), attendance.getAttendanceDate(), null,facno);
                     if (list != null && list.size() > 0) {
                         attendanceBean.delete(list);
                         attendanceBean.persist(attendance);
@@ -185,7 +202,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
 
     //发送消息
     public void upload() {
-        List<Attendance> attendacnes = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(employeeId, BaseLib.formatDate("YYYYMM", date), status);
+        List<Attendance> attendacnes = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(employeeId, BaseLib.formatDate("YYYYMM", date), status,facno);
         for (Attendance a : attendacnes) {
             if ("X".equals(a.getStatus())) {
                 agent1000002Bean.initConfiguration();
@@ -225,6 +242,15 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
         return sb.toString();
     }
 
+    public String getFacno() {
+        return facno;
+    }
+
+    public void setFacno(String facno) {
+        this.facno = facno;
+    }
+
+    
     public String getEmployeeName() {
         return employeeName;
     }
