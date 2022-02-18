@@ -40,6 +40,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     @EJB
     private Agent1000002Bean agent1000002Bean;
     private String employeeName;
+    private String employeeId;
     private Date date;
     private String uploadDate;
     private String status;
@@ -64,8 +65,8 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     public void query() {
         this.model = new AttendanceModel(this.attendanceBean);
         if (this.model != null && this.model.getFilterFields() != null) {
-            if (employeeName != null && !"".equals(employeeName)) {
-                this.model.getFilterFields().put("employeeName", employeeName);
+            if (employeeId != null && !"".equals(employeeId)) {
+                this.model.getFilterFields().put("employeeId", employeeId);
             }
             if (date != null) {
                 this.model.getFilterFields().put("attendanceDate", BaseLib.formatDate("YYYYMM", date));
@@ -85,7 +86,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     public void reset() {
         this.setSuperEJB(this.attendanceBean);
         this.model = new AttendanceModel(this.attendanceBean);
-        employeeName = "";
+        employeeId = "";
         date = null;
         super.reset();
     }
@@ -184,7 +185,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
 
     //发送消息
     public void upload() {
-        List<Attendance> attendacnes = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(employeeName, BaseLib.formatDate("YYYYMM", date), status);
+        List<Attendance> attendacnes = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(employeeId, BaseLib.formatDate("YYYYMM", date), status);
         for (Attendance a : attendacnes) {
             if ("X".equals(a.getStatus())) {
                 agent1000002Bean.initConfiguration();
@@ -203,7 +204,14 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                 }
             }
         }
+    }
 
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
     }
 
     public String getCheckCode() {

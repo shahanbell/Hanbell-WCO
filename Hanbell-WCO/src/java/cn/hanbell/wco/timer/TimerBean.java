@@ -384,7 +384,7 @@ public class TimerBean {
                         data.append("'thumb_media_id':'").append(materialId).append("',");
                         data.append("'content':'").append("<img src=\"http://i2.hanbell.com.cn:8480/birthday.png\"></img>").append("',");
                         data.append("'safe':").append(2).append("}");
-                        agent1000016Bean.sendMsgToUser("C2082", "mpnews", data.toString());
+                        agent1000016Bean.sendMsgToUser(s.getUserid(), "mpnews", data.toString());
                         log4j.info(data.toString());
                     } catch (Exception e) {
                         
@@ -423,7 +423,7 @@ public class TimerBean {
                         data.append("'thumb_media_id':'").append(materialId).append("',");
                         data.append("'content':'").append("<img src=\"http://i2.hanbell.com.cn:8480/working.png\"></img>").append("',");
                         data.append("'safe':").append(2).append("}");
-                        agent1000016Bean.sendMsgToUser("C2082", "mpnews", data.toString());
+                        agent1000016Bean.sendMsgToUser(s.getUserid(), "mpnews", data.toString());
                         log4j.info(data.toString());
                     } catch (Exception e) {
                         log4j.info(s.getUserid() + "发送失败：" + e.toString());
