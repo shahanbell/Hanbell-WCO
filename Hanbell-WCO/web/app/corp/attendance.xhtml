@@ -21,19 +21,24 @@
                     </p:row>
                 </f:facet>
                 <p:row>
-                    <p:column > <h:outputLabel value="姓名" for="employeeName"/></p:column>         
+                    <p:column > <h:outputLabel value="公司别" for="fanco"/></p:column>         
                     <p:column >
-                        <p:inputText id="employeeName"  value="#{attendanceManagedBean.employeeName}" title="" />
+                        <p:inputText id="fanco"  value="#{attendanceManagedBean.facno}" title="" readonly="true"/>
                     </p:column>
+                    <p:column > <h:outputLabel value="姓名" for="employeeId"/></p:column>         
+                    <p:column >
+                        <p:inputText id="employeeId"  value="#{attendanceManagedBean.employeeId}" title="" />
+                    </p:column>
+
+                </p:row>
+                <p:row>
                     <p:column><h:outputLabel value="日期" for="date" /></p:column>
                     <p:column>
                         <!--<p:calendar id="date" value="#{attendanceManagedBean.date}" title="" pattern="yyyyMM" />-->
                         <p:datePicker id="month" view="month" value="#{attendanceManagedBean.date}" pattern="yyyy/MM" yearNavigator="true" yearRange="2000:2030" />
 
                     </p:column>
-                </p:row>
-                <p:row>
-                   <p:column> <h:outputText value="状态"/></p:column>
+                    <p:column> <h:outputText value="状态"/></p:column>
 
                     <p:column>
                         <p:selectOneMenu id="facno" value="#{attendanceManagedBean.status}" style="width:100%;"  >
@@ -176,6 +181,12 @@
                         <h:outputText value="探亲假"/>
                     </f:facet>
                     <h:outputText value="#{item.homeLeave!=0 ?item.homeLeave : ''}"/>
+                </p:column>
+                <p:column styleClass="Wid15">
+                    <f:facet name="header">
+                        <h:outputText value="育儿假"/>
+                    </f:facet>
+                    <h:outputText value="#{item.child!=0 ?item.child : ''}"/>
                 </p:column>
                 <p:column styleClass="Wid15">
                     <f:facet name="header">
