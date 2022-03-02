@@ -51,6 +51,7 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
     private List<Department> deptList;
     private List<SalarySend> salaryList;
     private Set<SystemUser> userSet;
+    private Date selectDate;
 
     public SalarySendManagedBean() {
         super(Department.class);
@@ -58,6 +59,7 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
 
     @Override
     public void init() {
+        selectDate=new Date();
         wechatCorpBean.initConfiguration();
         salaryList = new ArrayList<>();
         userSet = new HashSet<>();
@@ -141,13 +143,13 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
     }
 
     public void sendmsg() {
-        if (userSet.isEmpty()) {
+        if (userSet.isEmpty()||this.selectDate==null) {
+            return;
         }
         loadUserOnJob();
         StringBuffer data = new StringBuffer();
         Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        cal.add(Calendar.MONTH, -1);
+        cal.setTime(selectDate);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
         String dateString = sdf.format(cal.getTime());
         String taskid = salarySendBean.getTaskId("XZHZ" + dateString);
@@ -228,6 +230,14 @@ public class SalarySendManagedBean extends SuperSingleBean<Department> {
 
     public void setSalaryList(List<SalarySend> salaryList) {
         this.salaryList = salaryList;
+    }
+
+    public Date getSelectDate() {
+        return selectDate;
+    }
+
+    public void setSelectDate(Date selectDate) {
+        this.selectDate = selectDate;
     }
 
 }
