@@ -147,12 +147,12 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                     attendance.setForgetClock(cellToVlaue(row.getCell(23)));
                     attendance.setLate(cellToVlaue(row.getCell(24)));
                     attendance.setLeaveEarly(cellToVlaue(row.getCell(25)));
-                    attendance.setAbsent(cellToVlaue(row.getCell(6)));
+                    attendance.setAbsent(cellToVlaue(row.getCell(26)));
                     attendance.setMeal(cellToVlaue(row.getCell(27)));
                     attendance.setBreakfast(cellToVlaue(row.getCell(28)));
                     attendance.setLunch(cellToVlaue(row.getCell(29)));
                     attendance.setDinner(cellToVlaue(row.getCell(30)));
-                    attendance.setOweClass(cellToVlaue(row.getCell(310)));
+                    attendance.setOweClass(cellToVlaue(row.getCell(31)));
                     attendance.setStatus("X");
                     attendance.setCheckcode(getCheckCode());
                     List<Attendance> list = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(attendance.getEmployeeId(), attendance.getAttendanceDate(), null,facno);
