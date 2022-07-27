@@ -443,6 +443,9 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             if (manager != null) {
                                 eu.setManagerId(manager.getCode());
                             }
+                            if (e.getTelephone() != null) {
+                                eu.setTel(e.getTelephone());
+                            }
                             eu.setPhone(e.getMobilePhone());
                             eu.setEmail(e.getEmail());
                             eu.setCreatorToSystem();
@@ -451,6 +454,7 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             if (e.getLastModifiedDate().compareTo(e.getLastWorkDate()) != -1) {
                                 eu.setSyncWeChatStatus("X");
                                 eu.setSyncWeChatDate(e.getLastModifiedDate());
+                                eu.setTel("");
                                 eu.setStatus("X");
                                 eu.setOptuserToSystem();
                                 eu.setOptdate(e.getLastModifiedDate());
@@ -475,6 +479,9 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                 if (manager != null) {
                                     eu.setManagerId(manager.getCode());
                                 }
+                                if (e.getTelephone() != null) {
+                                    eu.setTel(e.getTelephone());
+                                }
                                 eu.setPhone(e.getMobilePhone());
                                 eu.setEmail(e.getEmail());
                                 eu.setOptuserToSystem();
@@ -491,6 +498,7 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             if (!eu.getStatus().equals("X") && e.getLastModifiedDate().compareTo(e.getLastWorkDate()) != -1) {
                                 eu.setStatus("X");
                                 eu.setOptuserToSystem();
+                                eu.setTel("");
                                 eu.setOptdate(e.getLastModifiedDate());
                                 flag = true;
                             }
