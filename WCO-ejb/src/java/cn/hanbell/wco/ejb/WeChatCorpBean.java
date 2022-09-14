@@ -671,6 +671,52 @@ public abstract class WeChatCorpBean extends WeChatUtil {
         }
     }
 
+    /**
+     * 
+     * @param userid
+     * @return 
+     */
+      public JSONObject getQyWeChatUser(String userid) {
+        WeChatToken t = this.getWeChatToken("org");
+        if (t == null) {
+            return null;
+        }
+        this.setAccessToken(t.getAppId(), t.getAppSecret());
+        String access_token = getAccessToken(t.getAppId(), t.getAppSecret());
+        if (access_token != null && !"".equals(access_token)) {
+            StringBuffer url = new StringBuffer("https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token=");
+            url.append(access_token).append("&userid=");
+            url.append(userid);
+            CloseableHttpResponse response = get(url.toString(), null, null);
+            if (response != null) {
+                HttpEntity httpEntity = response.getEntity();
+                try {
+                    JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, WeChatUtil.CHARSET));
+                    int errcode = jor.getInt("errcode");
+                    if (errcode == 0) {
+                        return jor;
+                    } else {
+                        return null;
+                    }
+                } catch (IOException | ParseException | JSONException ex) {
+                    log4j.error(ex);
+                    return null;
+                } finally {
+                    try {
+                        response.close();
+                    } catch (IOException ex) {
+                        log4j.error(ex);
+                    }
+                }
+            } else {
+                return null;
+            }
+
+        } else {
+            return null;
+        }
+    }
+
     public String updateApplication() {
         setAccessToken(this.getAppID(), this.getAppSecret());
         String access_token = getAccessToken(this.getAppID(), this.getAppSecret());
