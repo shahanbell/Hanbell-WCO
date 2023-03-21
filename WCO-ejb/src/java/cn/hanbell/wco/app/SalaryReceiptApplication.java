@@ -16,7 +16,7 @@ import java.util.List;
 public class SalaryReceiptApplication {
     
     private String userId;
-    private Date salaryDate;
+    private String salaryDate;
 
     public String getUserId() {
         return userId;
@@ -26,11 +26,11 @@ public class SalaryReceiptApplication {
         this.userId = userId;
     }
 
-    public Date getSalaryDate() {
+    public String getSalaryDate() {
         return salaryDate;
     }
 
-    public void setSalaryDate(Date salaryDate) {
+    public void setSalaryDate(String salaryDate) {
         this.salaryDate = salaryDate;
     }
 
