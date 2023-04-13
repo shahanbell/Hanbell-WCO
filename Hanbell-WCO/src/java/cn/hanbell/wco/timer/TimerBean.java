@@ -206,8 +206,8 @@ public class TimerBean {
 
     private void syncEmployee() {
         if (userList != null && !userList.isEmpty()) {
-            String msg = "";
             for (SystemUser user : userList) {
+                String msg = "";
                 try {
                     if (user.getSyncWeChatStatus() != null && "X".equals(user.getSyncWeChatStatus())) {
                         continue;

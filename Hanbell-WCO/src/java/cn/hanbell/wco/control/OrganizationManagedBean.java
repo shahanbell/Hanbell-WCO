@@ -482,6 +482,8 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                 if (e.getTelephone() != null) {
                                     eu.setTel(e.getTelephone());
                                 }
+                                eu.setBirthdayDate(e.getBirthDate());
+                                eu.setWorkingAgeBeginDate(e.getWorkingAgeBeginDate());
                                 eu.setPhone(e.getMobilePhone());
                                 eu.setEmail(e.getEmail());
                                 eu.setOptuserToSystem();
