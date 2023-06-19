@@ -445,6 +445,18 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                         jsonString.append(",'duplicate_check_interval':").append(1800);
                         jsonString.append("}");
                         break;
+                    default :
+                        jsonString.append("{'touser':'").append(userid);
+                        jsonString.append("','toparty':'");
+                        jsonString.append("','totag':'").append("");
+                        jsonString.append("','msgtype':'").append("taskcard");
+                        jsonString.append("','agentid':'").append(this.agentId).append("',");
+                        jsonString.append(data);
+                        jsonString.append("'enable_id_trans':").append(0);
+                        jsonString.append(",'enable_duplicate_check':").append(0);
+                        jsonString.append(",'duplicate_check_interval':").append(1800);
+                        jsonString.append("}");
+                        break;
                 }
 
                 break;

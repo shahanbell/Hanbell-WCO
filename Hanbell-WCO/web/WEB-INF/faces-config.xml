@@ -104,9 +104,14 @@
             <to-view-id>/app/corp/personnelChange.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
-          <navigation-case>
+         <navigation-case>
             <from-outcome>rewardsPunishment</from-outcome>
             <to-view-id>/app/corp/rewardsPunishment.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>
+                <navigation-case>
+            <from-outcome>serviceContract</from-outcome>
+            <to-view-id>/app/corp/serviceContract.xhtml</to-view-id>
             <redirect/>
         </navigation-case>
     </navigation-rule>

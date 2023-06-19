@@ -435,6 +435,9 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                 eu.setPositionCode(e.getPosition().getCode());
                                 eu.setPosition(e.getPosition().getName());
                             }
+                            if (e.getEmployeeType() != null) {
+                                eu.setType(e.getEmployeeType().getScName());
+                            }
                             eu.setLevelId(e.getLevelId());
                             if (e.getDecisionlevelInfo() != null) {
                                 eu.setDecisionLevel(e.getDecisionlevelInfo().getInfoCode());
@@ -470,6 +473,9 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                 if (e.getPosition() != null) {
                                     eu.setPositionCode(e.getPosition().getCode());
                                     eu.setPosition(e.getPosition().getName());
+                                }
+                                if (e.getEmployeeType() != null) {
+                                    eu.setType(e.getEmployeeType().getScName());
                                 }
                                 eu.setLevelId(e.getLevelId());
                                 if (e.getDecisionlevelInfo() != null) {
