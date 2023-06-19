@@ -8,9 +8,11 @@ package cn.hanbell.wco.servlet;
 import cn.hanbell.eap.ejb.PersonnelChangeBean;
 import cn.hanbell.eap.ejb.RewardsPunishmentBean;
 import cn.hanbell.eap.ejb.SalarySendBean;
+import cn.hanbell.eap.ejb.ServiceContractBean;
 import cn.hanbell.eap.entity.PersonnelChange;
 import cn.hanbell.eap.entity.RewardsPunishment;
 import cn.hanbell.eap.entity.SalarySend;
+import cn.hanbell.eap.entity.ServiceContract;
 import cn.hanbell.wco.corp.ReqEncryptMessage;
 import cn.hanbell.wco.corp.ReqMessage;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
@@ -50,6 +52,8 @@ public class Agent1000002 extends HttpServlet {
     private PersonnelChangeBean personnelChangeBean;
     @EJB
     private RewardsPunishmentBean rewardspunishmentBean;
+        @EJB
+    private ServiceContractBean serviceContractBean;
 
     private final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
 
@@ -182,6 +186,18 @@ public class Agent1000002 extends HttpServlet {
                                                 rp.setStatus("V");
                                                 rp.setConfirmtime(new Date());
                                                 rewardspunishmentBean.update(rp);
+                                                break;
+                                        }
+                                    }else if (taskId.startsWith("SC")) {
+                                        //电子合同确认
+                                        String taskMsg;
+                                        switch (eventKey) {
+                                            // 确认
+                                            case "confirm":
+                                                ServiceContract sc = serviceContractBean.findByEmployeeIdAndTaskId(taskId, userid);
+                                                sc.setStatus("V");
+                                                sc.setConfirmtime(new Date());
+                                                serviceContractBean.update(sc);
                                                 break;
                                         }
                                     } else if (taskId.startsWith("PKG_HS_PB015")) {
