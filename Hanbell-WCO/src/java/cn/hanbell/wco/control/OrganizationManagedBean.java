@@ -454,6 +454,8 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             eu.setCreatorToSystem();
                             eu.setCredateToNow();
                             eu.setOptdate(eu.getCredate());
+                            eu.setBirthdayDate(e.getBirthDate());
+                            eu.setWorkingAgeBeginDate(e.getWorkingAgeBeginDate());
                             if (e.getLastModifiedDate().compareTo(e.getLastWorkDate()) != -1) {
                                 eu.setSyncWeChatStatus("X");
                                 eu.setSyncWeChatDate(e.getLastModifiedDate());
@@ -461,6 +463,8 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                 eu.setStatus("X");
                                 eu.setOptuserToSystem();
                                 eu.setOptdate(e.getLastModifiedDate());
+                                eu.setBirthdayDate(null);
+                                eu.setWorkingAgeBeginDate(null);
                             }
                             systemUserBean.persist(eu);
                         } else {
@@ -488,26 +492,29 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                 if (e.getTelephone() != null) {
                                     eu.setTel(e.getTelephone());
                                 }
+                                //复职的情况下需要把eap数据库中人员状态从X变成N,为了后续企业微信的更新，设置更新企业微信的状态。
+                                if (eu.getStatus().equals("X") && e.getLastModifiedDate().before(e.getLastWorkDate())) {
+                                    eu.setStatus("N");
+                                    eu.setOptuserToSystem();
+                                    eu.setSyncWeChatDate(null);
+                                    eu.setSyncWeChatStatus("");
+                                }
                                 eu.setBirthdayDate(e.getBirthDate());
                                 eu.setWorkingAgeBeginDate(e.getWorkingAgeBeginDate());
                                 eu.setPhone(e.getMobilePhone());
                                 eu.setEmail(e.getEmail());
                                 eu.setOptuserToSystem();
                                 eu.setOptdate(e.getLastModifiedDate());
+
                                 flag = true;
-                                //复职的情况下需要把eap数据库中人员状态从X变成N,为了后续企业微信的年资和生日同步，还需要更新生日和工作年数
-                                if (eu.getStatus().equals("X") && e.getLastModifiedDate().before(e.getLastWorkDate())) {
-                                    eu.setStatus("N");
-                                    eu.setOptuserToSystem();
-                                    eu.setBirthdayDate(e.getBirthDate());
-                                    eu.setWorkingAgeBeginDate(e.getWorkingAgeBeginDate());
-                                }
                             }
                             if (!eu.getStatus().equals("X") && e.getLastModifiedDate().compareTo(e.getLastWorkDate()) != -1) {
                                 eu.setStatus("X");
                                 eu.setOptuserToSystem();
                                 eu.setTel("");
                                 eu.setOptdate(e.getLastModifiedDate());
+                                eu.setBirthdayDate(null);
+                                eu.setWorkingAgeBeginDate(null);
                                 flag = true;
                             }
                             if (flag) {
