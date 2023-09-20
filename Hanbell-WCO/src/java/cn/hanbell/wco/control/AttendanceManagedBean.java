@@ -59,7 +59,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     public void init() {
         this.setSuperEJB(this.attendanceBean);
         this.model = new AttendanceModel(this.attendanceBean);
-         //根据工号判断当前的登录人员
+        //根据工号判断当前的登录人员
         String userid = userManagedBean.getCurrentUser().getUserid();
         //上海汉钟
         if (userid.startsWith("C")) {
@@ -155,7 +155,9 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                     attendance.setOweClass(cellToVlaue(row.getCell(31)));
                     attendance.setStatus("X");
                     attendance.setCheckcode(getCheckCode());
-                    List<Attendance> list = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(attendance.getEmployeeId(), attendance.getAttendanceDate(), null,facno);
+                    attendance.setCreator(this.userManagedBean.getUserid());
+                    attendance.setCredateToNow();
+                    List<Attendance> list = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(attendance.getEmployeeId(), attendance.getAttendanceDate(), null, facno);
                     if (list != null && list.size() > 0) {
                         attendanceBean.delete(list);
                         attendanceBean.persist(attendance);
@@ -202,7 +204,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
 
     //发送消息
     public void upload() {
-        List<Attendance> attendacnes = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(employeeId, BaseLib.formatDate("YYYYMM", date), status,facno);
+        List<Attendance> attendacnes = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(employeeId, BaseLib.formatDate("YYYYMM", date), status, facno);
         for (Attendance a : attendacnes) {
             if ("X".equals(a.getStatus())) {
                 agent1000002Bean.initConfiguration();
@@ -217,6 +219,8 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                 String errmsg = agent1000002Bean.sendMsgToUser(a.getEmployeeId(), "text", msg.toString());
                 if (errmsg.equals("ok")) {
                     a.setStatus("V");
+                    a.setOptuser(this.userManagedBean.getUserid());
+                    a.setOptdateToNow();
                     attendanceBean.update(a);
                 }
             }
@@ -250,7 +254,6 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
         this.facno = facno;
     }
 
-    
     public String getEmployeeName() {
         return employeeName;
     }
