@@ -82,6 +82,7 @@ public class Agent1000016Bean extends WeChatCorpBean {
         return null;
     }
 
+    
     public String getWorkingAgePicteureUrl(String deptno) {
         String sub = deptno.substring(0, 1);
         if ("1".equals(sub) || "3".equals(sub) || "6".equals(sub)) {
@@ -95,10 +96,11 @@ public class Agent1000016Bean extends WeChatCorpBean {
         }
         return null;
     }
+    
+    
 
     @Override
     public String sendMsgToUser(String userid, String msgType, String data) {
-
         try {
             initAccessToken(this.getAppID(), this.getAppSecret());
         } catch (IOException ex) {
@@ -171,7 +173,7 @@ public class Agent1000016Bean extends WeChatCorpBean {
                 try {
                     JSONObject jor = new JSONObject(EntityUtils.toString(httpEntity, "UTF-8"));
                     log4j.info(jor.getString("errmsg"));
-                    return jor.getString("errmsg");
+                    return jor.getString("errmsg")+"|"+jor.getString("msgid");
                 } catch (IOException | ParseException | JSONException ex) {
                     log4j.error(ex);
                 } finally {

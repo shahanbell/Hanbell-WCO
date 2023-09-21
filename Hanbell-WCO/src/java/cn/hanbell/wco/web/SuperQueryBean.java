@@ -77,8 +77,23 @@ public abstract class SuperQueryBean<T extends BaseEntity> extends SuperSingleMa
 
     @Override
     public void persist() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (this.getNewEntity() != null) {
+            try {
+                if (this.doBeforePersist()) {
+                    this.getSuperEJB().persist(this.getNewEntity());
+                    this.doAfterPersist();
+                    this.showInfoMsg("Info", "更新成功!");
+                } else {
+                    this.showWarnMsg("Warn", "更新前检查失败!");
+                }
+            } catch (Exception var2) {
+                this.showErrorMsg("Error", var2.getMessage());
+            }
+        } else {
+            this.showWarnMsg("Warn", "没有可更新数据!");
+        }
     }
+    
 
     @Override
     public void update() {

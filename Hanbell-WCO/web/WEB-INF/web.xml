@@ -34,6 +34,14 @@
         <param-value>true</param-value>
     </context-param>
     <context-param>
+        <param-name>cn.hanbell.eap.web.reportviewcontext</param-name>
+        <param-value>/Hanbell-WCO/rpt/output/</param-value>
+    </context-param>
+    <context-param>
+        <param-name>cn.hanbell.eap.web.reportoutputpath</param-name>
+        <param-value>rpt//output//</param-value>
+    </context-param>
+    <context-param>
         <param-name>javax.faces.FACELETS_LIBRARIES</param-name>
         <param-value>/WEB-INF/primefaces-ultima.taglib.xml</param-value>
     </context-param>
