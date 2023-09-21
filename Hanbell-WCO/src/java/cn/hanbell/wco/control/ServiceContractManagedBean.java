@@ -99,7 +99,7 @@ public class ServiceContractManagedBean extends SuperQueryBean<ServiceContract> 
                 //msg.append(p.getTaskname()).append("已与").append(BaseLib.formatDate("yyyyMMdd", p.getSendtime()));
                 msg.append("电子劳动合同签收回执，您还未确认，请进入企业微信 系统消息 及时签收！谢谢！");
                 String errmsg = agent1000002Bean.sendMsgToUser(p.getEmployeeid(), "text", msg.toString());
-                if ("ok".equals(errmsg)) {
+                if (errmsg.startsWith("ok")) {
                     FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "发送成功"));
                 }
             }
@@ -134,7 +134,7 @@ public class ServiceContractManagedBean extends SuperQueryBean<ServiceContract> 
                 this.newEntity.setEmployeename(user[1]);
                 this.newEntity.setStatus("X");
                 String msg = agent1000002Bean.sendMsgToUser(this.newEntity.getEmployeeid(), "taskcard", data.toString());
-                if ("ok".equals(msg)) {
+                if (msg.startsWith("ok")) {
                     this.persist();
                 }
             }

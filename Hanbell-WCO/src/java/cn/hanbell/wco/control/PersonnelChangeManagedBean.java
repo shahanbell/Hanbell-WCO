@@ -93,7 +93,7 @@ public class PersonnelChangeManagedBean extends SuperQueryBean<PersonnelChange> 
                 msg.append(p.getTaskname()).append("已与").append(BaseLib.formatDate("yyyyMMdd", p.getSendtime()));
                 msg.append("发出，您还未确认，请进入企业微信 系统消息 及时签收！谢谢！");
                 String errmsg=agent1000002Bean.sendMsgToUser(p.getEmployeeid(), "text", msg.toString());
-                if("ok".equals(errmsg)){
+                if(errmsg.startsWith("ok")){
                  FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "发送成功"));
                 }
             }

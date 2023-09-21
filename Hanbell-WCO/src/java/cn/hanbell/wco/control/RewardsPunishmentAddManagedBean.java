@@ -85,7 +85,7 @@ public class RewardsPunishmentAddManagedBean implements Serializable {
                 data.append(",'is_bold':").append(true).append("}");
                 data.append("]},");
                 p.setContent(data.toString());
-                if("ok".equals(agent1000002Bean.sendMsgToUser(p.getEmployeeid(), "taskcard", data.toString()))){
+                if((agent1000002Bean.sendMsgToUser(p.getEmployeeid(), "taskcard", data.toString())).startsWith("ok")){
                     rewardspunishmentBean.hasExistPersist(p);
                 }
             }

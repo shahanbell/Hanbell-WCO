@@ -515,7 +515,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject resObject = new JSONObject(EntityUtils.toString(httpEntity, WeChatUtil.CHARSET));
-                    return resObject.getString("errmsg");
+                    return resObject.getString("errmsg")+"|"+resObject.getString("msgid");
                 } catch (IOException | ParseException | JSONException ex) {
                     log4j.error(ex);
                 } finally {
