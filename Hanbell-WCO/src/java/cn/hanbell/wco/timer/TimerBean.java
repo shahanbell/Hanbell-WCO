@@ -66,6 +66,7 @@ public class TimerBean {
     private List<Department> childDepts;
     private List<SystemUser> userList;
 
+    private final String errMsgUser="C2082";
     private final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
 
     public TimerBean() {
@@ -74,6 +75,8 @@ public class TimerBean {
 
     @Schedule(minute = "45", hour = "7,16,23", persistent = false)
     public void syncWXWorkOrganizationByEAP() {
+        wechatCorpBean.initConfiguration();
+        wechatCorpBean.sendMsgToUser(errMsgUser, "text", "企业微信更新开始");
         // 先由EAP执行排程，从HRM同步到EAP
         log4j.info("syncWXWorkOrganizationByEAP开始");
         Department dept = departmentBean.findByDeptno("00000");
@@ -104,6 +107,7 @@ public class TimerBean {
                 log4j.info("syncWXWorkEmployeeByEAP结束");
             }
         }
+         wechatCorpBean.sendMsgToUser(errMsgUser, "text", "企业微信更新结束");
         log4j.info("syncWXWorkOrganizationByEAP结束");
     }
 
@@ -132,7 +136,7 @@ public class TimerBean {
         }
     }
 
-    private boolean syncDept(Department dept){
+    private boolean syncDept(Department dept) {
         String msg;
         boolean ret = true;
         if (dept.getSyncWeChatStatus() != null && "X".equals(dept.getSyncWeChatStatus())) {
@@ -153,6 +157,7 @@ public class TimerBean {
                     }
                 }
             } else {
+                wechatCorpBean.sendMsgToUser(errMsgUser, "text",dept.getDeptno()+"更新失败");
                 ret = false;
                 log4j.error(msg);
             }
@@ -174,6 +179,7 @@ public class TimerBean {
                         dept.setOptdate(dept.getSyncWeChatDate());
                         departmentBean.update(dept);
                     } else {
+                        wechatCorpBean.sendMsgToUser(errMsgUser, "text",dept.getDeptno()+"更新失败");
                         ret = false;
                         log4j.error(msg);
                     }
@@ -195,6 +201,7 @@ public class TimerBean {
                         dept.setOptdate(dept.getSyncWeChatDate());
                         departmentBean.update(dept);
                     } else {
+                        wechatCorpBean.sendMsgToUser(errMsgUser, "text",dept.getDeptno()+"更新失败");
                         ret = false;
                         log4j.error(msg);
                     }
@@ -244,6 +251,7 @@ public class TimerBean {
                             user.setOptdate(user.getSyncWeChatDate());
                             systemUserBean.update(user);
                         } else {
+                            wechatCorpBean.sendMsgToUser(errMsgUser, "text",user.getUserid()+"更新失败");
                             log4j.error(user.getUserid() + "同步失败：" + msg);
                         }
                     } else {
@@ -276,6 +284,7 @@ public class TimerBean {
                                 user.setOptdate(user.getSyncWeChatDate());
                                 systemUserBean.update(user);
                             } else {
+                                wechatCorpBean.sendMsgToUser(errMsgUser, "text",user.getUserid()+"更新失败");
                                 log4j.error(msg);
                             }
                         } else {
@@ -289,6 +298,7 @@ public class TimerBean {
                                     user.setOptdate(user.getSyncWeChatDate());
                                     systemUserBean.update(user);
                                 } else {
+                                     wechatCorpBean.sendMsgToUser(errMsgUser, "text",user.getUserid()+"更新失败");
                                     log4j.error(user.getUserid() + "同步失败：" + msg);
                                 }
                             }
@@ -387,7 +397,7 @@ public class TimerBean {
                         agent1000016Bean.sendMsgToUser(s.getUserid(), "mpnews", data.toString());
                         log4j.info(data.toString());
                     } catch (Exception e) {
-                        
+
                         log4j.info(s.getUserid() + "发送失败：" + e.toString());
                     }
                 }
@@ -477,5 +487,11 @@ public class TimerBean {
         } catch (Exception e) {
             log4j.error(e);
         }
+    }
+
+    @Schedule(minute = "45", hour = "8,15", persistent = false)
+    public void dailyMessagePrompt() {
+        agent1000016Bean.initConfiguration();
+        agent1000016Bean.sendMsgToUser(errMsgUser, "text", "企业微信排成成功执行");
     }
 }
