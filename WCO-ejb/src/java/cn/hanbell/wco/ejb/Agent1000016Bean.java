@@ -101,11 +101,6 @@ public class Agent1000016Bean extends WeChatCorpBean {
 
     @Override
     public String sendMsgToUser(String userid, String msgType, String data) {
-        try {
-            initAccessToken(this.getAppID(), this.getAppSecret());
-        } catch (IOException ex) {
-            Logger.getLogger(Agent1000016Bean.class.getName()).log(Level.SEVERE, null, ex);
-        }
         setAccessToken(this.getAppID(), this.getAppSecret());
         String access_token = getAccessToken(this.getAppID(), this.getAppSecret());
         if (access_token != null && !"".equals(access_token)) {

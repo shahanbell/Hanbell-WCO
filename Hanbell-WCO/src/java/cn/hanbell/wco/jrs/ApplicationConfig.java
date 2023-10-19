@@ -29,7 +29,9 @@ public class ApplicationConfig extends Application {
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(cn.hanbell.wco.jrs.CORSFilter.class);
+        resources.add(cn.hanbell.wco.jrs.DineInfoFacadeREST.class);
         resources.add(cn.hanbell.wco.jrs.Prg9f247ab6d5e4FacadeREST.class);
+        resources.add(cn.hanbell.wco.jrs.SendMsgFacadeREST.class);
     }
 
 }
