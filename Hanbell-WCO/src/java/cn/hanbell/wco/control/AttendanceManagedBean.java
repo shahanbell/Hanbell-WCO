@@ -124,6 +124,9 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                     Attendance attendance = new Attendance();
                     attendance.setEmployeeId(cellToVlaue(row.getCell(0)));
                     attendance.setEmployeeName(cellToVlaue(row.getCell(1)));
+                    if("".equals(attendance.getEmployeeId())){
+                        continue;
+                    }
                     attendance.setFacno(facno);
                     attendance.setAttendanceDate(fileName.substring(0, 6));
                     attendance.setDept(cellToVlaue(row.getCell(2)));
@@ -158,6 +161,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                     attendance.setCreator(this.userManagedBean.getUserid());
                     attendance.setCredateToNow();
                     List<Attendance> list = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(attendance.getEmployeeId(), attendance.getAttendanceDate(), null, facno);
+                  
                     if (list != null && list.size() > 0) {
                         attendanceBean.delete(list);
                         attendanceBean.persist(attendance);
