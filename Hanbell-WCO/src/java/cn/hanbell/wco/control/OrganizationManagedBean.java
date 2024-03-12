@@ -17,6 +17,7 @@ import cn.hanbell.wco.web.SuperSingleBean;
 import com.lightshell.comm.BaseLib;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import javax.ejb.EJB;
@@ -25,6 +26,8 @@ import javax.faces.bean.SessionScoped;
 import javax.json.JsonObject;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
+import tw.hanbell.exch.ejb.BPMEmployeeBean;
+import tw.hanbell.exch.entity.BPMEmployee;
 
 /**
  *
@@ -336,6 +339,8 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
             showInfoMsg("Info", "没有需要同步的资料");
         }
     }
+    @EJB
+    private BPMEmployeeBean bPMEmployeeBean;
 
     private boolean syncEmployee(SystemUser user) {
         if (user.getSyncWeChatStatus() != null && "X".equals(user.getSyncWeChatStatus())) {
@@ -352,6 +357,7 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
         }
         String msg = "";
         boolean ret = true;
+        Date d = user.getSyncWeChatDate();
         JsonObject jo = systemUserBean.createJsonObjectBuilder(user).build();
         if (user.getSyncWeChatStatus() == null || user.getSyncWeChatDate() == null) {
             if (user.getPhone() != null && !"".equals(user.getPhone())) {
@@ -400,6 +406,18 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                 }
             }
         }
+        //台湾沈里达课长更新企业微信。台湾部门兼职推送上去。
+        BPMEmployee entity = bPMEmployeeBean.findByUserid(user.getUserid());
+        if (entity != null && d.before(entity.getLastModifiedDate())) {
+            JsonObject obj = bPMEmployeeBean.createThbJsonObjectBuilder(user.getDept().getId(), entity).build();
+            msg = wechatCorpBean.updateEmployee(obj);
+            if (msg.equals("success")) {
+                user.setSyncWeChatDate(new Date());
+                systemUserBean.update(user);
+            } else {
+                //wechatCorpBean.sendMsgToUser(errMsgUser, "text", user.getUserid() + "更新失败");
+            }
+        }
         return ret;
     }
 
@@ -446,25 +464,17 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             if (manager != null) {
                                 eu.setManagerId(manager.getCode());
                             }
-                            if (e.getTelephone() != null) {
-                                eu.setTel(e.getTelephone());
-                            }
                             eu.setPhone(e.getMobilePhone());
                             eu.setEmail(e.getEmail());
                             eu.setCreatorToSystem();
                             eu.setCredateToNow();
                             eu.setOptdate(eu.getCredate());
-                            eu.setBirthdayDate(e.getBirthDate());
-                            eu.setWorkingAgeBeginDate(e.getWorkingAgeBeginDate());
                             if (e.getLastModifiedDate().compareTo(e.getLastWorkDate()) != -1) {
                                 eu.setSyncWeChatStatus("X");
                                 eu.setSyncWeChatDate(e.getLastModifiedDate());
-                                eu.setTel("");
                                 eu.setStatus("X");
                                 eu.setOptuserToSystem();
                                 eu.setOptdate(e.getLastModifiedDate());
-                                eu.setBirthdayDate(null);
-                                eu.setWorkingAgeBeginDate(null);
                             }
                             systemUserBean.persist(eu);
                         } else {
@@ -489,32 +499,23 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                 if (manager != null) {
                                     eu.setManagerId(manager.getCode());
                                 }
-                                if (e.getTelephone() != null) {
-                                    eu.setTel(e.getTelephone());
-                                }
-                                //复职的情况下需要把eap数据库中人员状态从X变成N,为了后续企业微信的更新，设置更新企业微信的状态。
-                                if (eu.getStatus().equals("X") && e.getLastModifiedDate().before(e.getLastWorkDate())) {
-                                    eu.setStatus("N");
-                                    eu.setOptuserToSystem();
-                                    eu.setSyncWeChatDate(null);
-                                    eu.setSyncWeChatStatus("");
-                                }
-                                eu.setBirthdayDate(e.getBirthDate());
-                                eu.setWorkingAgeBeginDate(e.getWorkingAgeBeginDate());
                                 eu.setPhone(e.getMobilePhone());
                                 eu.setEmail(e.getEmail());
                                 eu.setOptuserToSystem();
                                 eu.setOptdate(e.getLastModifiedDate());
-
                                 flag = true;
+                                //复职的情况下需要把eap数据库中人员状态从X变成N,为了后续企业微信的年资和生日同步，还需要更新生日和工作年数
+                                if (eu.getStatus().equals("X") && e.getLastModifiedDate().before(e.getLastWorkDate())) {
+                                    eu.setStatus("N");
+                                    eu.setOptuserToSystem();
+                                    eu.setBirthdayDate(e.getBirthDate());
+                                    eu.setWorkingAgeBeginDate(e.getWorkingAgeBeginDate());
+                                }
                             }
                             if (!eu.getStatus().equals("X") && e.getLastModifiedDate().compareTo(e.getLastWorkDate()) != -1) {
                                 eu.setStatus("X");
                                 eu.setOptuserToSystem();
-                                eu.setTel("");
                                 eu.setOptdate(e.getLastModifiedDate());
-                                eu.setBirthdayDate(null);
-                                eu.setWorkingAgeBeginDate(null);
                                 flag = true;
                             }
                             if (flag) {

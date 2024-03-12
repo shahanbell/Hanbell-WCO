@@ -12,24 +12,16 @@ import cn.hanbell.eap.entity.SystemUser;
 import cn.hanbell.wco.app.MSGApplication;
 import cn.hanbell.wco.app.SalaryReceiptApplication;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
-import cn.hanbell.wco.ejb.Agent1000016Bean;
-import cn.hanbell.wco.ejb.ConfigPropertiesBean;
-import cn.hanbell.wco.ejb.Prg9f247ab6d5e4Bean;
 import cn.hanbell.wco.entity.WeChatUser;
 import com.lightshell.comm.BaseLib;
 import java.util.Date;
-import java.util.List;
 import javax.ejb.EJB;
-import javax.json.JsonObject;
 import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.json.JSONObject;
 
@@ -79,6 +71,7 @@ public class SendMsgFacadeREST extends WeChatOpenFacade<WeChatUser> {
             log4j.error(ex);
             return new ResponseMessage("500", "系统异常");
         }
+
     }
 
     @POST

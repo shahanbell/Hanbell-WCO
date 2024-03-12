@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
@@ -34,6 +35,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import tw.hanbell.exch.ejb.BPMEmployeeBean;
+import tw.hanbell.exch.entity.BPMEmployee;
 
 /**
  *
@@ -62,11 +65,13 @@ public class TimerBean {
     private Agent1000022Bean agent1000022Bean;
     @EJB
     private ProcessInstanceBean processInstanceBean;
+    @EJB
+    private BPMEmployeeBean bPMEmployeeBean;
     private List<Department> deptList;
     private List<Department> childDepts;
     private List<SystemUser> userList;
 
-    private final String errMsgUser="C2082";
+    private final String errMsgUser = "C2082";
     private final Logger log4j = LogManager.getLogger("cn.hanbell.wco");
 
     public TimerBean() {
@@ -107,7 +112,7 @@ public class TimerBean {
                 log4j.info("syncWXWorkEmployeeByEAP结束");
             }
         }
-         wechatCorpBean.sendMsgToUser(errMsgUser, "text", "企业微信更新结束");
+        wechatCorpBean.sendMsgToUser(errMsgUser, "text", "企业微信更新结束");
         log4j.info("syncWXWorkOrganizationByEAP结束");
     }
 
@@ -157,7 +162,7 @@ public class TimerBean {
                     }
                 }
             } else {
-                wechatCorpBean.sendMsgToUser(errMsgUser, "text",dept.getDeptno()+"更新失败");
+                wechatCorpBean.sendMsgToUser(errMsgUser, "text", dept.getDeptno() + "更新失败");
                 ret = false;
                 log4j.error(msg);
             }
@@ -179,7 +184,7 @@ public class TimerBean {
                         dept.setOptdate(dept.getSyncWeChatDate());
                         departmentBean.update(dept);
                     } else {
-                        wechatCorpBean.sendMsgToUser(errMsgUser, "text",dept.getDeptno()+"更新失败");
+                        wechatCorpBean.sendMsgToUser(errMsgUser, "text", dept.getDeptno() + "更新失败");
                         ret = false;
                         log4j.error(msg);
                     }
@@ -201,7 +206,7 @@ public class TimerBean {
                         dept.setOptdate(dept.getSyncWeChatDate());
                         departmentBean.update(dept);
                     } else {
-                        wechatCorpBean.sendMsgToUser(errMsgUser, "text",dept.getDeptno()+"更新失败");
+                        wechatCorpBean.sendMsgToUser(errMsgUser, "text", dept.getDeptno() + "更新失败");
                         ret = false;
                         log4j.error(msg);
                     }
@@ -212,8 +217,10 @@ public class TimerBean {
     }
 
     private void syncEmployee() {
-        if (userList != null && !userList.isEmpty()) {
+         if (userList != null && !userList.isEmpty()) {
+            List<BPMEmployee> entities = bPMEmployeeBean.findAll();
             for (SystemUser user : userList) {
+                Date d = user.getSyncWeChatDate();
                 String msg = "";
                 try {
                     if (user.getSyncWeChatStatus() != null && "X".equals(user.getSyncWeChatStatus())) {
@@ -251,7 +258,7 @@ public class TimerBean {
                             user.setOptdate(user.getSyncWeChatDate());
                             systemUserBean.update(user);
                         } else {
-                            wechatCorpBean.sendMsgToUser(errMsgUser, "text",user.getUserid()+"更新失败");
+                            wechatCorpBean.sendMsgToUser(errMsgUser, "text", user.getUserid() + "更新失败");
                             log4j.error(user.getUserid() + "同步失败：" + msg);
                         }
                     } else {
@@ -284,7 +291,7 @@ public class TimerBean {
                                 user.setOptdate(user.getSyncWeChatDate());
                                 systemUserBean.update(user);
                             } else {
-                                wechatCorpBean.sendMsgToUser(errMsgUser, "text",user.getUserid()+"更新失败");
+                                wechatCorpBean.sendMsgToUser(errMsgUser, "text", user.getUserid() + "更新失败");
                                 log4j.error(msg);
                             }
                         } else {
@@ -298,10 +305,24 @@ public class TimerBean {
                                     user.setOptdate(user.getSyncWeChatDate());
                                     systemUserBean.update(user);
                                 } else {
-                                     wechatCorpBean.sendMsgToUser(errMsgUser, "text",user.getUserid()+"更新失败");
+                                    wechatCorpBean.sendMsgToUser(errMsgUser, "text", user.getUserid() + "更新失败");
                                     log4j.error(user.getUserid() + "同步失败：" + msg);
                                 }
                             }
+                        }
+                    }
+                    List<BPMEmployee> filerEneyties = entities.stream()
+                                               .filter(n -> n.getUserid().equals(user.getUserid()) && d.before(n.getLastModifiedDate()))
+                                               .collect(Collectors.toList());
+                    if (filerEneyties != null && filerEneyties.size()==1) {
+                        JsonObject obj = bPMEmployeeBean.createThbJsonObjectBuilder(user.getDept().getId(), filerEneyties.get(0)).build();
+                        msg = wechatCorpBean.updateEmployee(obj);
+                        if (msg.equals("success")) {
+                            user.setSyncWeChatDate(new Date());
+                            systemUserBean.update(user);
+                        } else {
+                            wechatCorpBean.sendMsgToUser(errMsgUser, "text", user.getUserid() + "更新失败");
+                            log4j.error(user.getUserid() + "同步失败：" + msg);
                         }
                     }
                 } catch (Exception e) {
@@ -392,7 +413,7 @@ public class TimerBean {
                         StringBuffer data = new StringBuffer("{");
                         data.append("'title':'").append(s.getUsername()).append(",生日快乐!").append("',");
                         data.append("'thumb_media_id':'").append(materialId).append("',");
-                        data.append("'content':'").append("<img src=\"http://i2.hanbell.com.cn:8480/birthday.png\"></img>").append("',");
+                        data.append("'content':'").append("<img src=\"https://jrs.hanbell.com.cn/Hanbell-WCO/birthday.jpg?page=1\"></img>").append("',");
                         data.append("'safe':").append(2).append("}");
                         agent1000016Bean.sendMsgToUser(s.getUserid(), "mpnews", data.toString());
                         log4j.info(data.toString());
@@ -423,7 +444,7 @@ public class TimerBean {
             for (SystemUser s : list) {
                 if ("V".equals(s.getSyncWeChatStatus())) {
                     try {
-                        String materialId = agent1000016Bean.getMaterialId(agent1000016Bean.MEDIA_IMG, pathString.concat(agent1000016Bean.getWorkingAgePicteureUrl(s.getDeptno())));
+                        String materialId = agent1000016Bean.getMaterialId(agent1000016Bean.MEDIA_IMG, pathString.concat("work.jpg"));
                         //计算时间
                         Integer now = Integer.valueOf(BaseLib.formatDate("yyyy", new Date()));
                         Integer workYear = Integer.valueOf(BaseLib.formatDate("yyyy", s.getWorkingAgeBeginDate()));
@@ -431,7 +452,7 @@ public class TimerBean {
                         StringBuffer data = new StringBuffer("{");
                         data.append("'title':'").append(s.getUsername()).append(",感谢您").append(now - workYear).append("年来在汉钟坚守初心，筑梦前行！").append("',");
                         data.append("'thumb_media_id':'").append(materialId).append("',");
-                        data.append("'content':'").append("<img src=\"http://i2.hanbell.com.cn:8480/working.png\"></img>").append("',");
+                        data.append("'content':'").append("<img src=\"https://jrs.hanbell.com.cn/Hanbell-WCO/work.jpg?page=1\"></img>").append("',");
                         data.append("'safe':").append(2).append("}");
                         agent1000016Bean.sendMsgToUser(s.getUserid(), "mpnews", data.toString());
                         log4j.info(data.toString());
