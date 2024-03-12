@@ -16,11 +16,14 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -43,13 +46,17 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     private String employeeName;
     private String employeeId;
     private Date date;
-    private String uploadDate;
     private String status;
     @EJB
     private AttendanceBean attendanceBean;
 
     @EJB
     private ConfigPropertiesBean configPropertiesBean;
+
+    private String importCompany;
+    private Date importDate;
+    private String isOverride;
+    private UploadedFile file;
 
     public AttendanceManagedBean() {
         super(Attendance.class);
@@ -64,11 +71,16 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
         //上海汉钟
         if (userid.startsWith("C")) {
             this.facno = "C";
+            this.importCompany = "C";
         } else if (userid.startsWith("H")) {
             this.facno = "H";
+            this.importCompany = "H";
         } else if (userid.startsWith("Y")) {
             this.facno = "Y";
+            this.importCompany = "Y";
         }
+        this.importDate = new Date();
+        this.isOverride = "N";
         super.init();
     }
 
@@ -91,9 +103,78 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
         }
     }
 
-    public void handleFileUpload(FileUploadEvent event) {
-        FacesMessage msg = new FacesMessage("Successful", event.getFile().getFileName() + " is uploaded.");
-        FacesContext.getCurrentInstance().addMessage(null, msg);
+    public void upload() {
+        try {
+            Integer a = 0;
+            if (file != null) {
+                try {
+                    InputStream inputStream = file.getInputstream();
+                    Workbook excel = WorkbookFactory.create(inputStream);
+                    Sheet sheet = excel.getSheetAt(0);
+                    for (int i = 2; i <= sheet.getLastRowNum(); i++) {
+                        a = i;
+                        Row row = sheet.getRow(i);
+                        Attendance attendance = new Attendance();
+                        attendance.setEmployeeId(cellToVlaue(row.getCell(0)));
+                        attendance.setEmployeeName(cellToVlaue(row.getCell(1)));
+                        if ("".equals(attendance.getEmployeeId())) {
+                            continue;
+                        }
+                        attendance.setFacno(this.importCompany);
+                        attendance.setAttendanceDate(BaseLib.formatDate("yyyyMM", this.importDate));
+                        attendance.setDept(cellToVlaue(row.getCell(2)));
+                        attendance.setPacificOvertime(cellToVlaue(row.getCell(6)));
+                        attendance.setRestOvertime(cellToVlaue(row.getCell(7)));
+                        attendance.setHolidayOvertime(cellToVlaue(row.getCell(8)));
+                        attendance.setSickLeave(cellToVlaue(row.getCell(9)));
+                        attendance.setAffairLeave(cellToVlaue(row.getCell(10)));
+                        attendance.setSpecialRest(cellToVlaue(row.getCell(11)));
+                        attendance.setMarriageLeave(cellToVlaue(row.getCell(12)));
+                        attendance.setDieLeave(cellToVlaue(row.getCell(13)));
+                        attendance.setHurtLeave(cellToVlaue(row.getCell(14)));
+                        attendance.setPaternityLeave(cellToVlaue(row.getCell(15)));
+                        attendance.setMaternityLeave(cellToVlaue(row.getCell(16)));
+                        attendance.setNoSalaryLeave(cellToVlaue(row.getCell(17)));
+                        attendance.setAntenatalLeave(cellToVlaue(row.getCell(18)));
+                        attendance.setPublicLeave(cellToVlaue(row.getCell(19)));
+                        attendance.setBreastfeedingLeave(cellToVlaue(row.getCell(20)));
+                        attendance.setHomeLeave(cellToVlaue(row.getCell(21)));
+                        attendance.setChild(cellToVlaue(row.getCell(22)));
+                        attendance.setForgetClock(cellToVlaue(row.getCell(23)));
+                        attendance.setLate(cellToVlaue(row.getCell(24)));
+                        attendance.setLeaveEarly(cellToVlaue(row.getCell(25)));
+                        attendance.setAbsent(cellToVlaue(row.getCell(26)));
+                        attendance.setMeal(cellToVlaue(row.getCell(27)));
+                        attendance.setBreakfast(cellToVlaue(row.getCell(28)));
+                        attendance.setLunch(cellToVlaue(row.getCell(29)));
+                        attendance.setDinner(cellToVlaue(row.getCell(30)));
+                        attendance.setOweClass(cellToVlaue(row.getCell(31)));
+                        attendance.setStatus("X");
+                        attendance.setCheckcode(getCheckCode());
+                        attendance.setCreator(this.userManagedBean.getUserid());
+                        attendance.setCredateToNow();
+                        List<Attendance> list = attendanceBean.findByFacnoAndEmployeeidAndAttendanceDate(this.importCompany, attendance.getEmployeeId(), attendance.getAttendanceDate());
+                        if (list != null && !list.isEmpty() && "V".equals(list.get(0).getStatus()) && "N".equals(this.isOverride)) {
+                            continue; // 已经推送了消息，前端页面不覆盖的话跳过更新数据库。
+                        }
+                        if (list != null) {
+                            attendanceBean.delete(list);
+                            attendanceBean.persist(attendance);
+                        } else {
+                            attendanceBean.persist(attendance);
+                        }
+                    }
+                } catch (Exception ex) {
+                    FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "上传失败"));
+                    ex.printStackTrace();
+                    showErrorMsg("Error", "导入失败,找不到文件或格式错误--第" + a + "行附近栏位发生错误" + ex.toString());
+                }
+                int cha = a - 1;
+                FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "上传成功，共" + cha + "条数据！"));
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(AttendanceManagedBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -108,77 +189,15 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
 
     @Override
     public void handleFileUploadWhenNew(FileUploadEvent event) {
-        UploadedFile file1 = event.getFile();
-        Integer a = 0;
-        if (file1 != null) {
-            try {
-                InputStream inputStream = file1.getInputstream();
-//                Workbook excel = WorkbookFactory.create(inputStream);
-                Workbook excel = WorkbookFactory.create(inputStream);
-                Sheet sheet = excel.getSheetAt(0);
-                String fileName = file1.getFileName();
-                this.uploadDate = fileName;
-                for (int i = 2; i <= sheet.getLastRowNum(); i++) {
-                    a = i;
-                    Row row = sheet.getRow(i);
-                    Attendance attendance = new Attendance();
-                    attendance.setEmployeeId(cellToVlaue(row.getCell(0)));
-                    attendance.setEmployeeName(cellToVlaue(row.getCell(1)));
-                    if("".equals(attendance.getEmployeeId())){
-                        continue;
-                    }
-                    attendance.setFacno(facno);
-                    attendance.setAttendanceDate(fileName.substring(0, 6));
-                    attendance.setDept(cellToVlaue(row.getCell(2)));
-                    attendance.setPacificOvertime(cellToVlaue(row.getCell(6)));
-                    attendance.setRestOvertime(cellToVlaue(row.getCell(7)));
-                    attendance.setHolidayOvertime(cellToVlaue(row.getCell(8)));
-                    attendance.setSickLeave(cellToVlaue(row.getCell(9)));
-                    attendance.setAffairLeave(cellToVlaue(row.getCell(10)));
-                    attendance.setSpecialRest(cellToVlaue(row.getCell(11)));
-                    attendance.setMarriageLeave(cellToVlaue(row.getCell(12)));
-                    attendance.setDieLeave(cellToVlaue(row.getCell(13)));
-                    attendance.setHurtLeave(cellToVlaue(row.getCell(14)));
-                    attendance.setPaternityLeave(cellToVlaue(row.getCell(15)));
-                    attendance.setMaternityLeave(cellToVlaue(row.getCell(16)));
-                    attendance.setNoSalaryLeave(cellToVlaue(row.getCell(17)));
-                    attendance.setAntenatalLeave(cellToVlaue(row.getCell(18)));
-                    attendance.setPublicLeave(cellToVlaue(row.getCell(19)));
-                    attendance.setBreastfeedingLeave(cellToVlaue(row.getCell(20)));
-                    attendance.setHomeLeave(cellToVlaue(row.getCell(21)));
-                    attendance.setChild(cellToVlaue(row.getCell(22)));
-                    attendance.setForgetClock(cellToVlaue(row.getCell(23)));
-                    attendance.setLate(cellToVlaue(row.getCell(24)));
-                    attendance.setLeaveEarly(cellToVlaue(row.getCell(25)));
-                    attendance.setAbsent(cellToVlaue(row.getCell(26)));
-                    attendance.setMeal(cellToVlaue(row.getCell(27)));
-                    attendance.setBreakfast(cellToVlaue(row.getCell(28)));
-                    attendance.setLunch(cellToVlaue(row.getCell(29)));
-                    attendance.setDinner(cellToVlaue(row.getCell(30)));
-                    attendance.setOweClass(cellToVlaue(row.getCell(31)));
-                    attendance.setStatus("X");
-                    attendance.setCheckcode(getCheckCode());
-                    attendance.setCreator(this.userManagedBean.getUserid());
-                    attendance.setCredateToNow();
-                    List<Attendance> list = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(attendance.getEmployeeId(), attendance.getAttendanceDate(), null, facno);
-                  
-                    if (list != null && list.size() > 0) {
-                        attendanceBean.delete(list);
-                        attendanceBean.persist(attendance);
-                    } else {
-                        attendanceBean.persist(attendance);
-                    }
-                }
-            } catch (Exception ex) {
-                FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "上传失败"));
-                ex.printStackTrace();
-                showErrorMsg("Error", "导入失败,找不到文件或格式错误--第" + a + "行附近栏位发生错误" + ex.toString());
-            }
-            int cha = a - 1;
-            FacesContext.getCurrentInstance().addMessage((String) null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "上传成功，共" + cha + "条数据！"));
-        }
+        this.file = event.getFile();
+        this.showInfoMsg("Info", "上传成功,请保存！");
     }
 
+    public void fileChanged() { 
+        if(this.file!=null){
+            this.showInfoMsg("Info", "上传成功,请保存！");
+        }
+    } 
     public String cellToVlaue(Cell cell) {
         if (cell == null) {
             return "";
@@ -207,27 +226,34 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     }
 
     //发送消息
-    public void upload() {
-        List<Attendance> attendacnes = attendanceBean.findByAttendanceAndEmployeeIdAndStatus(employeeId, BaseLib.formatDate("YYYYMM", date), status, facno);
-        for (Attendance a : attendacnes) {
-            if ("X".equals(a.getStatus())) {
-                agent1000002Bean.initConfiguration();
-                StringBuffer msg = new StringBuffer("【上海汉钟】");
-                msg.append("您的").append(a.getAttendanceDate()).append("考勤记录已生成，<br>");
-                msg.append("<a href=\"");
-                StringBuffer url = new StringBuffer(configPropertiesBean.findByKey("cn.hanbell.wco.control.AttendanceManagedBean.attendanceUrl").getConfigvalue());
+    public void send() {
+        try {
+            Thread.sleep(2000);
+            entityList = attendanceBean.findByFilters(this.model.getFilterFields(), this.model.getSortFields());
+            for (Attendance a : entityList) {
+                if ("X".equals(a.getStatus())) {
+                    agent1000002Bean.initConfiguration();
+                    StringBuffer msg = new StringBuffer("【上海汉钟】");
+                    msg.append("您的").append(a.getAttendanceDate()).append("考勤记录已生成，<br>");
+                    msg.append("<a href=\"");
+                    StringBuffer url = new StringBuffer(configPropertiesBean.findByKey("cn.hanbell.wco.control.AttendanceManagedBean.attendanceUrl").getConfigvalue());
 
-                url.append(a.getEmployeeId()).append("&attendanceDate=").append(a.getAttendanceDate()).append("&checkcode=").append(a.getCheckcode());
-                msg.append(url).append("\">请点击此处").append("</a>   ");
-                msg.append("查看");
-                String errmsg = agent1000002Bean.sendMsgToUser(a.getEmployeeId(), "text", msg.toString());
-                if (errmsg.startsWith("ok")) {
-                    a.setStatus("V");
-                    a.setOptuser(this.userManagedBean.getUserid());
-                    a.setOptdateToNow();
-                    attendanceBean.update(a);
+                    url.append(a.getEmployeeId()).append("&attendanceDate=").append(a.getAttendanceDate()).append("&checkcode=").append(a.getCheckcode());
+                    msg.append(url).append("\">请点击此处").append("</a>   ");
+                    msg.append("查看");
+                    // String errmsg = agent1000002Bean.sendMsgToUser(a.getEmployeeId(), "text", msg.toString());
+                    String errmsg = "ok";
+                    if (errmsg.startsWith("ok")) {
+                        a.setStatus("V");
+                        a.setOptuser(this.userManagedBean.getUserid());
+                        a.setOptdateToNow();
+                        attendanceBean.update(a);
+                    }
                 }
             }
+            this.showInfoMsg("Info", "发送成功");
+        } catch (InterruptedException ex) {
+            Logger.getLogger(AttendanceManagedBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -280,6 +306,38 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public UploadedFile getFile() {
+        return file;
+    }
+
+    public void setFile(UploadedFile file) {
+        this.file = file;
+    }
+
+    public String getImportCompany() {
+        return importCompany;
+    }
+
+    public void setImportCompany(String importCompany) {
+        this.importCompany = importCompany;
+    }
+
+    public Date getImportDate() {
+        return importDate;
+    }
+
+    public void setImportDate(Date importDate) {
+        this.importDate = importDate;
+    }
+
+    public String getIsOverride() {
+        return isOverride;
+    }
+
+    public void setIsOverride(String isOverride) {
+        this.isOverride = isOverride;
     }
 
 }

@@ -66,7 +66,7 @@ public class UserManagedBean implements Serializable {
                     status = false;
                     return "";
                 }
-            } else if (cn.hanbell.util.BaseLib.ADAuth("172.16.10.6:389", userid + "@hanbell.com.cn", pwd)) {
+            } else if (cn.hanbell.util.BaseLib.ADAuth("172.16.10.190:389", userid + "@hanbell.com.cn", pwd)) {
                 u = systemUserBean.findByUserId(getUserid());
             }
             if (u != null) {
@@ -77,6 +77,7 @@ public class UserManagedBean implements Serializable {
                 return "home";
             }
         } catch (Exception e) {
+            e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "用户名或密码不正确！"));
             status = false;
             return "login";
