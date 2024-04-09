@@ -217,7 +217,7 @@ public class TimerBean {
     }
 
     private void syncEmployee() {
-         if (userList != null && !userList.isEmpty()) {
+        if (userList != null && !userList.isEmpty()) {
             List<BPMEmployee> entities = bPMEmployeeBean.findAll();
             for (SystemUser user : userList) {
                 Date d = user.getSyncWeChatDate();
@@ -312,14 +312,16 @@ public class TimerBean {
                         }
                     }
                     List<BPMEmployee> filerEneyties = entities.stream()
-                                               .filter(n -> n.getUserid().equals(user.getUserid()) && d.before(n.getLastModifiedDate()))
-                                               .collect(Collectors.toList());
-                    if (filerEneyties != null && filerEneyties.size()==1) {
+                            .filter(n -> n.getUserid().equals(user.getUserid()) && d.before(n.getLastModifiedDate()))
+                            .collect(Collectors.toList());
+                    if (filerEneyties != null && filerEneyties.size() == 1) {
                         JsonObject obj = bPMEmployeeBean.createThbJsonObjectBuilder(user.getDept().getId(), filerEneyties.get(0)).build();
                         msg = wechatCorpBean.updateEmployee(obj);
                         if (msg.equals("success")) {
                             user.setSyncWeChatDate(new Date());
                             systemUserBean.update(user);
+                            filerEneyties.get(0).setLastModifiedDate(new Date());
+                            bPMEmployeeBean.update(filerEneyties.get(0));
                         } else {
                             wechatCorpBean.sendMsgToUser(errMsgUser, "text", user.getUserid() + "更新失败");
                             log4j.error(user.getUserid() + "同步失败：" + msg);
