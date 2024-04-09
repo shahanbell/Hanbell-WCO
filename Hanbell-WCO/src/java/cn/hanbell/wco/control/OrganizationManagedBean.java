@@ -414,6 +414,9 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
             if (msg.equals("success")) {
                 user.setSyncWeChatDate(new Date());
                 systemUserBean.update(user);
+
+                entity.setLastModifiedDate(new Date());
+                bPMEmployeeBean.update(entity);
             } else {
                 //wechatCorpBean.sendMsgToUser(errMsgUser, "text", user.getUserid() + "更新失败");
             }
@@ -464,6 +467,9 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                             if (manager != null) {
                                 eu.setManagerId(manager.getCode());
                             }
+                            if (e.getTelephone() != null) {
+                                eu.setTel(e.getTelephone());
+                            }
                             eu.setPhone(e.getMobilePhone());
                             eu.setEmail(e.getEmail());
                             eu.setCreatorToSystem();
@@ -473,8 +479,11 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                 eu.setSyncWeChatStatus("X");
                                 eu.setSyncWeChatDate(e.getLastModifiedDate());
                                 eu.setStatus("X");
+                                eu.setTel("");
                                 eu.setOptuserToSystem();
                                 eu.setOptdate(e.getLastModifiedDate());
+                                eu.setBirthdayDate(null);
+                                eu.setWorkingAgeBeginDate(null);
                             }
                             systemUserBean.persist(eu);
                         } else {
@@ -495,6 +504,9 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                 if (e.getDecisionlevelInfo() != null) {
                                     eu.setDecisionLevel(e.getDecisionlevelInfo().getInfoCode());
                                 }
+                                if (e.getTelephone() != null) {
+                                    eu.setTel(e.getTelephone());
+                                }
                                 eu.setDeptno(e.getDepartment().getCode());
                                 if (manager != null) {
                                     eu.setManagerId(manager.getCode());
@@ -511,11 +523,20 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                                     eu.setBirthdayDate(e.getBirthDate());
                                     eu.setWorkingAgeBeginDate(e.getWorkingAgeBeginDate());
                                 }
+                                eu.setBirthdayDate(e.getBirthDate());
+                                eu.setWorkingAgeBeginDate(e.getWorkingAgeBeginDate());
+                                eu.setPhone(e.getMobilePhone());
+                                eu.setEmail(e.getEmail());
+                                eu.setOptuserToSystem();
+                                eu.setOptdate(e.getLastModifiedDate());
+                                flag = true;
                             }
                             if (!eu.getStatus().equals("X") && e.getLastModifiedDate().compareTo(e.getLastWorkDate()) != -1) {
                                 eu.setStatus("X");
                                 eu.setOptuserToSystem();
                                 eu.setOptdate(e.getLastModifiedDate());
+                                eu.setBirthdayDate(null);
+                                eu.setWorkingAgeBeginDate(null);
                                 flag = true;
                             }
                             if (flag) {
