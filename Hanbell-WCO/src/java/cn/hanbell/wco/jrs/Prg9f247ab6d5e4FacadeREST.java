@@ -13,14 +13,17 @@ import cn.hanbell.wco.ejb.WeChatUserBean;
 import cn.hanbell.wco.entity.WeChatSession;
 import cn.hanbell.wco.entity.WeChatUser;
 import cn.hanbell.wco.comm.MiniProgramSession;
+import cn.hanbell.wco.ejb.Agent1000002Bean;
 import cn.hanbell.wco.ejb.WechatroleWechatauthorityBean;
 import cn.hanbell.wco.ejb.WechatroleWechatuserBean;
 import cn.hanbell.wco.entity.Wechatauthority;
 import cn.hanbell.wco.entity.Wechatrole;
 import cn.hanbell.wco.entity.WechatroleWechatuser;
 import com.lightshell.comm.BaseLib;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -61,6 +64,9 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
     @EJB
     private WechatroleWechatauthorityBean wechatauthorityBean;
 
+    @EJB
+    private Agent1000002Bean wechatCorpBean;
+
     public Prg9f247ab6d5e4FacadeREST() {
         super(WeChatUser.class);
     }
@@ -100,13 +106,19 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                 wcs.setCredateToNow();
                 wcs.setCreatorToSystem();
                 wechatSessionBean.update(wcs);
-                String[] value = new String[]{code, "3"};
-                BaseLib.sendShortMessage("8aaf07085adadc12015aeae7d82003a4", mobile, "460510", value);
+                Map<String,Object> filter=new HashMap<>();
+                filter.put("phone", mobile);
+                List<SystemUser> user = systemUserBean.findByFilters(filter);
+                if (user.size() == 1) {
+                    wechatCorpBean.initConfiguration();
+                    wechatCorpBean.sendMsgToUser(user.get(0).getUserid(), "text", String.format("[敬业汉钟]验证码:%s,请勿泄露给他人", code));
+                }
                 return new ResponseMessage("200", "已经发送");
             } else {
                 return new ResponseMessage("404", "授权异常");
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             return new ResponseMessage("500", "发送异常");
         }
     }
