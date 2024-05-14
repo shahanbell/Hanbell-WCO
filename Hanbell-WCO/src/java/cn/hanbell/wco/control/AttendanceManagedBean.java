@@ -241,8 +241,8 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                     url.append(a.getEmployeeId()).append("&attendanceDate=").append(a.getAttendanceDate()).append("&checkcode=").append(a.getCheckcode());
                     msg.append(url).append("\">请点击此处").append("</a>   ");
                     msg.append("查看");
-                    // String errmsg = agent1000002Bean.sendMsgToUser(a.getEmployeeId(), "text", msg.toString());
-                    String errmsg = "ok";
+                    String errmsg = agent1000002Bean.sendMsgToUser(a.getEmployeeId(), "text", msg.toString());
+                   // String errmsg = "ok";
                     if (errmsg.startsWith("ok")) {
                         a.setStatus("V");
                         a.setOptuser(this.userManagedBean.getUserid());

@@ -106,7 +106,7 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                 wcs.setCredateToNow();
                 wcs.setCreatorToSystem();
                 wechatSessionBean.update(wcs);
-                Map<String,Object> filter=new HashMap<>();
+                Map<String, Object> filter = new HashMap<>();
                 filter.put("phone", mobile);
                 List<SystemUser> user = systemUserBean.findByFilters(filter);
                 if (user.size() == 1) {
@@ -144,97 +144,136 @@ public class Prg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                 s.setAuthorized(currentEntity.getAuthorized());
                 s.setEmployeeId(currentEntity.getEmployeeId());
                 s.setEmployeeName(currentEntity.getEmployeeName());
+                s.setProfile(currentEntity.getProfile());
             }
             return s;
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
-    @POST
-    @Path("wechatuser")
+    @PUT
+    @Path("wechatuser/{code}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    public ResponseMessage createWeChatUser(WeChatUser entity) {
-        if (entity == null) {
+    public ResponseMessage createWeChatUser(@PathParam("code") String code, @QueryParam("sessionkey") String sessionkey, WeChatUser entity) {
+        if (entity.getOpenId() == null || sessionkey == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         try {
-            if (!wechatUserBean.has(entity.getOpenId())) {
-                entity.setAuthorized(false);
-                entity.setStatusToNew();
-                wechatUserBean.persist(entity);
-                return new ResponseMessage("201", "授权成功");
-            } else {
-                WeChatUser wechatuser = wechatUserBean.findByOpenId(entity.getOpenId());
-                //有时无法及时获取用户信息，或者用户手动获取微信信息，则判断当前openId是否存在当前在职员工。返回202用户前端判断。是否返回主页面。
-                if ("V".equals(wechatuser.getStatus())) {
-                    return new ResponseMessage("202", "授权成功");
-                } else {
-                    return new ResponseMessage("200", "授权成功");
-                }
+            WeChatUser wechatuser = wechatUserBean.findByOpenId(entity.getOpenId());
+            if (wechatuser != null) {
+                this.wechatUserBean.delete(wechatuser);
             }
+            JSONObject jo = prg9f247ab6d5e4Bean.getWxAccessToken();
+            JSONObject phone = prg9f247ab6d5e4Bean.getWxPhone(jo.getString("access_token"), code);
+            Map<String, Object> filter = new HashMap<String, Object>();
+            filter.put("status", "N");
+            filter.put("phone", phone.getJSONObject("phone_info").getString("phoneNumber"));
+            List<SystemUser> users = this.systemUserBean.findByFilters(filter);
+            if (users.size() == 1) {
+                entity.setEmployeeId(users.get(0).getUserid());
+                entity.setMobile(phone.getJSONObject("phone_info").getString("phoneNumber"));
+                entity.setEmployeeName(users.get(0).getUsername());
+                entity.setAuthorized(Boolean.TRUE);
+                entity.setStatus("V");
+                entity.setCfmdateToNow();
+                this.wechatUserBean.persist(entity);
+                ResponseSession session = new ResponseSession("200", "更新成功");
+                session.setAuthorized(entity.getAuthorized());
+                session.setEmployeeId(entity.getEmployeeId());
+                session.setEmployeeName(entity.getEmployeeName());
+                //session 加入部门和事业单位
+                session.setDeptno(users.get(0).getDeptno());
+                session.setDeptName(users.get(0).getDept().getDept());
+                session.setCompany(users.get(0).getDept().getCompany());
+                session.setCompanyName(companyBean.findByCompany(session.getCompany()).getName());
+                session.setProfile(entity.getProfile());
+                return session;
+            }
+            return new ResponseMessage("500", "HR数据异常，请联系管理员！");
         } catch (Exception ex) {
-            log4j.error(ex);
+            ex.printStackTrace();
             return new ResponseMessage("500", "系统异常");
         }
     }
 
+    
     @PUT
-    @Path("wechatuser/{openid}")
+    @Path("wechatuser/logout/{openId}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    public ResponseSession updateWeChatUser(@PathParam("openid") String openid, WeChatUser entity,
-            @QueryParam("sessionkey") String sessionkey, @QueryParam("checkcode") String checkcode) {
-        if (openid == null || entity == null || sessionkey == null || checkcode == null) {
+    public ResponseMessage logoutWeChatUser(@PathParam("openId") String openId) {
+        if (openId == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         try {
-            WeChatSession wcs = wechatSessionBean.findByCheckCode(openid, sessionkey, checkcode);
-            if (wcs != null) {
-                WeChatUser wcu = wechatUserBean.findByOpenId(openid);
-                if (wcu != null) {
-                    wcu.setEmployeeId(entity.getEmployeeId());
-                    wcu.setEmployeeName(entity.getEmployeeName());
-                    wcu.setMobile(entity.getMobile());
-                    // 需要加入工号+预留手机检查
-                    SystemUser su = systemUserBean.findByUserId(entity.getEmployeeId());
-                    if (null == su) {
-                        return new ResponseSession("401", "授权工号不存在");
-                    } else {
-                        if (!su.getPhone().equals(entity.getMobile())) {
-                            return new ResponseSession("401", "手机号与企业预留不一致");
-                        }
-                    }
-                    wcu.setAuthorized(Boolean.TRUE);
-                    wcu.setStatus("V");
-                    wechatUserBean.update(wcu);
-                    ResponseSession session = new ResponseSession("200", "更新成功");
-                    session.setAuthorized(wcu.getAuthorized());
-                    session.setEmployeeId(wcu.getEmployeeId());
-                    session.setEmployeeName(wcu.getEmployeeName());
-                    //session 加入部门和事业单位
-                    session.setDeptno(su.getDeptno());
-                    session.setDeptName(su.getDept().getDept());
-                    session.setCompany(su.getDept().getCompany());
-                    session.setCompanyName(companyBean.findByCompany(session.getCompany()).getName());
-                    // 更新WeChatSession状态
-                    wcs.setStatus("V");
-                    wcs.setCfmdateToNow();
-                    wechatSessionBean.update(wcs);
-
-                    return session;
-                } else {
-                    return new ResponseSession("401", "授权异常");
-                }
-            } else {
-                return new ResponseSession("404", "验证码错误或失效");
-            }
+            WeChatUser wechatuser = wechatUserBean.findByOpenId(openId);
+            wechatuser.setAuthorized(Boolean.FALSE);
+            wechatuser.setStatus("X");
+            wechatuser.setCfmdateToNow();
+            wechatuser.setCfmuser("wechat");
+            return new ResponseMessage("200", "退出登录！");
         } catch (Exception ex) {
-            log4j.error(ex);
-            return new ResponseSession("500", "系统异常");
+            ex.printStackTrace();
+            return new ResponseMessage("500", "系统异常");
         }
     }
-
+    
+//    @PUT
+//    @Path("wechatuser/{openid}")
+//    @Consumes({"application/json"})
+//    @Produces({"application/json"})
+//    public ResponseSession updateWeChatUser(@PathParam("openid") String openid, WeChatUser entity,
+//            @QueryParam("sessionkey") String sessionkey, @QueryParam("checkcode") String checkcode) {
+//        if (openid == null || entity == null || sessionkey == null || checkcode == null) {
+//            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+//        }
+//        try {
+//            WeChatSession wcs = wechatSessionBean.findByCheckCode(openid, sessionkey, checkcode);
+//            if (wcs != null) {
+//                WeChatUser wcu = wechatUserBean.findByOpenId(openid);
+//                if (wcu != null) {
+//                    wcu.setEmployeeId(entity.getEmployeeId());
+//                    wcu.setEmployeeName(entity.getEmployeeName());
+//                    wcu.setMobile(entity.getMobile());
+//                    // 需要加入工号+预留手机检查
+//                    SystemUser su = systemUserBean.findByUserId(entity.getEmployeeId());
+//                    if (null == su) {
+//                        return new ResponseSession("401", "授权工号不存在");
+//                    } else {
+//                        if (!su.getPhone().equals(entity.getMobile())) {
+//                            return new ResponseSession("401", "手机号与企业预留不一致");
+//                        }
+//                    }
+//                    wcu.setAuthorized(Boolean.TRUE);
+//                    wcu.setStatus("V");
+//                    wechatUserBean.update(wcu);
+//                    ResponseSession session = new ResponseSession("200", "更新成功");
+//                    session.setAuthorized(wcu.getAuthorized());
+//                    session.setEmployeeId(wcu.getEmployeeId());
+//                    session.setEmployeeName(wcu.getEmployeeName());
+//                    //session 加入部门和事业单位
+//                    session.setDeptno(su.getDeptno());
+//                    session.setDeptName(su.getDept().getDept());
+//                    session.setCompany(su.getDept().getCompany());
+//                    session.setCompanyName(companyBean.findByCompany(session.getCompany()).getName());
+//                    // 更新WeChatSession状态
+//                    wcs.setStatus("V");
+//                    wcs.setCfmdateToNow();
+//                    wechatSessionBean.update(wcs);
+//
+//                    return session;
+//                } else {
+//                    return new ResponseSession("401", "授权异常");
+//                }
+//            } else {
+//                return new ResponseSession("404", "验证码错误或失效");
+//            }
+//        } catch (Exception ex) {
+//            log4j.error(ex);
+//            return new ResponseSession("500", "系统异常");
+//        }
+//    }
     @GET
     @Path("AuthValidation")
     @Produces({MediaType.APPLICATION_JSON})
