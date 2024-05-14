@@ -18,6 +18,8 @@ public class ResponseSession extends ResponseMessage {
     private String deptName;
     private String company;
     private String companyName;
+    private String profile;
+    private String post;
 
     public ResponseSession() {
 
@@ -100,6 +102,22 @@ public class ResponseSession extends ResponseMessage {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+
+    public String getPost() {
+        return post;
+    }
+
+    public void setPost(String post) {
+        this.post = post;
     }
 
 }

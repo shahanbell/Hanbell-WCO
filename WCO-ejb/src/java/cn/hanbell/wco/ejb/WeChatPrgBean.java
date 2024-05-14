@@ -40,8 +40,67 @@ public abstract class WeChatPrgBean extends WeChatPubBean {
         if (response != null) {
             try {
                 HttpEntity entity = response.getEntity();
+
                 JSONObject jo = new JSONObject(EntityUtils.toString(entity, "UTF-8"));
+                System.out.print(jo.toString());
                 if (!jo.has("errcode")) {
+                    return jo;
+                } else {
+                    log4j.error(jo.get("errmsg").toString());
+                }
+            } catch (IOException | ParseException | JSONException ex) {
+                log4j.error(ex);
+            } finally {
+                try {
+                    response.close();
+                } catch (IOException ex) {
+                    log4j.error(ex);
+                }
+            }
+        }
+        return null;
+    }
+
+    public JSONObject getWxAccessToken() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", this.getAppID(),
+                this.getAppSecret()));
+
+        CloseableHttpResponse response = get(sb.toString(), null, null);
+        if (response != null) {
+            try {
+                HttpEntity entity = response.getEntity();
+                JSONObject jo = new JSONObject(EntityUtils.toString(entity, "UTF-8"));
+                System.out.print(jo.toString());
+                if (!jo.has("errcode")) {
+                    return jo;
+                } else {
+                    log4j.error(jo.get("errmsg").toString());
+                }
+            } catch (IOException | ParseException | JSONException ex) {
+                log4j.error(ex);
+            } finally {
+                try {
+                    response.close();
+                } catch (IOException ex) {
+                    log4j.error(ex);
+                }
+            }
+        }
+        return null;
+    }
+
+    public JSONObject getWxPhone(String token, String code) {
+        String url = "https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=" + token;
+        StringBuilder jsonString = new StringBuilder();
+        jsonString.append("{code:'").append(code).append("'}");
+        JSONObject jop = new JSONObject(jsonString.toString());
+        CloseableHttpResponse response = post(url, initStringEntity(jop.toString()));
+        if (response != null) {
+            try {
+                HttpEntity entity = response.getEntity();
+                JSONObject jo = new JSONObject(EntityUtils.toString(entity, "UTF-8"));
+                if (jo.getInt("errcode")==0) {
                     return jo;
                 } else {
                     log4j.error(jo.get("errmsg").toString());

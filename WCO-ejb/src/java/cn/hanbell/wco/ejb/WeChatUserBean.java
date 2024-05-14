@@ -39,6 +39,7 @@ public class WeChatUserBean extends SuperBean<WeChatUser> {
             Object o = query.getSingleResult();
             return (WeChatUser) o;
         } catch (Exception ex) {
+            ex.printStackTrace();
             return null;
         }
     }

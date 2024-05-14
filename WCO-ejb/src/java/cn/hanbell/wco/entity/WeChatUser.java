@@ -90,6 +90,8 @@ public class WeChatUser extends SuperEntity {
     @Size(max = 45)
     @Column(name = "remark")
     private String remark;
+    @Column(name = "profile")
+    private String profile;
 
     public WeChatUser() {
         this.authorized = false;
@@ -361,6 +363,15 @@ public class WeChatUser extends SuperEntity {
     public void setRemark(String remark) {
         this.remark = remark;
     }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+    
 
     @Override
     public int hashCode() {

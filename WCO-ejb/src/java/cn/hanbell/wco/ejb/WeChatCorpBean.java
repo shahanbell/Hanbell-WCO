@@ -402,6 +402,10 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 jsonString.append("{'touser':'").append(userid).append("','msgtype':'wxcard','wxcard':{'card_id':'")
                         .append(data).append("'}}");
                 break;
+            case "markdown":
+                jsonString.append("{'touser':'").append(userid).append("','msgtype':'markdown','agentid':")
+                        .append(this.agentId).append(",'markdown':{'content':'").append(data).append("'},'safe':0}");
+                break;
             case "taskcard":
                 // 截取data中的数据查看taskid的前缀,判断发送的是哪个回执
                 String taskid = data.substring(data.indexOf("'task_id':'") + 11, data.indexOf("'task_id':'") + 15);
@@ -445,7 +449,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                         jsonString.append(",'duplicate_check_interval':").append(1800);
                         jsonString.append("}");
                         break;
-                    default :
+                    default:
                         jsonString.append("{'touser':'").append(userid);
                         jsonString.append("','toparty':'");
                         jsonString.append("','totag':'").append("");
@@ -515,7 +519,7 @@ public abstract class WeChatCorpBean extends WeChatUtil {
                 HttpEntity httpEntity = response.getEntity();
                 try {
                     JSONObject resObject = new JSONObject(EntityUtils.toString(httpEntity, WeChatUtil.CHARSET));
-                    return resObject.getString("errmsg")+"|"+resObject.getString("msgid");
+                    return resObject.getString("errmsg") + "|" + resObject.getString("msgid");
                 } catch (IOException | ParseException | JSONException ex) {
                     log4j.error(ex);
                 } finally {
@@ -684,11 +688,11 @@ public abstract class WeChatCorpBean extends WeChatUtil {
     }
 
     /**
-     * 
+     *
      * @param userid
-     * @return 
+     * @return
      */
-      public JSONObject getQyWeChatUser(String userid) {
+    public JSONObject getQyWeChatUser(String userid) {
         WeChatToken t = this.getWeChatToken("org");
         if (t == null) {
             return null;

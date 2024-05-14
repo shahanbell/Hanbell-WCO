@@ -19,6 +19,8 @@ public class MiniProgramSession {
     private String employeeName;
     private String defaultDeptId;
     private String defaultDeptName;
+    private String profile;
+     private String post;
 
     public MiniProgramSession() {
 
@@ -134,6 +136,22 @@ public class MiniProgramSession {
      */
     public void setDefaultDeptName(String defaultDeptName) {
         this.defaultDeptName = defaultDeptName;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+
+    public String getPost() {
+        return post;
+    }
+
+    public void setPost(String post) {
+        this.post = post;
     }
 
 }
