@@ -27,7 +27,6 @@ import javax.json.JsonObject;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 import tw.hanbell.exch.ejb.BPMEmployeeBean;
-import tw.hanbell.exch.entity.BPMEmployee;
 
 /**
  *
@@ -406,21 +405,7 @@ public class OrganizationManagedBean extends SuperSingleBean<Department> {
                 }
             }
         }
-        //台湾沈里达课长更新企业微信。台湾部门兼职推送上去。
-        BPMEmployee entity = bPMEmployeeBean.findByUserid(user.getUserid());
-        if (entity != null && d.before(entity.getLastModifiedDate())) {
-            JsonObject obj = bPMEmployeeBean.createThbJsonObjectBuilder(user.getDept().getId(), entity).build();
-            msg = wechatCorpBean.updateEmployee(obj);
-            if (msg.equals("success")) {
-                user.setSyncWeChatDate(new Date());
-                systemUserBean.update(user);
 
-                entity.setLastModifiedDate(new Date());
-                bPMEmployeeBean.update(entity);
-            } else {
-                //wechatCorpBean.sendMsgToUser(errMsgUser, "text", user.getUserid() + "更新失败");
-            }
-        }
         return ret;
     }
 
