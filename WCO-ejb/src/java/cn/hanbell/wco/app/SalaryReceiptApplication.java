@@ -34,6 +34,11 @@ public class SalaryReceiptApplication {
         this.salaryDate = salaryDate;
     }
 
+    @Override
+    public String toString() {
+        return "SalaryReceiptApplication{" + "userId=" + userId + ", salaryDate=" + salaryDate + '}';
+    }
+
 
     
 }

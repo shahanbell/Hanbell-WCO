@@ -9,6 +9,8 @@ import cn.hanbell.eap.ejb.AttendanceBean;
 import cn.hanbell.eap.entity.Attendance;
 import cn.hanbell.wco.ejb.Agent1000002Bean;
 import cn.hanbell.wco.ejb.ConfigPropertiesBean;
+import cn.hanbell.wco.ejb.WechatMessageBean;
+import cn.hanbell.wco.entity.WechatMessage;
 import cn.hanbell.wco.lazy.AttendanceModel;
 import cn.hanbell.wco.web.SuperQueryBean;
 import com.lightshell.comm.BaseLib;
@@ -23,7 +25,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -42,6 +43,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
 
     @EJB
     private Agent1000002Bean agent1000002Bean;
+
     private String facno;
     private String employeeName;
     private String employeeId;
@@ -81,6 +83,9 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
         }
         this.importDate = new Date();
         this.isOverride = "N";
+        this.model.getFilterFields().put("facno", facno);
+        this.date = new Date();
+        this.model.getFilterFields().put("attendanceDate", BaseLib.formatDate("YYYYMM", date));
         super.init();
     }
 
@@ -157,7 +162,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                         if (list != null && !list.isEmpty() && "V".equals(list.get(0).getStatus()) && "N".equals(this.isOverride)) {
                             continue; // 已经推送了消息，前端页面不覆盖的话跳过更新数据库。
                         }
-                        if (list != null) {
+                        if (list != null && !list.isEmpty() ) {
                             attendanceBean.delete(list);
                             attendanceBean.persist(attendance);
                         } else {
@@ -180,10 +185,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     @Override
     public void reset() {
         init();
-        this.setSuperEJB(this.attendanceBean);
-        this.model = new AttendanceModel(this.attendanceBean);
         employeeId = "";
-        date = null;
         super.reset();
     }
 
@@ -228,7 +230,6 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
     //发送消息
     public void send() {
         try {
-            Thread.sleep(2000);
             entityList = attendanceBean.findByFilters(this.model.getFilterFields(), this.model.getSortFields());
             for (Attendance a : entityList) {
                 if ("X".equals(a.getStatus())) {
@@ -237,12 +238,11 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                     msg.append("您的").append(a.getAttendanceDate()).append("考勤记录已生成，<br>");
                     msg.append("<a href=\"");
                     StringBuffer url = new StringBuffer(configPropertiesBean.findByKey("cn.hanbell.wco.control.AttendanceManagedBean.attendanceUrl").getConfigvalue());
-
                     url.append(a.getEmployeeId()).append("&attendanceDate=").append(a.getAttendanceDate()).append("&checkcode=").append(a.getCheckcode());
                     msg.append(url).append("\">请点击此处").append("</a>   ");
                     msg.append("查看");
+                    agent1000002Bean.setCurrentUserid(this.userManagedBean.getUserid());
                     String errmsg = agent1000002Bean.sendMsgToUser(a.getEmployeeId(), "text", msg.toString());
-                   // String errmsg = "ok";
                     if (errmsg.startsWith("ok")) {
                         a.setStatus("V");
                         a.setOptuser(this.userManagedBean.getUserid());
@@ -252,7 +252,7 @@ public class AttendanceManagedBean extends SuperQueryBean<Attendance> {
                 }
             }
             this.showInfoMsg("Info", "发送成功");
-        } catch (InterruptedException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(AttendanceManagedBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
