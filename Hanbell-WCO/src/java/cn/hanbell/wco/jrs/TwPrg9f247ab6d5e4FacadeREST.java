@@ -170,6 +170,7 @@ public class TwPrg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
             Map<String, Object> filter = new HashMap<String, Object>();
             filter.put("status", "N");
             filter.put("phone", phone.getJSONObject("phone_info").getString("phoneNumber"));
+            filter.put("syncWeChatStatus", "V");
             List<SystemUser> users = this.systemUserBean.findByFilters(filter);
             if (users.size() == 1) {
                 entity.setEmployeeId(users.get(0).getUserid());
@@ -187,7 +188,14 @@ public class TwPrg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
                 session.setDeptno(users.get(0).getDeptno());
                 session.setDeptName(users.get(0).getDept().getDept());
                 session.setCompany(users.get(0).getDept().getCompany());
-                session.setCompanyName(companyBean.findByCompany(session.getCompany()).getName());
+                System.out.println("公司别:" + session.getCompany());
+                System.out.println("部门别:" + users.get(0).getDeptno());
+                System.out.println("人员ID:" + entity.getEmployeeId());
+                if (companyBean.findByCompany(session.getCompany()) == null) {
+                    session.setCompanyName("台湾汉钟");
+                } else {
+                    session.setCompanyName(companyBean.findByCompany(session.getCompany()).getName());
+                }
                 session.setProfile(entity.getProfile());
                 return session;
             }
@@ -198,7 +206,6 @@ public class TwPrg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
         }
     }
 
-    
     @PUT
     @Path("wechatuser/logout/{openId}")
     @Consumes({"application/json"})
@@ -219,7 +226,7 @@ public class TwPrg9f247ab6d5e4FacadeREST extends WeChatOpenFacade<WeChatUser> {
             return new ResponseMessage("500", "系统异常");
         }
     }
-    
+
 //    @PUT
 //    @Path("wechatuser/{openid}")
 //    @Consumes({"application/json"})
